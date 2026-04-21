@@ -141,7 +141,12 @@ export default async function ServicePage({ params }: { params: Params }) {
         </div>
       </section>
 
-      {B2B_SLUGS.has(svc.slug) && <PartnerMarquee />}
+      {B2B_SLUGS.has(svc.slug) && (
+        <>
+          <div className="hidden md:block"><PartnerMarquee /></div>
+          <div className="md:hidden"><PartnerMarquee compact /></div>
+        </>
+      )}
 
       <CityMarquee variant="light" />
 

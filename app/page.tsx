@@ -201,13 +201,16 @@ export default function Home() {
         </div>
       </section>
 
-      {/* STATISK LOGO-RÆKKE — second mention af "har bygget for" */}
-      <section className="border-t border-[color:var(--color-line)]">
+      {/* LOGO-RÆKKE — second mention af "har bygget for" */}
+      <section className="border-t border-[color:var(--color-line)] hidden md:block">
         <div className="mx-auto max-w-7xl px-6 md:px-10 py-8 md:py-10">
           <div className="font-mono text-[11px] uppercase tracking-wider text-[color:var(--color-muted)] mb-5">↳ Har bygget for</div>
           <PartnerRow />
         </div>
       </section>
+      <div className="md:hidden">
+        <PartnerMarquee compact />
+      </div>
 
       {/* FØR / EFTER (one signature interactive moment) */}
       <section className="py-24 md:py-36 border-t border-[color:var(--color-line)] bg-[color:var(--color-surface)]">

@@ -6,6 +6,7 @@ import { ContactCta } from "../_components/ContactCta";
 import { Reveal } from "../_components/Reveal";
 import { SectionHeader } from "../_components/SectionHeader";
 import { PartnerRow } from "../_components/PartnerRow";
+import { PartnerMarquee } from "../_components/PartnerMarquee";
 import { SITE } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -124,12 +125,15 @@ export default function AboutPage() {
       </section>
 
       {/* PARTNER LOGOS */}
-      <section className="border-t border-[color:var(--color-line)]">
+      <section className="border-t border-[color:var(--color-line)] hidden md:block">
         <div className="mx-auto max-w-7xl px-6 md:px-10 py-10 md:py-14">
           <div className="font-mono text-[11px] uppercase tracking-wider text-[color:var(--color-muted)] mb-5">↳ Har bygget for</div>
           <PartnerRow />
         </div>
       </section>
+      <div className="md:hidden">
+        <PartnerMarquee compact />
+      </div>
 
       {/* GALLERI */}
       <section className="py-20 md:py-28 border-t border-[color:var(--color-line)] bg-[color:var(--color-surface)]">
