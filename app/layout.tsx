@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import Link from "next/link";
 import Image from "next/image";
+import { Analytics as VercelAnalytics } from "@vercel/analytics/next";
 import { Nav } from "./_components/Nav";
 import { MobileBottomBar } from "./_components/MobileBottomBar";
 import { Analytics } from "./_components/Analytics";
@@ -194,6 +195,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <MobileBottomBar />
         <CookieBanner />
         <Analytics />
+        <VercelAnalytics />
       </body>
     </html>
   );
