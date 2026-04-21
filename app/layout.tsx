@@ -82,7 +82,8 @@ export const metadata: Metadata = {
   alternates: { canonical: SITE.url },
   icons: {
     icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
-    apple: [{ url: "/apple-icon.svg", sizes: "180x180", type: "image/svg+xml" }],
+    apple: [{ url: "/icon.svg", type: "image/svg+xml" }],
+    shortcut: ["/icon.svg"],
   },
   appleWebApp: {
     title: SITE.name,
