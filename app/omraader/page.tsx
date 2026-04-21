@@ -26,15 +26,14 @@ export default function AreasPage() {
     <>
       <Breadcrumbs items={[{ name: "Forside", href: "/" }, { name: "Områder" }]} />
 
-      <section className="pt-10 pb-16 md:pt-16 md:pb-24 border-b border-[color:var(--color-line)]">
-        <div className="mx-auto max-w-7xl px-6 md:px-10 grid md:grid-cols-12 gap-10 md:gap-16 items-end">
-          <div className="md:col-span-7">
-            <div className="eyebrow-accent mb-6">{AREAS.length} BYER · NORDSJÆLLAND + STORKØBENHAVN</div>
-            <h1 className="display-lg">
-              Hele <span style={{ color: "var(--color-blue)" }}>Nordsjælland</span><br />er hjemmebane.
-            </h1>
-          </div>
-          <p className="md:col-span-5 text-lg text-[color:var(--color-ink-soft)] leading-relaxed">
+      <section className="pt-10 pb-14 md:pt-16 md:pb-24 border-b border-[color:var(--color-line)]">
+        <div className="mx-auto max-w-7xl px-6 md:px-10">
+          <div className="eyebrow-accent mb-6">{AREAS.length} BYER · NORDSJÆLLAND + STORKØBENHAVN</div>
+          <h1 className="display-xl">
+            <span className="block whitespace-nowrap">Hele <span style={{ color: "var(--color-blue)" }}>Nordsjælland</span></span>
+            <span className="block whitespace-nowrap">er hjemmebane.</span>
+          </h1>
+          <p className="mt-10 md:mt-14 max-w-xl text-lg md:text-xl text-[color:var(--color-ink-soft)] leading-relaxed">
             Holstrup TS er baseret i Frederikssund og dækker hele Nordsjælland — fra Hillerød i øst til Ølstykke, Stenløse og Jyllinge lokalt, og langs hele Kattegat-kysten. Større entreprise- og rådgivningsopgaver tager vi også i Roskilde, Storkøbenhavn og det øvrige Sjælland.
           </p>
         </div>
