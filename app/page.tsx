@@ -42,7 +42,7 @@ export default function Home() {
       {/* HERO */}
       <section className="border-b border-[color:var(--color-line)]">
         <div className="mx-auto max-w-7xl px-6 md:px-10 pt-16 md:pt-24 pb-16 md:pb-24">
-          <div className="grid md:grid-cols-12 gap-10 md:gap-16 lg:gap-24 xl:gap-32 items-end">
+          <div className="grid md:grid-cols-12 gap-10 md:gap-16 items-end">
             <div className="md:col-span-8">
               <Reveal>
                 <div className="eyebrow-accent mb-6">EST. 1992 · CVR 16056839</div>

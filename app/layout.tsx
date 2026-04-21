@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Nav } from "./_components/Nav";
 import { MobileBottomBar } from "./_components/MobileBottomBar";
 import { Analytics } from "./_components/Analytics";
+import { CookieBanner } from "./_components/CookieBanner";
 import { LocalBusinessJsonLd, PersonJsonLd } from "./_components/JsonLd";
 import { CityMarquee } from "./_components/CityMarquee";
 import { SITE } from "@/lib/site";
@@ -167,6 +168,7 @@ function Footer() {
             <li><Link href="/blog" className="hover:text-[color:var(--color-accent)]">Viden</Link></li>
             <li><Link href="/omraader" className="hover:text-[color:var(--color-accent)]">Områder</Link></li>
             <li><Link href="/kontakt" className="hover:text-[color:var(--color-accent)]">Kontakt</Link></li>
+            <li className="pt-1"><Link href="/cookies" className="text-white/55 hover:text-[color:var(--color-accent)]">Cookies</Link></li>
           </ul>
         </div>
       </div>
@@ -190,6 +192,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <main className="flex-1">{children}</main>
         <Footer />
         <MobileBottomBar />
+        <CookieBanner />
         <Analytics />
       </body>
     </html>
