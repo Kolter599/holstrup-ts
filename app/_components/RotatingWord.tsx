@@ -2,14 +2,14 @@
 
 import { useEffect, useState } from "react";
 
-const WORDS = ["tage", "terrasser", "tilbygninger", "sommerhuse", "renoveringer", "entrepriser", "rådgivning"];
+const WORDS = ["tage", "rådgivning", "terrasser", "tilbygninger", "sommerhuse", "renoveringer", "entrepriser"];
 
 export function RotatingWord() {
   const [i, setI] = useState(0);
   const [animating, setAnimating] = useState(false);
 
   useEffect(() => {
-    // Delay first rotation past LCP measurement window
+    // Brief delay so first paint is stable, then start rotation
     const startDelay = setTimeout(() => {
       const id = setInterval(() => {
         setAnimating(true);
@@ -17,10 +17,9 @@ export function RotatingWord() {
           setI((v) => (v + 1) % WORDS.length);
           setAnimating(false);
         }, 220);
-      }, 2200);
-      // Stash on window so cleanup can clear it
+      }, 1800);
       (window as unknown as { __rotIv?: number }).__rotIv = id as unknown as number;
-    }, 3500);
+    }, 1200);
     return () => {
       clearTimeout(startDelay);
       const iv = (window as unknown as { __rotIv?: number }).__rotIv;
