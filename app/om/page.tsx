@@ -28,22 +28,23 @@ export default function AboutPage() {
       <Breadcrumbs items={[{ name: "Forside", href: "/" }, { name: "Om Holstrup" }]} />
 
       {/* HERO */}
-      <section className="pt-10 pb-16 md:pt-16 md:pb-24 border-b border-[color:var(--color-line)]">
-        <div className="mx-auto max-w-7xl px-6 md:px-10 grid md:grid-cols-12 gap-10 md:gap-16 items-end">
-          <div className="md:col-span-8">
-            <div className="eyebrow-accent mb-6">EST. 1992 · CVR 16056839 · FREDERIKSSUND</div>
-            <h1 className="display-xl">
-              30+ år på byggepladser i <span style={{ color: "var(--color-blue)" }}>Nordsjælland</span>.
-            </h1>
-            <p className="mt-8 text-lg md:text-xl text-[color:var(--color-ink-soft)] max-w-xl leading-relaxed">
+      <section className="pt-10 pb-14 md:pt-16 md:pb-24 border-b border-[color:var(--color-line)]">
+        <div className="mx-auto max-w-7xl px-6 md:px-10">
+          <div className="eyebrow-accent mb-6">EST. 1992 · CVR 16056839 · FREDERIKSSUND</div>
+          <h1 className="display-xl">
+            <span className="block whitespace-nowrap">30+ år på byggepladser</span>
+            <span className="block whitespace-nowrap">i <span style={{ color: "var(--color-blue)" }}>Nordsjælland</span>.</span>
+          </h1>
+          <div className="mt-10 md:mt-14 grid md:grid-cols-12 gap-10 md:gap-16 items-end">
+            <p className="md:col-span-7 text-lg md:text-xl text-[color:var(--color-ink-soft)] leading-relaxed">
               Holstrup TS er et lokalt tømrerfirma drevet af Finn Holm Pedersen — fortsat på pladsen hver dag, og med 30+ års erfaring fra byggepladser i Nordsjælland og hovedstaden.
             </p>
-          </div>
-          <div className="md:col-span-4 grid grid-cols-2 gap-4">
-            <Stat label="År i faget" value="30+" />
-            <Stat label="Grundlagt" value="1992" />
-            <Stat label="Område" value="Nordsjl." />
-            <Stat label="Holdning" value="Ét ord" />
+            <div className="md:col-span-5 grid grid-cols-2 gap-4">
+              <Stat label="År i faget" value="30+" />
+              <Stat label="Grundlagt" value="1992" />
+              <Stat label="Område" value="Nordsjl." />
+              <Stat label="Holdning" value="Ét ord" />
+            </div>
           </div>
         </div>
       </section>
