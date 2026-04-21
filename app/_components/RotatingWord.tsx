@@ -9,14 +9,23 @@ export function RotatingWord() {
   const [animating, setAnimating] = useState(false);
 
   useEffect(() => {
-    const id = setInterval(() => {
-      setAnimating(true);
-      setTimeout(() => {
-        setI((v) => (v + 1) % WORDS.length);
-        setAnimating(false);
-      }, 220);
-    }, 2200);
-    return () => clearInterval(id);
+    // Delay first rotation past LCP measurement window
+    const startDelay = setTimeout(() => {
+      const id = setInterval(() => {
+        setAnimating(true);
+        setTimeout(() => {
+          setI((v) => (v + 1) % WORDS.length);
+          setAnimating(false);
+        }, 220);
+      }, 2200);
+      // Stash on window so cleanup can clear it
+      (window as unknown as { __rotIv?: number }).__rotIv = id as unknown as number;
+    }, 3500);
+    return () => {
+      clearTimeout(startDelay);
+      const iv = (window as unknown as { __rotIv?: number }).__rotIv;
+      if (iv) clearInterval(iv);
+    };
   }, []);
 
   return (

@@ -26,7 +26,12 @@
     "typescript": "^5"
   },
   "browserslist": [
-    ">0.3% and supports es6-module",
+    "Chrome >= 100",
+    "Edge >= 100",
+    "Firefox >= 100",
+    "Safari >= 15",
+    "iOS >= 15",
+    "Android >= 100",
     "not dead",
     "not op_mini all"
   ]

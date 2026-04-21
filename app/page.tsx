@@ -49,9 +49,9 @@ export default function Home() {
               </Reveal>
               <Reveal delay={60}>
                 <h1 className="display-xl">
-                  <span className="block">Vi udfører</span>
-                  <span className="block"><RotatingWord /></span>
-                  <span className="block">i Nordsjælland.</span>
+                  <span className="block whitespace-nowrap">Vi udfører</span>
+                  <span className="block whitespace-nowrap"><RotatingWord /></span>
+                  <span className="block whitespace-nowrap">i Nordsjælland.</span>
                 </h1>
               </Reveal>
               <Reveal delay={140}>
@@ -75,6 +75,7 @@ export default function Home() {
                     alt="Holstrup TS — Velux-montage"
                     fill
                     priority
+                    fetchPriority="high"
                     sizes="(min-width:768px) 33vw, 100vw"
                     className="object-cover"
                   />
