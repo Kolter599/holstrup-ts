@@ -50,7 +50,7 @@ export default function CookiesPage() {
 
           <h2>Sådan siger du nej</h2>
           <p>
-            Vil du ikke have cookies sat, så luk banneret væk uden at klikke OK, eller bloker cookies fra <code>holstrup-ts.dk</code> i din browser. Du kan også slette de cookies der allerede er sat — det gøres typisk under Indstillinger → Privatliv i din browser.
+            Klik på <strong>Kun nødvendige</strong> i cookie-banneret når du første gang besøger sitet — så loader vi ikke Google Analytics overhovedet. Du kan også blokere cookies fra <code>holstrup-ts.dk</code> direkte i din browser, eller slette dem der allerede er sat under Indstillinger → Privatliv.
           </p>
 
           <h2>Hvis du har spørgsmål</h2>
