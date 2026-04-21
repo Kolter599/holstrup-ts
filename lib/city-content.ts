@@ -33,58 +33,58 @@ const CORE_PITCH_OPENERS = [
   (n: string) => `Holstrup TS har en stor del af sine kunder netop i området omkring ${n}. Det er den slags genkøb og anbefalinger vi lever af.`,
 ];
 
-const SECOND_HEADINGS = [
-  "Det vi typisk bliver kaldt ud til",
-  "Klassiske opgaver i området",
-  "Hvad vi laver mest her",
-  "De opgaver der går igen",
+const SECOND_HEADINGS = (n: string) => [
+  `Tømreropgaver vi typisk løser i ${n}`,
+  `Klassiske tømrer- og entrepriseopgaver i ${n}`,
+  `Hvad vi laver mest af i ${n}`,
+  `De opgaver der går igen i ${n}`,
 ];
 
-const PROCESS_HEADINGS = [
-  "Sådan kommer vi i gang",
-  "Fra første samtale til afleveringen",
-  "Vores proces — uden mystik",
-  "Tre skridt fra besigtigelse til opgave",
+const PROCESS_HEADINGS = (n: string) => [
+  `Sådan kommer vi i gang i ${n}`,
+  `Fra første samtale til aflevering i ${n}`,
+  `Vores proces når du ringer fra ${n}`,
+  `Tre skridt fra besigtigelse til opgave i ${n}`,
 ];
 
-const ADVISORY_HEADINGS = [
-  "Også når du blot mangler en uvildig fagmand",
-  "Rådgivning når du ikke selv vil hyre håndværkerne",
-  "Når du har brug for en second opinion",
+const ADVISORY_HEADINGS = (n: string) => [
+  `Byggerådgivning til bygherrer i ${n}`,
+  `Uvildig rådgivning til boligejere i ${n}`,
+  `Second opinion eller 1-års eftersyn i ${n}`,
 ];
 
 export function buildCityContent(area: Area): CityContent {
   const isCoast = area.tier === "coast";
   const pitchFn = pickByHash(area.slug, isCoast ? COAST_PITCH_OPENERS : CORE_PITCH_OPENERS);
   const pitch = pitchFn(area.name);
-  const secondHeading = pickByHash(area.slug, SECOND_HEADINGS);
-  const processHeading = pickByHash(area.slug + "p", PROCESS_HEADINGS);
-  const advisoryHeading = pickByHash(area.slug + "a", ADVISORY_HEADINGS);
+  const secondHeading = pickByHash(area.slug, SECOND_HEADINGS(area.name));
+  const processHeading = pickByHash(area.slug + "p", PROCESS_HEADINGS(area.name));
+  const advisoryHeading = pickByHash(area.slug + "a", ADVISORY_HEADINGS(area.name));
 
   const sections = [
     {
-      heading: `Lokal forankring i ${area.name}`,
+      heading: `Lokal tømrer i ${area.name}`,
       body: area.localFlavor
-        ? area.localFlavor
+        ? `${area.localFlavor} Som tømrer i ${area.name} har vi løst både små og store opgaver i området, og vi tilpasser altid løsninger til den lokale byggestil og de typiske husstørrelser.`
         : isCoast
-          ? `${area.name} stiller særlige krav til byggeri: salt, sand, vind og temperaturskift. Materialevalg og detaljer skal være i orden — ellers holder arbejdet ikke. Vi kender området fra mange års konkrete opgaver.`
-          : `Vi kører til ${area.name} stort set ugentligt. Mindre end 30 minutter væk, og vi kender de fleste villakvarterer indefra.`,
+          ? `${area.name} stiller særlige krav til byggeri: salt, sand, vind og temperaturskift. Materialevalg og detaljer skal være i orden — ellers holder arbejdet ikke. Vi har bygget og renoveret som tømrer i ${area.name} i mange år, og kender lokalområdet indgående.`
+          : `Vi kører til ${area.name} stort set ugentligt og kender området indefra. Som tømrer i ${area.name} har vi løst alt fra mindre snedkeropgaver til hele entrepriser for både private bygherrer, ejerforeninger og større entreprenører.`,
     },
     {
       heading: secondHeading,
       body: isCoast
-        ? `Sommerhusrenovering, nye terrasser i hårdtræ, tagudskiftning på helårsboliger, Velux-ovenlys, tilbygninger og byggerådgivning til ejere der ikke selv vil være projektleder. Vi bringer altid eget netværk af lokale murere, VVS'ere og malere ind når opgaven er bredere end ren tømrer.`
-        : `Tagrenovering, tilbygning, indretning af tagetage, gipsvægge til nye rumopdelinger, udskiftning af vinduer og døre, ny terrasse — og hovedentrepriser når en villa eller lejlighed skal renoveres fra grunden af. Vi kan også styre hele projektet som totalentreprenør, så du kun har én kontaktperson gennem hele forløbet.`,
+        ? `I ${area.name} bliver vi typisk kaldt ud til sommerhusrenovering, nye træterrasser i hårdtræ, tagudskiftning på helårsboliger, Velux-ovenlys, tilbygninger og byggerådgivning. Vi bringer altid eget netværk af lokale murere, VVS'ere og malere ind når opgaven kræver flere fag end ren tømrer.`
+        : `I ${area.name} laver vi mest tagrenovering, tilbygninger, indretning af tagetage, gipsvægge til nye rumopdelinger, udskiftning af vinduer og døre, og nye træterrasser. På større opgaver tager vi gerne hovedentreprisen eller totalentreprisen, så du kun har én kontaktperson gennem hele forløbet.`,
     },
     {
       heading: processHeading,
-      body: `Du ringer eller skriver. Inden for et døgn ringer vi tilbage og aftaler en gratis besigtigelse i ${area.name}. Vi kommer ud, ser opgaven, taler løsninger igennem, og vender tilbage med skriftligt tilbud — fast pris, klar tidsplan, alle materialer specificeret. Hvis du siger ja, planlægger vi opstart sammen. En erfaren tømrer er enten selv på pladsen eller tæt på hele vejen, og vi afleverer formelt med mangelgennemgang.`,
+      body: `Du ringer eller skriver. Inden for et døgn ringer vi tilbage og aftaler en gratis besigtigelse i ${area.name}. Vi kommer ud, ser opgaven, taler løsninger igennem, og vender tilbage med skriftligt tilbud — fast pris, klar tidsplan, alle materialer specificeret. Når du siger ja, planlægger vi opstart sammen. En erfaren tømrer er enten selv på pladsen i ${area.name} eller tæt på hele vejen, og vi afleverer formelt med mangelgennemgang.`,
     },
     {
       heading: advisoryHeading,
       body: area.buildingStyle
-        ? `Mange opgaver i ${area.name} kommer fra ejere af ${area.buildingStyle.toLowerCase()}. Hvis du ikke selv ønsker at hyre håndværkere men har brug for en uvildig fagmand til at gennemgå tilbud, byggeri eller 1-års eftersyn, så ring til os. 30+ års praktisk erfaring fra rigtige byggepladser ser ting som ingeniør-rådgivere overser.`
-        : `Hvis du ikke selv ønsker at hyre håndværkere men har brug for en uvildig fagmand til at gennemgå tilbud, byggeri eller 1-års eftersyn i ${area.name}, så ring. 30+ års praktisk erfaring fra rigtige byggepladser ser ting som ingeniør-rådgivere overser.`,
+        ? `Mange byggerådgivnings-opgaver i ${area.name} kommer fra ejere af ${area.buildingStyle.toLowerCase()}. Hvis du ikke selv ønsker at hyre håndværkere men har brug for en uvildig fagmand til at gennemgå tilbud, byggeri eller 1-års eftersyn i ${area.name}, så ring til Holstrup TS. 30+ års praktisk byggeerfaring ser detaljer som teoretiske byggesagkyndige overser.`
+        : `Hvis du ikke selv ønsker at hyre håndværkere men har brug for en uvildig fagmand til byggerådgivning, tilbudsgennemgang eller 1-års eftersyn i ${area.name}, så ring. 30+ års praktisk byggeerfaring ser detaljer som teoretiske byggesagkyndige overser — særligt ved tag, undertag, ventilation og fugtproblemer.`,
     },
   ];
 
