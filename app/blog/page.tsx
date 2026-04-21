@@ -27,17 +27,16 @@ export default function BlogIndex() {
       <Breadcrumbs items={[{ name: "Forside", href: "/" }, { name: "Viden" }]} />
 
       {/* HERO */}
-      <section className="pt-10 pb-12 md:pt-16 md:pb-20 border-b border-[color:var(--color-line)]">
+      <section className="pt-10 pb-14 md:pt-16 md:pb-24 border-b border-[color:var(--color-line)]">
         <div className="mx-auto max-w-7xl px-6 md:px-10">
           <div className="eyebrow-accent mb-6">VIDEN · GUIDES · PRISER</div>
-          <div className="grid md:grid-cols-12 gap-8 md:gap-16 items-end">
-            <h1 className="md:col-span-8 display-lg">
-              Ærlig <span style={{ color: "var(--color-blue)" }}>byggerådgivning</span>.
-            </h1>
-            <p className="md:col-span-4 text-lg text-[color:var(--color-ink-soft)] leading-relaxed">
-              Priser, faldgruber og praktisk byggerådgivning — fra en tømrer med 30+ års erfaring. Skrevet for boligejere der gerne vil træffe gode beslutninger.
-            </p>
-          </div>
+          <h1 className="display-xl">
+            <span className="block whitespace-nowrap">Ærlig</span>
+            <span className="block whitespace-nowrap" style={{ color: "var(--color-blue)" }}>byggerådgivning.</span>
+          </h1>
+          <p className="mt-10 md:mt-14 max-w-xl text-lg md:text-xl text-[color:var(--color-ink-soft)] leading-relaxed">
+            Priser, faldgruber og praktisk byggerådgivning — fra en tømrer med 30+ års erfaring. Skrevet for boligejere der gerne vil træffe gode beslutninger.
+          </p>
         </div>
       </section>
 
