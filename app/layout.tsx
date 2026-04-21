@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import Link from "next/link";
 import Image from "next/image";
@@ -38,6 +38,24 @@ export const metadata: Metadata = {
   },
   description:
     "Tømrer- og snedkerfirma i Frederikssund med 30+ års erfaring. Tag, tilbygning, renovering og hovedentrepriser i Nordsjælland. Ring til Finn på 40 17 38 93.",
+  applicationName: SITE.name,
+  authors: [{ name: SITE.owner }],
+  generator: "Next.js",
+  keywords: [
+    "tømrer Nordsjælland",
+    "tømrer Frederikssund",
+    "tømrer Hillerød",
+    "totalentreprise Nordsjælland",
+    "hovedentreprise privat",
+    "tagrenovering Frederikssund",
+    "byggerådgivning",
+    "sommerhus tømrer Nordsjælland",
+    "tømrer Allerød",
+    "tømrer Birkerød",
+    "Holstrup TS",
+  ],
+  category: "Construction",
+  formatDetection: { email: true, address: true, telephone: true },
   openGraph: {
     type: "website",
     locale: "da_DK",
@@ -46,13 +64,55 @@ export const metadata: Metadata = {
     title: "Holstrup TS — Tømrer & byggerådgiver i Nordsjælland",
     description:
       "30+ års erfaring med tømrer- og entrepriseopgaver. Frederikssund, Hillerød og resten af Nordsjælland.",
-    images: [{ url: "/images/service-tag.jpg", width: 1200, height: 800 }],
+    images: [
+      {
+        url: "/images/service-tag.jpg",
+        width: 1200,
+        height: 800,
+        alt: "Holstrup TS — tagrenovering i Nordsjælland",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Holstrup TS — Tømrer & byggerådgiver i Nordsjælland",
+    description: "30+ års erfaring med tømrer- og entrepriseopgaver. Frederikssund, Hillerød og resten af Nordsjælland.",
+    images: ["/images/service-tag.jpg"],
   },
   alternates: { canonical: SITE.url },
-  icons: { icon: "/favicon.ico" },
+  icons: {
+    icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
+    apple: [{ url: "/apple-icon.svg", sizes: "180x180", type: "image/svg+xml" }],
+  },
+  appleWebApp: {
+    title: SITE.name,
+    capable: true,
+    statusBarStyle: "default",
+  },
   verification: {
     google: process.env.NEXT_PUBLIC_GOOGLE_VERIFICATION,
   },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-snippet": -1,
+      "max-image-preview": "large",
+      "max-video-preview": -1,
+    },
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#1347a6" },
+  ],
+  colorScheme: "light",
+  width: "device-width",
+  initialScale: 1,
 };
 
 function Footer() {
