@@ -21,17 +21,17 @@ const PROCESS = [
 ];
 
 const TRUST_BULLETS: { heading: string; body: string }[] = [
-  { heading: "30+ års erfaring", body: "Fra hustømrer på landets største byggepladser til totalentreprise på private villaer." },
-  { heading: "Ét fast kontaktpunkt", body: "Holstrup styrer alle fag — murer, VVS, el og maler — gennem hele projektet." },
-  { heading: "Fast pris. Skriftlig aftale.", body: "Grundig besigtigelse før tilbud og aftaleseddel på alle ændringer. Ingen overraskelser." },
+  { heading: "30+ års erfaring", body: "Bygget både som hustømrer på de store byggepladser og som totalentreprenør på private villaer. Vi har set hvad der virker og hvad der ikke holder." },
+  { heading: "Ét fast kontaktpunkt", body: "Vi styrer murer, VVS, el og maler så du kun har ét sted at ringe. Det betyder kortere svartid, færre misforståelser og en jævnere proces." },
+  { heading: "Fast pris. Skriftlig aftale.", body: "Vi besigtiger grundigt, giver tilbud med fast pris, og dokumenterer alle ændringer skriftligt undervejs. Du ved altid præcis hvad næste regning kommer til at lyde på." },
 ];
 
 const HOME_FAQ = [
-  { q: "Hvor hurtigt kan I starte?", a: "Mindre tømreropgaver kan typisk planlægges indenfor 1-3 uger. Større entrepriser og tagudskiftninger kræver længere planlægning. Ring så finder vi en realistisk dato." },
-  { q: "Hvilket område dækker I?", a: "Vi er baseret i Frederikssund og løser opgaver i hele Nordsjælland — fra Hillerød, Allerød og Birkerød til kystbyerne som Hornbæk, Rungsted og Tisvildeleje. Større entreprise- og rådgivningsopgaver tager vi også i Roskilde, Storkøbenhavn og det øvrige Sjælland — vi har gennem 30+ år arbejdet på byggepladser i hovedstaden for nogle af landets største entreprenører." },
-  { q: "Kan I styre hele projektet som totalentreprenør?", a: "Ja. Holstrup TS koordinerer murer, VVS, el og maler, styrer pladsen og står for dialog med bygherre, kommune og rådgivere." },
-  { q: "Laver I rådgivning og tilsyn?", a: "Ja. 30+ års erfaring fra rigtige byggepladser gør os gode til at se fejl, vurdere tilbud og gennemføre 1-års eftersyn." },
-  { q: "Hvordan aflønner I arbejdet?", a: "Typisk fast pris efter besigtigelse. Mindre opgaver kan aftales i timepris med loft. Alle aftaler skrives ned." },
+  { q: "Hvor hurtigt kan I starte?", a: "På mindre opgaver typisk 1-3 uger. På tagudskiftning, tilbygning og hele entrepriser planlægger vi 4-12 uger frem alt efter sæson. Ring til en konkret vurdering — vi er ærlige om vores kalender." },
+  { q: "Hvilket område dækker I?", a: "Vi har base i Frederikssund og dækker hele Nordsjælland — fra Hillerød, Allerød og Birkerød til kystbyerne Hornbæk, Rungsted og Tisvildeleje. Større entreprise- og rådgivningsopgaver tager vi også i Roskilde, Storkøbenhavn og det øvrige Sjælland. Vi har gennem mange år arbejdet på byggepladser i hovedstaden for flere af landets store entreprenører." },
+  { q: "Kan I styre hele projektet som totalentreprenør?", a: "Ja. Vi koordinerer murer, VVS, el og maler, kører byggepladsen, og står for al dialog med bygherre, kommune og rådgivere. Du har én kontaktperson hele vejen." },
+  { q: "Laver I rådgivning og tilsyn?", a: "Ja. Det er en stigende del af vores hverdag. Vi gennemgår tilbud, kører tilsyn under byggeri, og laver formelle 1- og 5-års eftersyn. Praktisk byggeerfaring gør os særligt gode til at se det der ikke fremgår af tegningerne." },
+  { q: "Hvordan aflønner I arbejdet?", a: "Typisk fast pris efter besigtigelse. Mindre opgaver kan aftales på timepris med loft. Alt skrives ned — også eventuelle tillæg undervejs." },
 ];
 
 export default function Home() {
@@ -42,7 +42,7 @@ export default function Home() {
       {/* HERO */}
       <section className="border-b border-[color:var(--color-line)]">
         <div className="mx-auto max-w-7xl px-6 md:px-10 pt-16 md:pt-24 pb-16 md:pb-24">
-          <div className="grid md:grid-cols-12 gap-10 md:gap-16 items-end">
+          <div className="grid md:grid-cols-12 gap-10 md:gap-16 lg:gap-24 xl:gap-32 items-end">
             <div className="md:col-span-8">
               <Reveal>
                 <div className="eyebrow-accent mb-6">EST. 1992 · CVR 16056839</div>

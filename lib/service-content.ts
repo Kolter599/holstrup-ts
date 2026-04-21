@@ -16,24 +16,24 @@ export const SERVICE_CONTENT: Record<string, ServiceContent> = {
     eyebrow: "Tag · Udskiftning · Reparation",
     h1: "Tagrenovering i Nordsjælland",
     intro:
-      "Nyt tag er en af de største investeringer i et hus — og den vigtigste at få rigtigt. Vi udskifter, reparerer og efterisolerer tage i hele Nordsjælland med 30+ års erfaring bag hver beslutning.",
+      "Et tag holder i 40-60 år når det er bygget rigtigt, og 10-15 år kortere når det ikke er. Vi udskifter, reparerer og efterisolerer tage i Nordsjælland med fokus på det færreste ser: undertaget, ventilationen og overgangene.",
     hero: "/images/service-tag.jpg",
     sections: [
       {
-        heading: "Hvornår er det tid til nyt tag?",
-        body: "Et nordsjællandsk tag holder typisk 40-60 år afhængigt af materiale og vedligehold. Revnede tagsten, fugt i loftsrummet, utætte skotrender og dårligt ventilerede undertage er klassiske signaler. Inden vi giver tilbud kommer Holstrup TS personligt ud og gennemgår taget — både udefra, på loftet og langs skotrender. Den vurdering er gratis.",
+        heading: "Sådan ved du at det er tid",
+        body: "Revnede tagsten, fugt på loftet, mosbælter på nordsiden, utætte skotrender, og en faldende tagrygning er de klassiske tegn. Hvis taget er over 50 år gammelt og du oplever bare et par af dem, så er det tid til at få et fagligt blik på taget. Vi kommer ud og gennemgår både ude- og inde-fra. Det er gratis og uden binding.",
       },
       {
-        heading: "Hvad taget reelt består af",
-        body: "De fleste tror tag handler om tagsten. Men de færreste skader kommer fra stenene — de kommer fra undertaget, ventilationen og overgangene mellem tag, kvist, skorsten og vinduer. Når vi renoverer tag, arbejder vi os igennem hele konstruktionen: spær, undertag, ventilation, isolering, undertagets overgange, og så først tagsten og afdækninger.",
+        heading: "Det er ikke stenene der svigter",
+        body: "Når vi bliver kaldt ud til fugt- og rådskader er årsagen næsten aldrig tagstenene. Det er undertaget der er hullet, ventilationen der er stoppet, eller inddækningen ved skorsten og kvist der er forkert. Når vi renoverer, arbejder vi os igennem hele konstruktionen: spær, undertag, ventilation, isolering, overgange — og først til allersidst kommer tagstenene op.",
       },
       {
-        heading: "Materialer vi arbejder med",
-        body: "Vi udfører tag i tegl, beton, skifer, stål og tagpap. Ved udskiftning laver vi altid en saglig anbefaling af materialevalg ud fra husets alder, stil og lokalplanens regler — ikke ud fra hvad vi har på lager. Til kystbyer som Hornbæk og Gilleleje anbefaler vi typisk materialer der tåler salt og vind særligt godt.",
+        heading: "Materialevalg uden lager-bias",
+        body: "Vi anbefaler det der passer huset, ikke det vi tilfældigvis har på lager. Tegl klæder de gamle huse, men sort betontag virker bedre på funkis. Skifer er smukt men kostbart, tagpap kræver eftersyn hvert 5. år. Til kystbyer som Hornbæk, Tisvildeleje og Gilleleje anbefaler vi materialer der har bevist sig over tid mod salt og vind.",
       },
       {
-        heading: "Tag og Velux — den rigtige måde",
-        body: "Ovenlysvinduer er et svagt punkt hvis de sættes forkert i. Vi er specialiserede i Velux-montage med korrekt undertag, tæt tilslutning og indvendig afslutning. Mange af de fugtskader vi bliver kaldt ud til stammer fra forkert monterede ovenlys — lad være med at spare på det.",
+        heading: "Velux er typisk problembarnet",
+        body: "Vi har set rigtig mange forkert monterede Velux-vinduer. Inddækningen er det vigtigste, og den bliver tit lavet for hurtigt. Vi tager den tid der skal til. Korrekt undertag, tæt tilslutning, dampspærre rundt om karmen, og indvendig afslutning der hænger sammen med det eksisterende loft. Det er det der gør forskellen mellem et tag der holder og et der lækker.",
       },
     ],
     bullets: [
@@ -130,20 +130,20 @@ export const SERVICE_CONTENT: Record<string, ServiceContent> = {
     eyebrow: "Totalentreprise · Ét ansvar",
     h1: "Totalentreprise med én fast kontaktperson",
     intro:
-      "Totalentreprise betyder at ét firma tager ansvaret for hele projektet — fra tegning og tilladelser til det færdige resultat. Det er den nemmeste måde at bygge eller renovere på, og den eneste model hvor én person står til ansvar hele vejen.",
+      "Hvis du ikke selv har lyst til at være projektleder for dit byggeri i din fritid, er totalentreprise det enkleste valg. Ét firma står for tegning, tilladelser, alle fag og det færdige resultat. Du har ét telefonnummer at ringe til.",
     hero: "/images/service-totalentreprise.jpg",
     sections: [
       {
-        heading: "Hvad totalentreprise reelt betyder",
-        body: "Du skriver under én gang. Holstrup TS koordinerer alle fag: murer, VVS, el, maler, blikkenslager, gulvmand. Vi står for tidsplanen, bestiller materialer, fører tilsyn og afleverer til tiden. Du har ét telefonnummer — ikke syv.",
+        heading: "Hvad du reelt får",
+        body: "Du underskriver én kontrakt. Holstrup TS koordinerer murer, VVS, el, maler, blikkenslager og gulvmand. Vi laver tidsplanen, bestiller materialer, fører dagligt tilsyn, ringer ikke til dig hver gang en lille ting skal tages stilling til, og afleverer til den dato vi har aftalt. I praksis betyder det at du kan passe dit arbejde mens vi passer dit byggeri.",
       },
       {
-        heading: "Hvornår passer totalentreprise bedst?",
-        body: "Når du vil bygge eller renovere uden at skulle lære bygge-branchen at kende. Når du har et fuldtidsjob og ikke vil være projektleder i din fritid. Når kvaliteten af det færdige resultat betyder mere end sidste øres besparelse.",
+        heading: "Når totalentreprise passer bedst",
+        body: "Du har ikke en fast arkitekt eller bygningsrådgiver i forvejen. Du vil have ro i maven og ét sted at klage hvis noget ikke er som aftalt. Du vægter den samlede oplevelse højere end at klemme den allersidste krone ud af hver fagentreprenør. Og du forstår at en sammenhængende proces næsten altid bliver billigere end en opsplittet — fordi der er færre fejlbestillinger og mindre dødtid.",
       },
       {
-        heading: "Forskellen på total- og hovedentreprise",
-        body: "Ved totalentreprise står entreprenøren også for projektering og tegninger. Ved hovedentreprise har bygherren selv en rådgiver eller arkitekt der tegner — og vi eksekverer. Begge dele løser vi. Spørg hvad der passer dit projekt.",
+        heading: "Total versus hoved versus fag",
+        body: "Ved totalentreprise tager vi også projekteringen. Ved hovedentreprise har du selv arkitekt eller rådgiver, og vi udfører pladsstyringen. Ved ren fagentreprise hyrer du hver fagmand særskilt og er selv projektleder. De fleste private bygherrer har bedst gavn af totalentreprise. Vi kan alle tre — og er ærlige hvis dit projekt passer bedre til en af de andre modeller.",
       },
     ],
     bullets: [
@@ -375,24 +375,24 @@ export const SERVICE_CONTENT: Record<string, ServiceContent> = {
     eyebrow: "Rådgivning · Bygherre · Ekspert",
     h1: "Byggerådgivning fra en tømrer med fingre i træet",
     intro:
-      "De fleste byggesagkyndige er ingeniører eller arkitekter der aldrig har holdt et værktøj. Holstrup TS har 30+ års praktisk erfaring fra rigtige byggepladser — og den slags rådgivning ser og vurderer noget helt andet.",
+      "De fleste byggesagkyndige har læst om byggeri. Vi har bygget. 30+ års erfaring fra rigtige byggepladser ser og vurderer noget helt andet end en ren teoretisk rådgiver — og det viser sig særligt når noget skal vurderes i praksis.",
     hero: "/images/service-raadgivning.jpg",
     sections: [
       {
-        heading: "Hvad byggerådgivningen omfatter",
-        body: "Vi gennemgår dine tilbud fra håndværkere og vurderer om omfang, materialer og priser er fair. Vi ser færdige arbejder efter og identificerer skjulte problemer. Vi rådgiver om projektforløb, kontraktformer og hvordan du bedst sikrer dig som bygherre.",
+        heading: "Hvad rådgivningen kan dække",
+        body: "Vi gennemgår tilbud fra håndværkere og vurderer om omfang, materialer og priser er fair. Vi ser færdigt arbejde efter og identificerer skjulte problemer. Vi sidder med ved kontraktforhandling og hjælper dig stille de rigtige krav. I praksis er det rådgivning du ringer om når der er noget på spil.",
       },
       {
-        heading: "Tilbudsgennemgang",
-        body: "Inden du skriver under på et tilbud på 300.000 kr bør du vide præcist hvad der er med og hvad der er udenfor. Vi gennemgår tilbuddet, sammenligner med markedspris og rådgiver om det er fair — og om der er risici du bør fange inden underskrift.",
+        heading: "Den klassiske: tilbudsgennemgang",
+        body: "Det mest brugte er en gennemgang før du skriver under på et større tilbud. På et tilbud på 300.000 kr bør du vide præcist hvad der er med, hvad der er udenfor, og hvor de typiske skjulte priser ligger. Vi sammenligner med markedspris, peger på huller, og hjælper dig forhandle. Det koster typisk 4-8 timer i samlet honorar — og kan spare dig fem-cifrede beløb.",
       },
       {
-        heading: "1-års og 5-års gennemgang",
-        body: "Ifølge ABT18 og AB18 har bygherren ret til 1- og 5-års eftersyn — og dette er det sted hvor skjulte fejl opdages. Vi laver grundig gennemgang med dokumentation og rapport, så entreprenøren kan gøre sit ansvar op.",
+        heading: "1- og 5-års eftersyn — gør det aldrig selv",
+        body: "AB18 og ABT18 giver dig ret til formelle eftersyn. Det er der mange skjulte fejl bliver fundet, og det er det sted hvor entreprenøren stadig har et ansvar. Vi anbefaler altid at bruge en uvildig fagmand — ikke den entreprenør der selv udførte arbejdet. Vi laver grundig gennemgang og udleverer en skriftlig rapport.",
       },
       {
-        heading: "Projektopfølgning",
-        body: "Under større byggeprojekter kan vi stå for tilsyn og kvalitetssikring på bygherrens vegne. Det er ikke en heldagsrolle — men et par timer om ugen på pladsen fanger fejl før de bliver dyre.",
+        heading: "Tilsyn under byggeriet",
+        body: "På større byggeprojekter kan vi stå for kvalitetssikring og tilsyn på dine vegne. Det er ikke en heldagsrolle — typisk 2-4 timer om ugen på pladsen, hvor vi fanger problemer mens der stadig er tid til at fikse dem. Det betaler sig næsten altid.",
       },
     ],
     bullets: [
