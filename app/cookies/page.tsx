@@ -36,7 +36,6 @@ export default function CookiesPage() {
 
           <h2>Hvad vi <strong>ikke</strong> bruger cookies til</h2>
           <ul>
-            <li>Vi bruger ikke cookies til reklame-tracking eller remarketing.</li>
             <li>Vi sælger ikke dine data videre til tredjepart.</li>
             <li>Vi laver ikke profiler om dig på tværs af sites.</li>
             <li>Vi sender ikke dine oplysninger til sociale medier.</li>
