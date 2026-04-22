@@ -35,20 +35,20 @@ export function CookieBanner() {
             Læs mere
           </Link>.
         </p>
-        <div className="flex flex-col sm:flex-row gap-2 shrink-0">
-          <button
-            type="button"
-            onClick={() => setConsent("necessary")}
-            className="btn-outline justify-center text-sm py-2.5 px-4"
-          >
-            Kun nødvendige
-          </button>
+        <div className="flex flex-col items-stretch md:items-center gap-2 shrink-0 md:flex-row">
           <button
             type="button"
             onClick={() => setConsent("all")}
-            className="btn-accent justify-center text-sm py-2.5 px-4"
+            className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full bg-[color:var(--color-blue)] text-white font-semibold text-sm hover:bg-[color:var(--color-blue-deep)] transition-colors order-1"
           >
             OK, det er fint
+          </button>
+          <button
+            type="button"
+            onClick={() => setConsent("necessary")}
+            className="text-sm text-[color:var(--color-muted)] underline underline-offset-2 hover:text-[color:var(--color-ink)] transition-colors py-2 order-2"
+          >
+            Kun nødvendige
           </button>
         </div>
       </div>

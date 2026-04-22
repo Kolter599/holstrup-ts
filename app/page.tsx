@@ -56,7 +56,7 @@ export default function Home() {
               </Reveal>
               <Reveal delay={140}>
                 <p className="mt-8 text-lg md:text-xl text-[color:var(--color-ink-soft)] max-w-xl leading-relaxed">
-                  Holstrup TS er et lokalt tømrerfirma i Frederikssund med 30+ års erfaring. Fra enkelte snedkeropgaver til hele hovedentrepriser — udført ordentligt, til tiden, og med ét fast kontaktpunkt.
+                  Holstrup TS er et lokalt tømrerfirma i Frederikssund med 30+ års erfaring. Fra enkelte tømreropgaver til fulde hovedentrepriser — udført ordentligt, til tiden, og med ét fast kontaktpunkt.
                 </p>
               </Reveal>
               <Reveal delay={220}>
