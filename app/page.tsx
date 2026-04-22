@@ -191,7 +191,7 @@ export default function Home() {
         <div className="mx-auto max-w-7xl px-6 md:px-10">
           <div className="grid md:grid-cols-12 gap-4 md:gap-6">
             <ProjectCard className="md:col-span-7" image="/images/service-tag.jpg" title="Nyt tegltag + 2 Velux" location="Hillerød" type="Tagrenovering" />
-            <ProjectCard className="md:col-span-5" image="/images/service-terrasse.jpg" title="Oak-terrasse 42 m²" location="Frederikssund" type="Terrasse" />
+            <ProjectCard className="md:col-span-5" image="/images/service-terrasse.jpg" title="Egetræs-terrasse 42 m²" location="Frederikssund" type="Terrasse" />
             <ProjectCard className="md:col-span-4" image="/images/service-gipsvaeg.jpg" title="Lejlighedsrenovering" location="Frederiksberg" type="Renovering" />
             <ProjectCard className="md:col-span-4" image="/images/service-sommerhus.jpg" title="Sommerhus ved kysten" location="Hornbæk" type="Sommerhus" />
             <ProjectCard className="md:col-span-4" image="/images/service-vinduer.jpg" title="Nye facadevinduer" location="Allerød" type="Vinduer" />
