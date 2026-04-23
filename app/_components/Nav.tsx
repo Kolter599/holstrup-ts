@@ -26,7 +26,7 @@ export function Nav() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 backdrop-blur-md bg-white/85 border-b border-[color:var(--color-line)]">
+      <header className="sticky top-0 z-40 backdrop-blur-lg bg-white/80 border-b border-[color:var(--color-line)] supports-[backdrop-filter]:bg-white/70">
         <div className="mx-auto max-w-7xl px-6 md:px-10 h-20 flex items-center justify-between gap-4">
           <Link href="/" className="flex items-center gap-3 shrink-0">
             <Image
