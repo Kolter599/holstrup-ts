@@ -9,15 +9,17 @@ const COOKIE = "holstrup_admin";
 
 type LeadRow = {
   id: string;
-  name: string;
-  email: string;
+  session_id: string | null;
+  name: string | null;
+  email: string | null;
   phone: string | null;
   city: string | null;
   service: string | null;
-  message: string;
+  message: string | null;
   user_agent: string | null;
   referrer: string | null;
   country: string | null;
+  submitted: boolean;
   email_sent: boolean;
   email_error: string | null;
   status: string;
@@ -25,6 +27,25 @@ type LeadRow = {
   created_at: string;
   updated_at: string;
 };
+
+type Stage = { key: string; label: string; rank: number };
+
+function computeStage(r: LeadRow): Stage {
+  if (r.submitted) return { key: "submitted", label: "Sendt", rank: 5 };
+  if (r.message && r.message.length > 5) return { key: "message", label: "Skrev besked", rank: 4 };
+  if (r.phone) return { key: "phone", label: "Skrev telefon", rank: 3 };
+  if (r.email) return { key: "email", label: "Skrev email", rank: 2 };
+  if (r.name) return { key: "name", label: "Skrev navn", rank: 1 };
+  return { key: "started", label: "Påbegyndt", rank: 0 };
+}
+
+function stageClass(stage: Stage): string {
+  if (stage.key === "submitted") return "bg-[#141618] text-white";
+  if (stage.key === "message") return "bg-emerald-700 text-white";
+  if (stage.key === "phone" || stage.key === "email") return "bg-[#dbd0b9] text-[#141618]";
+  if (stage.key === "name") return "bg-[#ece5d2] text-[#141618]";
+  return "border border-[#dbd0b9] bg-transparent text-[#6e6557]";
+}
 
 async function logoutAction() {
   "use server";
@@ -51,6 +72,8 @@ export default async function AdminLeads({
   let error: string | null = null;
   let total = 0;
   let last7d = 0;
+  let totalSubmitted = 0;
+  let totalDrafts = 0;
 
   if (!hasDb || !sql) {
     error = "DATABASE_URL ikke sat — provision Neon og redeploy.";
@@ -59,7 +82,7 @@ export default async function AdminLeads({
       const search = q ? `%${q.toLowerCase()}%` : null;
       if (search && status !== "all") {
         rows = (await sql`
-          SELECT * FROM leads
+          SELECT * FROM holstrup_leads
           WHERE status = ${status}
             AND (LOWER(name) LIKE ${search}
               OR LOWER(email) LIKE ${search}
@@ -69,7 +92,7 @@ export default async function AdminLeads({
         `) as LeadRow[];
       } else if (search) {
         rows = (await sql`
-          SELECT * FROM leads
+          SELECT * FROM holstrup_leads
           WHERE LOWER(name) LIKE ${search}
              OR LOWER(email) LIKE ${search}
              OR LOWER(COALESCE(phone,'')) LIKE ${search}
@@ -77,19 +100,23 @@ export default async function AdminLeads({
           ORDER BY created_at DESC LIMIT 500;
         `) as LeadRow[];
       } else if (status !== "all") {
-        rows = (await sql`SELECT * FROM leads WHERE status = ${status} ORDER BY created_at DESC LIMIT 500;`) as LeadRow[];
+        rows = (await sql`SELECT * FROM holstrup_leads WHERE status = ${status} ORDER BY created_at DESC LIMIT 500;`) as LeadRow[];
       } else {
-        rows = (await sql`SELECT * FROM leads ORDER BY created_at DESC LIMIT 500;`) as LeadRow[];
+        rows = (await sql`SELECT * FROM holstrup_leads ORDER BY created_at DESC LIMIT 500;`) as LeadRow[];
       }
 
       const counts = (await sql`
         SELECT
           COUNT(*)::int AS total,
+          COUNT(*) FILTER (WHERE submitted = TRUE)::int AS total_submitted,
+          COUNT(*) FILTER (WHERE submitted = FALSE)::int AS total_drafts,
           COUNT(*) FILTER (WHERE created_at > NOW() - INTERVAL '7 days')::int AS last_7d
-        FROM leads;
-      `) as Array<{ total: number; last_7d: number }>;
+        FROM holstrup_leads;
+      `) as Array<{ total: number; total_submitted: number; total_drafts: number; last_7d: number }>;
       total = counts[0]?.total ?? 0;
       last7d = counts[0]?.last_7d ?? 0;
+      totalSubmitted = counts[0]?.total_submitted ?? 0;
+      totalDrafts = counts[0]?.total_drafts ?? 0;
     } catch (e) {
       error = `DB-fejl: ${(e as Error).message}`;
     }
@@ -106,8 +133,7 @@ export default async function AdminLeads({
             Henvendelser fra hjemmesiden
           </h1>
           <p className="mt-2 text-[13.5px] text-[#6e6557]">
-            {total} i alt · {last7d} de sidste 7 dage. Hver række er én
-            udfyldt formular fra holstrup-ts.dk.
+            {totalSubmitted} sendt · {totalDrafts} drafts (påbegyndt men ikke sendt) · {last7d} aktivitet sidste 7 dage. Hver række er én besøgende.
           </p>
         </div>
         <form action={logoutAction}>
@@ -162,7 +188,7 @@ export default async function AdminLeads({
         <table className="w-full text-left text-[13.5px]">
           <thead className="bg-[#f4eee2] text-[11.5px] uppercase tracking-[0.12em] text-[#6e6557]">
             <tr>
-              <th className="px-4 py-2.5 font-medium">Status</th>
+              <th className="px-4 py-2.5 font-medium">Stadie</th>
               <th className="px-4 py-2.5 font-medium">Navn</th>
               <th className="px-4 py-2.5 font-medium">Email</th>
               <th className="px-4 py-2.5 font-medium">Telefon</th>
@@ -180,21 +206,31 @@ export default async function AdminLeads({
                 </td>
               </tr>
             ) : null}
-            {rows.map((r) => (
+            {rows.map((r) => {
+              const stage = computeStage(r);
+              return (
               <tr key={r.id} className="border-t border-[#ece5d2] align-top">
                 <td className="px-4 py-3">
-                  <span className="inline-flex rounded-full bg-[#141618] px-2.5 py-0.5 text-[10.5px] uppercase tracking-[0.14em] text-white">
-                    {r.status}
+                  <span
+                    className={`inline-flex rounded-full px-2.5 py-0.5 text-[10.5px] uppercase tracking-[0.14em] ${stageClass(stage)}`}
+                  >
+                    {stage.label}
                   </span>
                 </td>
-                <td className="px-4 py-3 font-medium">{r.name}</td>
+                <td className="px-4 py-3 font-medium">
+                  {r.name ?? <span className="text-[#6e6557]">—</span>}
+                </td>
                 <td className="px-4 py-3">
-                  <a
-                    href={`mailto:${r.email}`}
-                    className="underline underline-offset-2 hover:text-[#1347a6]"
-                  >
-                    {r.email}
-                  </a>
+                  {r.email ? (
+                    <a
+                      href={`mailto:${r.email}`}
+                      className="underline underline-offset-2 hover:text-[#1347a6]"
+                    >
+                      {r.email}
+                    </a>
+                  ) : (
+                    <span className="text-[#6e6557]">—</span>
+                  )}
                 </td>
                 <td className="px-4 py-3">
                   {r.phone ? (
@@ -225,10 +261,10 @@ export default async function AdminLeads({
                   )}
                 </td>
                 <td className="px-4 py-3 text-[12px] text-[#6e6557]">
-                  {new Date(r.created_at).toLocaleString("da-DK")}
+                  {new Date(r.updated_at).toLocaleString("da-DK")}
                 </td>
               </tr>
-            ))}
+            );})}
           </tbody>
         </table>
       </div>
@@ -239,16 +275,19 @@ export default async function AdminLeads({
             Vis beskeder ({rows.length})
           </summary>
           <ul className="mt-4 space-y-5">
-            {rows.map((r) => (
-              <li key={r.id} className="border-l-2 border-[#dbd0b9] pl-4">
-                <div className="text-[12px] uppercase tracking-[0.14em] text-[#6e6557]">
-                  {r.name} · {r.email}
-                </div>
-                <p className="mt-1 whitespace-pre-wrap text-[14px] leading-[1.55]">
-                  {r.message}
-                </p>
-              </li>
-            ))}
+            {rows
+              .filter((r) => r.message && r.message.length > 5)
+              .map((r) => (
+                <li key={r.id} className="border-l-2 border-[#dbd0b9] pl-4">
+                  <div className="text-[12px] uppercase tracking-[0.14em] text-[#6e6557]">
+                    {r.name ?? "(uden navn)"} · {r.email ?? "(uden email)"}
+                    {!r.submitted ? " · DRAFT" : ""}
+                  </div>
+                  <p className="mt-1 whitespace-pre-wrap text-[14px] leading-[1.55]">
+                    {r.message}
+                  </p>
+                </li>
+              ))}
           </ul>
         </details>
       ) : null}

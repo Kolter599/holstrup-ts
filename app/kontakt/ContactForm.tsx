@@ -1,12 +1,71 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type Status = "idle" | "sending" | "sent" | "error";
+
+const SESSION_KEY = "holstrup_visitor_id";
+
+function getOrCreateSessionId(): string {
+  if (typeof window === "undefined") return "";
+  try {
+    const existing = window.localStorage.getItem(SESSION_KEY);
+    if (existing) return existing;
+    const fresh =
+      typeof crypto !== "undefined" && "randomUUID" in crypto
+        ? crypto.randomUUID()
+        : Math.random().toString(36).slice(2) + Date.now().toString(36);
+    window.localStorage.setItem(SESSION_KEY, fresh);
+    return fresh;
+  } catch {
+    return Math.random().toString(36).slice(2) + Date.now().toString(36);
+  }
+}
 
 export function ContactForm() {
   const [status, setStatus] = useState<Status>("idle");
   const [message, setMessage] = useState<string>("");
+  const sessionIdRef = useRef<string>("");
+  const draftTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+
+  useEffect(() => {
+    sessionIdRef.current = getOrCreateSessionId();
+  }, []);
+
+  // Save partial form data on every keystroke (debounced ~600ms).
+  // Even if user closes the tab without sending, Finn sees them in admin.
+  function scheduleDraftSave() {
+    if (!formRef.current) return;
+    if (draftTimerRef.current) clearTimeout(draftTimerRef.current);
+    draftTimerRef.current = setTimeout(() => {
+      if (!formRef.current || !sessionIdRef.current) return;
+      const data = new FormData(formRef.current);
+      // Skip if everything is empty
+      const fields = ["name", "email", "phone", "city", "service", "message"] as const;
+      const hasAny = fields.some((f) => String(data.get(f) || "").trim());
+      if (!hasAny) return;
+      const payload = {
+        sessionId: sessionIdRef.current,
+        name: String(data.get("name") || ""),
+        email: String(data.get("email") || ""),
+        phone: String(data.get("phone") || ""),
+        city: String(data.get("city") || ""),
+        service: String(data.get("service") || ""),
+        message: String(data.get("message") || ""),
+      };
+      try {
+        void fetch("/api/contact-draft", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+          keepalive: true,
+        });
+      } catch {
+        /* best-effort */
+      }
+    }, 600);
+  }
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -22,6 +81,7 @@ export function ContactForm() {
       service: String(data.get("service") || ""),
       message: String(data.get("message") || ""),
       company: String(data.get("company") || ""),
+      sessionId: sessionIdRef.current,
     };
 
     setStatus("sending");
@@ -48,7 +108,13 @@ export function ContactForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="grid gap-5" noValidate>
+    <form
+      ref={formRef}
+      onSubmit={onSubmit}
+      onChange={scheduleDraftSave}
+      className="grid gap-5"
+      noValidate
+    >
       <input
         type="text"
         name="company"

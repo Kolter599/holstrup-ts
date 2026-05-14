@@ -12,6 +12,7 @@ type Payload = {
   service?: string;
   message?: string;
   company?: string;
+  sessionId?: string;
 };
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -72,15 +73,45 @@ export async function POST(req: Request) {
   const country =
     req.headers.get("x-vercel-ip-country") ?? req.headers.get("cf-ipcountry") ?? null;
 
-  // Persist FIRST so the lead is captured even if email fails. Best-effort —
-  // if the DB is down we still send the email and surface success to the user.
+  const sessionId = typeof body.sessionId === "string" ? body.sessionId : null;
+
+  // Persist FIRST so the lead is captured even if email fails. Upsert by
+  // session_id so submitted=true lands on the same row created during draft
+  // typing (no duplicate "typed" + "sent" rows for the same visitor).
   let persisted = false;
   if (hasDb && sql) {
     try {
-      await sql`
-        INSERT INTO leads (name, email, phone, city, service, message, user_agent, referrer, country)
-        VALUES (${name}, ${email}, ${phone}, ${city || null}, ${service || null}, ${message}, ${userAgent}, ${referrer}, ${country})
-      `;
+      if (sessionId) {
+        await sql`
+          INSERT INTO holstrup_leads (
+            session_id, name, email, phone, city, service, message,
+            user_agent, referrer, country, submitted
+          ) VALUES (
+            ${sessionId}, ${name}, ${email}, ${phone},
+            ${city || null}, ${service || null}, ${message},
+            ${userAgent}, ${referrer}, ${country}, TRUE
+          )
+          ON CONFLICT (session_id) DO UPDATE SET
+            name = EXCLUDED.name,
+            email = EXCLUDED.email,
+            phone = EXCLUDED.phone,
+            city = COALESCE(EXCLUDED.city, holstrup_leads.city),
+            service = COALESCE(EXCLUDED.service, holstrup_leads.service),
+            message = EXCLUDED.message,
+            submitted = TRUE,
+            updated_at = NOW();
+        `;
+      } else {
+        await sql`
+          INSERT INTO holstrup_leads (
+            name, email, phone, city, service, message,
+            user_agent, referrer, country, submitted
+          ) VALUES (
+            ${name}, ${email}, ${phone}, ${city || null}, ${service || null},
+            ${message}, ${userAgent}, ${referrer}, ${country}, TRUE
+          )
+        `;
+      }
       persisted = true;
     } catch (e) {
       console.error("[holstrup/contact] db insert failed", e);
@@ -111,11 +142,11 @@ export async function POST(req: Request) {
     console.error("[holstrup/contact] send threw", e);
   }
 
-  // Update DB with email outcome so admin can see which leads got their mail
+  // Update DB with email outcome so admin can see which holstrup_leads got their mail
   if (persisted && hasDb && sql) {
     try {
       await sql`
-        UPDATE leads
+        UPDATE holstrup_leads
         SET email_sent = ${!emailErr}, email_error = ${emailErr}, updated_at = NOW()
         WHERE email = ${email} AND created_at > NOW() - INTERVAL '1 minute'
       `;
