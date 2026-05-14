@@ -203,22 +203,34 @@ export function ContactForm() {
         />
       </label>
 
-      {/* Progressive disclosure — optional fields appear after the 3 core ones are filled */}
+      {/* Progressive disclosure — optional fields appear after the 3 core ones are filled.
+          Custom cubic-bezier (easeOutQuint) + translateY for that buttery feel. */}
       <div
         className={
-          revealed
-            ? "grid gap-5 opacity-100 max-h-[1200px] transition-all duration-500 ease-out"
-            : "grid gap-5 opacity-0 max-h-0 overflow-hidden pointer-events-none transition-all duration-500 ease-out"
+          "grid gap-5 overflow-hidden transition-[max-height,opacity,transform] duration-700 motion-reduce:duration-150 ease-[cubic-bezier(0.22,1,0.36,1)] " +
+          (revealed
+            ? "opacity-100 max-h-[1400px] translate-y-0"
+            : "opacity-0 max-h-0 -translate-y-1 pointer-events-none")
         }
         aria-hidden={!revealed}
       >
-        <div className="grid sm:grid-cols-2 gap-5">
+        <div
+          className={
+            "grid sm:grid-cols-2 gap-5 transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] " +
+            (revealed ? "opacity-100 translate-y-0 [transition-delay:80ms]" : "opacity-0 translate-y-2")
+          }
+        >
           <Field label="E-mail" name="email" type="email" autoComplete="email" inputMode="email" placeholder="(valgfrit)" />
           <Field label="By" name="city" placeholder="Fx Hillerød — valgfrit" autoComplete="address-level2" />
         </div>
 
         {/* Photo upload — feels optional, big drop zone */}
-        <div className="grid gap-2">
+        <div
+          className={
+            "grid gap-2 transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] " +
+            (revealed ? "opacity-100 translate-y-0 [transition-delay:200ms]" : "opacity-0 translate-y-2")
+          }
+        >
         <span className="text-sm font-medium text-[color:var(--color-ink)]">
           Billeder af opgaven{" "}
           <span className="text-[color:var(--color-muted)] font-normal">
