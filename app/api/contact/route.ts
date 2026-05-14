@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
+import { sql, hasDb } from "@/lib/db";
 
 export const runtime = "nodejs";
 
@@ -66,11 +67,32 @@ export async function POST(req: Request) {
     );
   }
 
+  const userAgent = req.headers.get("user-agent")?.slice(0, 400) ?? null;
+  const referrer = req.headers.get("referer")?.slice(0, 500) ?? null;
+  const country =
+    req.headers.get("x-vercel-ip-country") ?? req.headers.get("cf-ipcountry") ?? null;
+
+  // Persist FIRST so the lead is captured even if email fails. Best-effort —
+  // if the DB is down we still send the email and surface success to the user.
+  let persisted = false;
+  if (hasDb && sql) {
+    try {
+      await sql`
+        INSERT INTO leads (name, email, phone, city, service, message, user_agent, referrer, country)
+        VALUES (${name}, ${email}, ${phone}, ${city || null}, ${service || null}, ${message}, ${userAgent}, ${referrer}, ${country})
+      `;
+      persisted = true;
+    } catch (e) {
+      console.error("[holstrup/contact] db insert failed", e);
+    }
+  }
+
   const resend = new Resend(apiKey);
   const subject = `Ny opgave fra hjemmesiden — ${name}${city ? ` (${city})` : ""}`;
   const html = buildHtml({ name, email, phone, city, service, message });
   const text = buildText({ name, email, phone, city, service, message });
 
+  let emailErr: string | null = null;
   try {
     const result = await resend.emails.send({
       from: fromAddress,
@@ -81,14 +103,29 @@ export async function POST(req: Request) {
       text,
     });
     if ("error" in result && result.error) {
+      emailErr = JSON.stringify(result.error);
       console.error("[holstrup/contact] resend error", result.error);
-      return NextResponse.json(
-        { error: "Kunne ikke sende din besked lige nu. Ring venligst direkte." },
-        { status: 502 },
-      );
     }
   } catch (e) {
+    emailErr = (e as Error)?.message ?? String(e);
     console.error("[holstrup/contact] send threw", e);
+  }
+
+  // Update DB with email outcome so admin can see which leads got their mail
+  if (persisted && hasDb && sql) {
+    try {
+      await sql`
+        UPDATE leads
+        SET email_sent = ${!emailErr}, email_error = ${emailErr}, updated_at = NOW()
+        WHERE email = ${email} AND created_at > NOW() - INTERVAL '1 minute'
+      `;
+    } catch {
+      /* best-effort */
+    }
+  }
+
+  if (emailErr && !persisted) {
+    // Both failed — surface error so user knows to call
     return NextResponse.json(
       { error: "Kunne ikke sende din besked lige nu. Ring venligst direkte." },
       { status: 502 },
