@@ -31,10 +31,25 @@ export function ContactForm() {
   const [message, setMessage] = useState<string>("");
   const [photos, setPhotos] = useState<Attachment[]>([]);
   const [photoError, setPhotoError] = useState<string | null>(null);
+  const [revealed, setRevealed] = useState<boolean>(false);
   const sessionIdRef = useRef<string>("");
   const draftTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Progressive disclosure: once the 3 core fields are filled in,
+  // reveal optional email + city + photo upload. Stays revealed even
+  // if the user deletes (avoids jarring re-hide).
+  function checkReveal() {
+    if (revealed || !formRef.current) return;
+    const data = new FormData(formRef.current);
+    const name = String(data.get("name") || "").trim();
+    const phone = String(data.get("phone") || "").trim();
+    const msg = String(data.get("message") || "").trim();
+    if (name.length >= 2 && phone.length >= 6 && msg.length >= 5) {
+      setRevealed(true);
+    }
+  }
 
   function addFiles(fileList: FileList | null) {
     if (!fileList || fileList.length === 0) return;
@@ -156,7 +171,10 @@ export function ContactForm() {
     <form
       ref={formRef}
       onSubmit={onSubmit}
-      onChange={scheduleDraftSave}
+      onChange={() => {
+        scheduleDraftSave();
+        checkReveal();
+      }}
       className="grid gap-5"
       noValidate
     >
@@ -172,10 +190,6 @@ export function ContactForm() {
         <Field label="Dit navn" name="name" required autoComplete="name" />
         <Field label="Telefon" name="phone" required type="tel" autoComplete="tel" inputMode="tel" />
       </div>
-      <div className="grid sm:grid-cols-2 gap-5">
-        <Field label="E-mail" name="email" type="email" autoComplete="email" inputMode="email" placeholder="(valgfrit)" />
-        <Field label="By" name="city" placeholder="Fx Hillerød — valgfrit" autoComplete="address-level2" />
-      </div>
       <label className="grid gap-2">
         <span className="text-sm font-medium text-[color:var(--color-ink)]">
           Beskriv kort din opgave
@@ -189,8 +203,22 @@ export function ContactForm() {
         />
       </label>
 
-      {/* Photo upload — feels optional, big drop zone */}
-      <div className="grid gap-2">
+      {/* Progressive disclosure — optional fields appear after the 3 core ones are filled */}
+      <div
+        className={
+          revealed
+            ? "grid gap-5 opacity-100 max-h-[1200px] transition-all duration-500 ease-out"
+            : "grid gap-5 opacity-0 max-h-0 overflow-hidden pointer-events-none transition-all duration-500 ease-out"
+        }
+        aria-hidden={!revealed}
+      >
+        <div className="grid sm:grid-cols-2 gap-5">
+          <Field label="E-mail" name="email" type="email" autoComplete="email" inputMode="email" placeholder="(valgfrit)" />
+          <Field label="By" name="city" placeholder="Fx Hillerød — valgfrit" autoComplete="address-level2" />
+        </div>
+
+        {/* Photo upload — feels optional, big drop zone */}
+        <div className="grid gap-2">
         <span className="text-sm font-medium text-[color:var(--color-ink)]">
           Billeder af opgaven{" "}
           <span className="text-[color:var(--color-muted)] font-normal">
@@ -253,9 +281,10 @@ export function ContactForm() {
             ))}
           </ul>
         ) : null}
-        {photoError ? (
-          <p className="text-xs text-red-600">{photoError}</p>
-        ) : null}
+          {photoError ? (
+            <p className="text-xs text-red-600">{photoError}</p>
+          ) : null}
+        </div>
       </div>
       <div className="flex flex-wrap items-center gap-4 pt-2">
         <button
