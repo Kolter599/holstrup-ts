@@ -24,12 +24,51 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const FROM_DEFAULT = "Holstrup TS via Invisu <info@invisu.dk>";
 const TO_FINN = "finn@holstrup-ts.dk";
 
+type Attachment = { filename: string; content: Buffer; contentType: string };
+
+const MAX_PHOTOS = 5;
+const MAX_PHOTO_BYTES = 10 * 1024 * 1024;
+
 export async function POST(req: Request) {
-  let body: Payload;
-  try {
-    body = (await req.json()) as Payload;
-  } catch {
-    return NextResponse.json({ error: "Ugyldig forespørgsel." }, { status: 400 });
+  let body: Payload = {};
+  const attachments: Attachment[] = [];
+
+  const contentType = req.headers.get("content-type") ?? "";
+  if (contentType.includes("multipart/form-data")) {
+    try {
+      const form = await req.formData();
+      body = {
+        name: String(form.get("name") ?? ""),
+        email: String(form.get("email") ?? ""),
+        phone: String(form.get("phone") ?? ""),
+        city: String(form.get("city") ?? ""),
+        service: String(form.get("service") ?? ""),
+        message: String(form.get("message") ?? ""),
+        company: String(form.get("company") ?? ""),
+        sessionId: String(form.get("sessionId") ?? ""),
+      };
+      // Pull up to MAX_PHOTOS files keyed photo_0 … photo_N
+      for (let i = 0; i < MAX_PHOTOS; i++) {
+        const f = form.get(`photo_${i}`);
+        if (f instanceof File && f.size > 0) {
+          if (f.size > MAX_PHOTO_BYTES) continue;
+          const buf = Buffer.from(await f.arrayBuffer());
+          attachments.push({
+            filename: f.name || `photo_${i}.jpg`,
+            content: buf,
+            contentType: f.type || "image/jpeg",
+          });
+        }
+      }
+    } catch {
+      return NextResponse.json({ error: "Ugyldig forespørgsel." }, { status: 400 });
+    }
+  } else {
+    try {
+      body = (await req.json()) as Payload;
+    } catch {
+      return NextResponse.json({ error: "Ugyldig forespørgsel." }, { status: 400 });
+    }
   }
 
   // Honeypot — bots fill `company`; real users never see it.
@@ -44,14 +83,15 @@ export async function POST(req: Request) {
   const city = (body.city || "").trim();
   const service = (body.service || "").trim();
 
+  // Required: name + phone + message. Email + city are optional now.
   if (name.length < 2 || name.length > 120) {
     return NextResponse.json({ error: "Angiv venligst et navn." }, { status: 400 });
   }
-  if (!EMAIL_RE.test(email) || email.length > 200) {
-    return NextResponse.json({ error: "E-mail ser ikke rigtig ud." }, { status: 400 });
-  }
   if (phone.length < 6 || phone.length > 40) {
     return NextResponse.json({ error: "Angiv venligst et telefonnummer." }, { status: 400 });
+  }
+  if (email && (!EMAIL_RE.test(email) || email.length > 200)) {
+    return NextResponse.json({ error: "E-mail ser ikke rigtig ud." }, { status: 400 });
   }
   if (message.length < 5 || message.length > 4000) {
     return NextResponse.json({ error: "Beskriv kort hvad opgaven drejer sig om." }, { status: 400 });
@@ -81,15 +121,16 @@ export async function POST(req: Request) {
   let persisted = false;
   if (hasDb && sql) {
     try {
+      const photoCount = attachments.length;
       if (sessionId) {
         await sql`
           INSERT INTO holstrup_leads (
             session_id, name, email, phone, city, service, message,
-            user_agent, referrer, country, submitted
+            user_agent, referrer, country, submitted, photo_count
           ) VALUES (
             ${sessionId}, ${name}, ${email}, ${phone},
             ${city || null}, ${service || null}, ${message},
-            ${userAgent}, ${referrer}, ${country}, TRUE
+            ${userAgent}, ${referrer}, ${country}, TRUE, ${photoCount}
           )
           ON CONFLICT (session_id) DO UPDATE SET
             name = EXCLUDED.name,
@@ -99,16 +140,17 @@ export async function POST(req: Request) {
             service = COALESCE(EXCLUDED.service, holstrup_leads.service),
             message = EXCLUDED.message,
             submitted = TRUE,
+            photo_count = GREATEST(holstrup_leads.photo_count, EXCLUDED.photo_count),
             updated_at = NOW();
         `;
       } else {
         await sql`
           INSERT INTO holstrup_leads (
             name, email, phone, city, service, message,
-            user_agent, referrer, country, submitted
+            user_agent, referrer, country, submitted, photo_count
           ) VALUES (
             ${name}, ${email}, ${phone}, ${city || null}, ${service || null},
-            ${message}, ${userAgent}, ${referrer}, ${country}, TRUE
+            ${message}, ${userAgent}, ${referrer}, ${country}, TRUE, ${photoCount}
           )
         `;
       }
@@ -119,19 +161,24 @@ export async function POST(req: Request) {
   }
 
   const resend = new Resend(apiKey);
-  const subject = `Ny opgave fra hjemmesiden — ${name}${city ? ` (${city})` : ""}`;
-  const html = buildHtml({ name, email, phone, city, service, message });
-  const text = buildText({ name, email, phone, city, service, message });
+  const photoCount = attachments.length;
+  const subject = `Ny opgave fra hjemmesiden — ${name}${city ? ` (${city})` : ""}${photoCount ? ` · ${photoCount} billede${photoCount === 1 ? "" : "r"}` : ""}`;
+  const html = buildHtml({ name, email, phone, city, service, message, photoCount });
+  const text = buildText({ name, email, phone, city, service, message, photoCount });
 
   let emailErr: string | null = null;
   try {
     const result = await resend.emails.send({
       from: fromAddress,
       to: toAddress,
-      replyTo: email,
+      replyTo: email || undefined,
       subject,
       html,
       text,
+      attachments: attachments.map((a) => ({
+        filename: a.filename,
+        content: a.content,
+      })),
     });
     if ("error" in result && result.error) {
       emailErr = JSON.stringify(result.error);
@@ -173,6 +220,7 @@ type Fields = {
   city: string;
   service: string;
   message: string;
+  photoCount?: number;
 };
 
 function buildHtml(f: Fields) {
@@ -188,10 +236,10 @@ function buildHtml(f: Fields) {
         </td>
       </tr>
       <tr><td style="padding:16px 32px 8px 32px">${row("Navn", escape(f.name))}</td></tr>
-      <tr><td style="padding:0 32px 8px 32px">${row("E-mail", `<a href="mailto:${escape(f.email)}" style="color:#1347a6">${escape(f.email)}</a>`)}</td></tr>
       <tr><td style="padding:0 32px 8px 32px">${row("Telefon", `<a href="tel:${escape(f.phone)}" style="color:#1347a6">${escape(f.phone)}</a>`)}</td></tr>
+      ${f.email ? `<tr><td style="padding:0 32px 8px 32px">${row("E-mail", `<a href="mailto:${escape(f.email)}" style="color:#1347a6">${escape(f.email)}</a>`)}</td></tr>` : ""}
       ${f.city ? `<tr><td style="padding:0 32px 8px 32px">${row("By", escape(f.city))}</td></tr>` : ""}
-      ${f.service ? `<tr><td style="padding:0 32px 8px 32px">${row("Ydelse", escape(f.service))}</td></tr>` : ""}
+      ${f.photoCount ? `<tr><td style="padding:0 32px 8px 32px">${row("Billeder", `${f.photoCount} vedhæftet — se i bunden af mailen`)}</td></tr>` : ""}
       <tr>
         <td style="padding:16px 32px 8px 32px">
           <div style="font:500 12px/1.4 Inter,sans-serif;letter-spacing:0.22em;text-transform:uppercase;color:#6e6557;margin-bottom:8px">Beskrivelse af opgaven</div>
@@ -220,10 +268,10 @@ function buildText(f: Fields) {
     `Hej Finn — ${f.name} har skrevet til dig.`,
     ``,
     `Navn:     ${f.name}`,
-    `E-mail:   ${f.email}`,
     `Telefon:  ${f.phone}`,
+    f.email ? `E-mail:   ${f.email}` : null,
     f.city ? `By:       ${f.city}` : null,
-    f.service ? `Ydelse:   ${f.service}` : null,
+    f.photoCount ? `Billeder: ${f.photoCount} vedhæftet` : null,
     ``,
     `Beskrivelse:`,
     f.message,

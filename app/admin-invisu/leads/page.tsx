@@ -20,6 +20,7 @@ type LeadRow = {
   referrer: string | null;
   country: string | null;
   submitted: boolean;
+  photo_count: number;
   email_sent: boolean;
   email_error: string | null;
   status: string;
@@ -193,7 +194,7 @@ export default async function AdminLeads({
               <th className="px-4 py-2.5 font-medium">Email</th>
               <th className="px-4 py-2.5 font-medium">Telefon</th>
               <th className="px-4 py-2.5 font-medium">By</th>
-              <th className="px-4 py-2.5 font-medium">Ydelse</th>
+              <th className="px-4 py-2.5 font-medium">Billeder</th>
               <th className="px-4 py-2.5 font-medium">Mail</th>
               <th className="px-4 py-2.5 font-medium">Hvornår</th>
             </tr>
@@ -245,7 +246,15 @@ export default async function AdminLeads({
                   )}
                 </td>
                 <td className="px-4 py-3 text-[#6e6557]">{r.city ?? "—"}</td>
-                <td className="px-4 py-3 text-[#6e6557]">{r.service ?? "—"}</td>
+                <td className="px-4 py-3 text-[#6e6557]">
+                  {r.photo_count > 0 ? (
+                    <span title="Billeder vedhæftet til mailen til Finn" className="inline-flex items-center gap-1 rounded-full bg-[#dbd0b9] px-2 py-0.5 text-[11px] text-[#141618]">
+                      📸 {r.photo_count}
+                    </span>
+                  ) : (
+                    "—"
+                  )}
+                </td>
                 <td className="px-4 py-3">
                   {r.email_sent ? (
                     <span title="Mailen blev sendt til Finn" className="text-emerald-700">
