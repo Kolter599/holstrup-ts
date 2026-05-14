@@ -88,7 +88,6 @@ export function WebsiteJsonLd() {
           { "@type": "SiteNavigationElement", "@id": `${SITE.url}/#nav-omraader`, name: "Områder", url: `${SITE.url}/omraader` },
           { "@type": "SiteNavigationElement", "@id": `${SITE.url}/#nav-projekter`, name: "Projekter", url: `${SITE.url}/projekter` },
           { "@type": "SiteNavigationElement", "@id": `${SITE.url}/#nav-om`, name: "Om Holstrup TS", url: `${SITE.url}/om` },
-          { "@type": "SiteNavigationElement", "@id": `${SITE.url}/#nav-blog`, name: "Blog", url: `${SITE.url}/blog` },
           { "@type": "SiteNavigationElement", "@id": `${SITE.url}/#nav-kontakt`, name: "Kontakt", url: `${SITE.url}/kontakt` },
         ],
       })}

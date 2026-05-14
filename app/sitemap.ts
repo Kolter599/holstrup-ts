@@ -12,7 +12,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${base}/omraader`, lastModified: now, changeFrequency: "monthly", priority: 0.85 },
     { url: `${base}/projekter`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
     { url: `${base}/om`, lastModified: now, changeFrequency: "yearly", priority: 0.7 },
-    { url: `${base}/blog`, lastModified: now, changeFrequency: "weekly", priority: 0.7 },
     { url: `${base}/kontakt`, lastModified: now, changeFrequency: "yearly", priority: 0.7 },
     { url: `${base}/cookies`, lastModified: now, changeFrequency: "yearly", priority: 0.2 },
   ];
@@ -31,12 +30,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: a.tier === "core" ? 0.85 : 0.75,
   }));
 
-  const posts: MetadataRoute.Sitemap = getAllPosts().map((p) => ({
-    url: `${base}/blog/${p.slug}`,
-    lastModified: p.date ? new Date(p.date) : now,
-    changeFrequency: "monthly",
-    priority: 0.6,
-  }));
+  // Blog hidden from public site for now — exclude from sitemap so Google
+  // doesn't index it. Keep getAllPosts() available for when we re-enable it.
+  void getAllPosts;
 
-  return [...staticEntries, ...services, ...cities, ...posts];
+  return [...staticEntries, ...services, ...cities];
 }

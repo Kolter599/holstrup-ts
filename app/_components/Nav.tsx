@@ -10,7 +10,6 @@ const LINKS = [
   { href: "/projekter", label: "Projekter" },
   { href: "/omraader", label: "Områder" },
   { href: "/om", label: "Om" },
-  { href: "/blog", label: "Viden" },
 ];
 
 export function Nav() {
