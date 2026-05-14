@@ -51,7 +51,7 @@ async function logoutAction() {
   "use server";
   const cookieStore = await cookies();
   cookieStore.delete(COOKIE);
-  redirect("/admin/login");
+  redirect("/admin-invisu/login");
 }
 
 export default async function AdminLeads({
@@ -61,7 +61,7 @@ export default async function AdminLeads({
 }) {
   const cookieStore = await cookies();
   if (cookieStore.get(COOKIE)?.value !== "ok") {
-    redirect("/admin/login");
+    redirect("/admin-invisu/login");
   }
 
   const sp = await searchParams;
@@ -152,7 +152,7 @@ export default async function AdminLeads({
         </div>
       ) : null}
 
-      <form className="mt-6 flex flex-wrap items-center gap-3" action="/admin/leads">
+      <form className="mt-6 flex flex-wrap items-center gap-3" action="/admin-invisu/leads">
         <input
           name="q"
           defaultValue={q}

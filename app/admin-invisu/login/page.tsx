@@ -14,12 +14,12 @@ async function loginAction(formData: FormData) {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
-      path: "/admin",
+      path: "/admin-invisu",
       maxAge: 60 * 60 * 24 * 14,
     });
-    redirect("/admin/leads");
+    redirect("/admin-invisu/leads");
   }
-  redirect("/admin/login?err=1");
+  redirect("/admin-invisu/login?err=1");
 }
 
 export default async function AdminLogin({
