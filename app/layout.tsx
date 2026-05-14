@@ -7,7 +7,7 @@ import { Nav } from "./_components/Nav";
 import { MobileBottomBar } from "./_components/MobileBottomBar";
 import { Analytics } from "./_components/Analytics";
 import { CookieBanner } from "./_components/CookieBanner";
-import { LocalBusinessJsonLd, PersonJsonLd } from "./_components/JsonLd";
+import { LocalBusinessJsonLd, PersonJsonLd, WebsiteJsonLd } from "./_components/JsonLd";
 import { CityMarquee } from "./_components/CityMarquee";
 import { SITE } from "@/lib/site";
 import "./globals.css";
@@ -189,6 +189,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-screen flex flex-col pb-16 md:pb-0">
         <LocalBusinessJsonLd />
         <PersonJsonLd />
+        <WebsiteJsonLd />
         <Nav />
         <main className="flex-1">{children}</main>
         <Footer />

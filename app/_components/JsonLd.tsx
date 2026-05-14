@@ -62,6 +62,40 @@ export function LocalBusinessJsonLd() {
   });
 }
 
+/**
+ * WebSite + nav schema. Helps Google understand the top-level routes —
+ * one of the inputs that determines whether sitelinks show under a SERP result.
+ * Sitelinks themselves are picked automatically by Google, but a clean
+ * WebSite + SiteNavigationElement signal speeds it up.
+ */
+export function WebsiteJsonLd() {
+  return (
+    <>
+      {emit({
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "@id": `${SITE.url}/#website`,
+        url: SITE.url,
+        name: SITE.fullName,
+        alternateName: SITE.name,
+        publisher: { "@id": `${SITE.url}/#business` },
+        inLanguage: "da-DK",
+      })}
+      {emit({
+        "@context": "https://schema.org",
+        "@graph": [
+          { "@type": "SiteNavigationElement", "@id": `${SITE.url}/#nav-ydelser`, name: "Ydelser", url: `${SITE.url}/ydelser` },
+          { "@type": "SiteNavigationElement", "@id": `${SITE.url}/#nav-omraader`, name: "Områder", url: `${SITE.url}/omraader` },
+          { "@type": "SiteNavigationElement", "@id": `${SITE.url}/#nav-projekter`, name: "Projekter", url: `${SITE.url}/projekter` },
+          { "@type": "SiteNavigationElement", "@id": `${SITE.url}/#nav-om`, name: "Om Holstrup TS", url: `${SITE.url}/om` },
+          { "@type": "SiteNavigationElement", "@id": `${SITE.url}/#nav-blog`, name: "Blog", url: `${SITE.url}/blog` },
+          { "@type": "SiteNavigationElement", "@id": `${SITE.url}/#nav-kontakt`, name: "Kontakt", url: `${SITE.url}/kontakt` },
+        ],
+      })}
+    </>
+  );
+}
+
 export function PersonJsonLd() {
   return emit({
     "@context": "https://schema.org",
