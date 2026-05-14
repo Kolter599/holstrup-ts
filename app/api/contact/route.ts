@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
+import { put } from "@vercel/blob";
 import { sql, hasDb } from "@/lib/db";
 
 export const runtime = "nodejs";
@@ -115,6 +116,31 @@ export async function POST(req: Request) {
 
   const sessionId = typeof body.sessionId === "string" ? body.sessionId : null;
 
+  // Upload photos to Vercel Blob in parallel so admin can render thumbnails
+  // later. Best-effort — if Blob token isn't set or upload fails, we still
+  // attach the bytes to the email and skip persisting URLs.
+  const photoUrls: string[] = [];
+  if (attachments.length > 0 && process.env.BLOB_READ_WRITE_TOKEN) {
+    const folder = `holstrup-leads/${sessionId ?? "anon"}-${Date.now()}`;
+    const uploads = attachments.map(async (a, i) => {
+      try {
+        const result = await put(`${folder}/${i}-${a.filename}`, a.content, {
+          access: "public",
+          contentType: a.contentType,
+          addRandomSuffix: true,
+        });
+        return result.url;
+      } catch (err) {
+        console.error("[holstrup/contact] blob upload failed", err);
+        return null;
+      }
+    });
+    const urls = await Promise.all(uploads);
+    for (const u of urls) {
+      if (u) photoUrls.push(u);
+    }
+  }
+
   // Persist FIRST so the lead is captured even if email fails. Upsert by
   // session_id so submitted=true lands on the same row created during draft
   // typing (no duplicate "typed" + "sent" rows for the same visitor).
@@ -122,15 +148,17 @@ export async function POST(req: Request) {
   if (hasDb && sql) {
     try {
       const photoCount = attachments.length;
+      const photoUrlsJson = photoUrls.length > 0 ? JSON.stringify(photoUrls) : null;
       if (sessionId) {
         await sql`
           INSERT INTO holstrup_leads (
             session_id, name, email, phone, city, service, message,
-            user_agent, referrer, country, submitted, photo_count
+            user_agent, referrer, country, submitted, photo_count, photo_urls
           ) VALUES (
             ${sessionId}, ${name}, ${email}, ${phone},
             ${city || null}, ${service || null}, ${message},
-            ${userAgent}, ${referrer}, ${country}, TRUE, ${photoCount}
+            ${userAgent}, ${referrer}, ${country}, TRUE, ${photoCount},
+            ${photoUrlsJson}::jsonb
           )
           ON CONFLICT (session_id) DO UPDATE SET
             name = EXCLUDED.name,
@@ -141,16 +169,18 @@ export async function POST(req: Request) {
             message = EXCLUDED.message,
             submitted = TRUE,
             photo_count = GREATEST(holstrup_leads.photo_count, EXCLUDED.photo_count),
+            photo_urls = COALESCE(EXCLUDED.photo_urls, holstrup_leads.photo_urls),
             updated_at = NOW();
         `;
       } else {
         await sql`
           INSERT INTO holstrup_leads (
             name, email, phone, city, service, message,
-            user_agent, referrer, country, submitted, photo_count
+            user_agent, referrer, country, submitted, photo_count, photo_urls
           ) VALUES (
             ${name}, ${email}, ${phone}, ${city || null}, ${service || null},
-            ${message}, ${userAgent}, ${referrer}, ${country}, TRUE, ${photoCount}
+            ${message}, ${userAgent}, ${referrer}, ${country}, TRUE, ${photoCount},
+            ${photoUrlsJson}::jsonb
           )
         `;
       }

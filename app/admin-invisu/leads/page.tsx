@@ -21,6 +21,7 @@ type LeadRow = {
   country: string | null;
   submitted: boolean;
   photo_count: number;
+  photo_urls: string[] | null;
   email_sent: boolean;
   email_error: string | null;
   status: string;
@@ -285,7 +286,7 @@ export default async function AdminLeads({
           </summary>
           <ul className="mt-4 space-y-5">
             {rows
-              .filter((r) => r.message && r.message.length > 5)
+              .filter((r) => (r.message && r.message.length > 5) || (r.photo_urls && r.photo_urls.length > 0))
               .map((r) => (
                 <li key={r.id} className="border-l-2 border-[#dbd0b9] pl-4">
                   <div className="text-[12px] uppercase tracking-[0.14em] text-[#6e6557]">
@@ -295,6 +296,29 @@ export default async function AdminLeads({
                   <p className="mt-1 whitespace-pre-wrap text-[14px] leading-[1.55]">
                     {r.message}
                   </p>
+                  {r.photo_urls && r.photo_urls.length > 0 ? (
+                    <ul className="mt-3 flex flex-wrap gap-2">
+                      {r.photo_urls.map((url, i) => (
+                        <li key={i}>
+                          <a
+                            href={url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="block h-20 w-20 overflow-hidden rounded-md border border-[#dbd0b9] bg-white hover:border-[#141618]"
+                            title="Åbn billede i fuld størrelse"
+                          >
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={url}
+                              alt={`Billede ${i + 1} fra ${r.name ?? "lead"}`}
+                              className="h-full w-full object-cover"
+                              loading="lazy"
+                            />
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : null}
                 </li>
               ))}
           </ul>
