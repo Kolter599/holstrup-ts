@@ -11,16 +11,18 @@ export const metadata: Metadata = {
 export default function KontaktPage() {
   return (
     <section className="py-24 md:py-32">
-      <div className="mx-auto w-full max-w-[680px] px-6 md:px-8">
-        <header className="mb-10 text-center md:mb-14">
-          <h1 className="display-lg leading-[1.05]">
-            Få et tilbud fra <span style={{ color: "var(--color-blue)" }}>Finn</span>
-          </h1>
-          <p className="mx-auto mt-4 max-w-md text-[color:var(--color-ink-soft)] text-base md:text-lg">
-            4 hurtige skridt — under et minut.
-          </p>
-        </header>
+      {/* Wide headline — intentionally breaks out past the form so it reads grand */}
+      <header className="mx-auto w-full max-w-5xl px-6 text-center md:px-10">
+        <h1 className="font-display font-extrabold leading-[0.95] tracking-[-0.02em] text-[clamp(3rem,8vw,6.5rem)]">
+          Få et tilbud fra <span style={{ color: "var(--color-blue)" }}>Finn</span>
+        </h1>
+        <p className="mx-auto mt-6 max-w-md text-[color:var(--color-ink-soft)] text-base md:text-lg">
+          4 hurtige skridt — under et minut.
+        </p>
+      </header>
 
+      {/* Form stays constrained so the headline visually overflows it */}
+      <div className="mx-auto mt-12 w-full max-w-[680px] px-6 md:mt-16 md:px-8">
         <ContactForm />
       </div>
     </section>
