@@ -20,18 +20,16 @@ export default function KontaktPage() {
           {/* Form takes the lion's share on desktop, full width on mobile, always on top */}
           <div className="md:col-span-8 md:order-1">
             <div className="mb-5 md:mb-7">
-              <div className="eyebrow-accent mb-3">Send en besked</div>
+              <div className="eyebrow-accent mb-3">Få et tilbud</div>
               <h1 className="display-lg leading-tight">
-                Skriv til <span style={{ color: "var(--color-blue)" }}>Finn</span>.
+                Få et tilbud fra <span style={{ color: "var(--color-blue)" }}>Finn</span>.
               </h1>
               <p className="mt-3 text-[color:var(--color-ink-soft)] text-base md:text-lg">
-                Beskriv kort din opgave — Finn vender personligt tilbage, typisk samme dag.
+                4 hurtige skridt — under et minut. Finn vender personligt tilbage, typisk samme dag.
               </p>
             </div>
 
-            <div className="bg-[color:var(--color-surface)] p-5 md:p-8 border border-[color:var(--color-line)] rounded-md">
-              <ContactForm />
-            </div>
+            <ContactForm />
           </div>
 
           {/* Sidebar: phone first (also makes a big tap-to-call on mobile via order-2 below form) */}
