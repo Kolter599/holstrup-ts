@@ -1,26 +1,20 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 
 type Status = "idle" | "sending" | "sent" | "error";
 type Attachment = { file: File; preview: string };
 type Step = "service" | "timing" | "details" | "contact" | "done";
+type Audience = "privat" | "erhverv";
 
-type ServiceTile = { value: string; label: string; subtitle: string; icon: string };
+type ServiceTile = { value: string; label: string; subtitle: string; icon: ReactNode };
 type TimingTile = { value: string; label: string; subtitle: string };
 
 const MAX_PHOTOS = 5;
 const MAX_PHOTO_SIZE_MB = 8;
 const SESSION_KEY = "holstrup_visitor_id";
 
-const SERVICE_TILES: ServiceTile[] = [
-  { value: "Nyt tag", label: "Nyt tag", subtitle: "Tagrenovering, omlægning, tagdækning", icon: "🏠" },
-  { value: "Tilbygning / udestue", label: "Tilbygning", subtitle: "Tilbygning, udestue, garage", icon: "🧱" },
-  { value: "Renovering", label: "Renovering", subtitle: "Helheds-renovering eller delopgaver", icon: "🔨" },
-  { value: "Vinduer & døre", label: "Vinduer & døre", subtitle: "Udskiftning, montage, lister", icon: "🚪" },
-  { value: "Træværk & gulve", label: "Træværk & gulve", subtitle: "Trægulve, terrasse, lister", icon: "🪵" },
-  { value: "Andet", label: "Noget andet", subtitle: "Beskriv det i næste skridt", icon: "✱" },
-];
+const STEP_ORDER: Step[] = ["service", "timing", "details", "contact"];
 
 const TIMING_TILES: TimingTile[] = [
   { value: "Hurtigst muligt", label: "Hurtigst muligt", subtitle: "Inden for nogle uger" },
@@ -28,8 +22,6 @@ const TIMING_TILES: TimingTile[] = [
   { value: "Senere på året", label: "Senere på året", subtitle: "Vi har god tid" },
   { value: "Bare et tilbud først", label: "Først et tilbud", subtitle: "Vi vil se økonomien" },
 ];
-
-const STEP_ORDER: Step[] = ["service", "timing", "details", "contact"];
 
 function getOrCreateSessionId(): string {
   if (typeof window === "undefined") return "";
@@ -47,7 +39,131 @@ function getOrCreateSessionId(): string {
   }
 }
 
+/* ---------------------- Inline line icons — clean, brand-neutral ---------------------- */
+const iconProps = {
+  width: 24,
+  height: 24,
+  viewBox: "0 0 24 24",
+  fill: "none",
+  stroke: "currentColor",
+  strokeWidth: 1.6,
+  strokeLinecap: "round" as const,
+  strokeLinejoin: "round" as const,
+  "aria-hidden": true,
+};
+
+const IconRoof = () => (
+  <svg {...iconProps}>
+    <path d="M3 12 12 4l9 8" />
+    <path d="M5 11v9h14v-9" />
+    <path d="M9 20v-5h6v5" />
+  </svg>
+);
+
+const IconExtension = () => (
+  <svg {...iconProps}>
+    <path d="M3 21V9l6-4 6 4v12" />
+    <path d="M15 21v-7h6v7" />
+    <path d="M3 21h18" />
+    <path d="M9 21v-4h0" />
+  </svg>
+);
+
+const IconRenovate = () => (
+  <svg {...iconProps}>
+    <path d="m14.5 4 5.5 5.5-9 9L3 21l2.5-8L14.5 4Z" />
+    <path d="m12.5 6 5.5 5.5" />
+  </svg>
+);
+
+const IconDoor = () => (
+  <svg {...iconProps}>
+    <path d="M5 21V4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v17" />
+    <path d="M3 21h18" />
+    <circle cx="15" cy="13" r="0.6" fill="currentColor" stroke="none" />
+  </svg>
+);
+
+const IconPlank = () => (
+  <svg {...iconProps}>
+    <rect x="3" y="7" width="18" height="10" rx="1.5" />
+    <path d="M7 7v10" />
+    <path d="M13 7v10" />
+    <path d="M18 7v10" />
+  </svg>
+);
+
+const IconSparkle = () => (
+  <svg {...iconProps}>
+    <path d="M12 4v4" />
+    <path d="M12 16v4" />
+    <path d="M4 12h4" />
+    <path d="M16 12h4" />
+    <path d="m6.3 6.3 2.8 2.8" />
+    <path d="m14.9 14.9 2.8 2.8" />
+    <path d="m17.7 6.3-2.8 2.8" />
+    <path d="m9.1 14.9-2.8 2.8" />
+  </svg>
+);
+
+const IconBuilding = () => (
+  <svg {...iconProps}>
+    <rect x="4" y="3" width="16" height="18" rx="1" />
+    <path d="M8 7h1.5" />
+    <path d="M14.5 7H16" />
+    <path d="M8 11h1.5" />
+    <path d="M14.5 11H16" />
+    <path d="M8 15h1.5" />
+    <path d="M14.5 15H16" />
+    <path d="M10 21v-4h4v4" />
+  </svg>
+);
+
+const IconBlueprint = () => (
+  <svg {...iconProps}>
+    <rect x="3" y="4" width="18" height="16" rx="1.5" />
+    <path d="M3 9h18" />
+    <path d="M9 9v11" />
+    <path d="M9 14h6" />
+    <path d="M15 14v6" />
+  </svg>
+);
+
+const IconHardhat = () => (
+  <svg {...iconProps}>
+    <path d="M4 17h16" />
+    <path d="M5 17v-2a7 7 0 0 1 14 0v2" />
+    <path d="M10 8V5h4v3" />
+  </svg>
+);
+
+const IconClock = () => (
+  <svg {...iconProps}>
+    <circle cx="12" cy="12" r="8" />
+    <path d="M12 8v4l2.5 2.5" />
+  </svg>
+);
+
+const SERVICE_TILES_PRIVAT: ServiceTile[] = [
+  { value: "Nyt tag", label: "Nyt tag", subtitle: "Tagrenovering, omlægning", icon: <IconRoof /> },
+  { value: "Tilbygning / udestue", label: "Tilbygning", subtitle: "Tilbygning, udestue, garage", icon: <IconExtension /> },
+  { value: "Renovering", label: "Renovering", subtitle: "Helhed eller delopgaver", icon: <IconRenovate /> },
+  { value: "Vinduer & døre", label: "Vinduer & døre", subtitle: "Udskiftning, montage", icon: <IconDoor /> },
+  { value: "Træværk & gulve", label: "Træværk & gulve", subtitle: "Gulve, terrasse, lister", icon: <IconPlank /> },
+  { value: "Andet", label: "Noget andet", subtitle: "Beskriv det i næste skridt", icon: <IconSparkle /> },
+];
+
+const SERVICE_TILES_ERHVERV: ServiceTile[] = [
+  { value: "Erhvervsbyggeri", label: "Erhvervsbyggeri", subtitle: "Nybyggeri, kontor, butik", icon: <IconBuilding /> },
+  { value: "Totalentreprise", label: "Totalentreprise", subtitle: "Vi styrer hele projektet", icon: <IconBlueprint /> },
+  { value: "Tag- og facadeentreprise", label: "Tag & facade", subtitle: "Erhvervstag, facadearbejde", icon: <IconRoof /> },
+  { value: "Renovering / ombygning", label: "Renovering", subtitle: "Ombygning af bestående", icon: <IconRenovate /> },
+  { value: "Vedligehold & service", label: "Vedligehold", subtitle: "Løbende service-aftaler", icon: <IconHardhat /> },
+  { value: "Andet", label: "Noget andet", subtitle: "Beskriv det i næste skridt", icon: <IconSparkle /> },
+];
+
 export function ContactForm() {
+  const [audience, setAudience] = useState<Audience>("privat");
   const [step, setStep] = useState<Step>("service");
   const [service, setService] = useState<string>("");
   const [timing, setTiming] = useState<string>("");
@@ -58,13 +174,13 @@ export function ContactForm() {
   const [phone, setPhone] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [city, setCity] = useState<string>("");
+  const [company, setCompany] = useState<string>("");
   const [status, setStatus] = useState<Status>("idle");
   const [serverMessage, setServerMessage] = useState<string>("");
 
   const sessionIdRef = useRef<string>("");
   const draftTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const cardRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     sessionIdRef.current = getOrCreateSessionId();
@@ -75,14 +191,12 @@ export function ContactForm() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Persist whatever's typed in to /api/contact-draft so admin sees them
-  // even if they bail before submitting. Debounced 600ms.
   useEffect(() => {
     if (!sessionIdRef.current) return;
-    if (!service && !timing && !message && !name && !phone && !email && !city) return;
+    if (!service && !timing && !message && !name && !phone && !email && !city && !company)
+      return;
     if (draftTimerRef.current) clearTimeout(draftTimerRef.current);
     draftTimerRef.current = setTimeout(() => {
-      const composedMessage = composeMessage(timing, message);
       void fetch("/api/contact-draft", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -92,37 +206,31 @@ export function ContactForm() {
           email,
           phone,
           city,
-          service,
-          message: composedMessage,
+          service: serviceForDraft(audience, service),
+          message: composeMessage(audience, timing, company, message),
         }),
         keepalive: true,
-      }).catch(() => {
-        /* best-effort */
-      });
+      }).catch(() => {});
     }, 600);
     return () => {
       if (draftTimerRef.current) clearTimeout(draftTimerRef.current);
     };
-  }, [service, timing, message, name, phone, email, city]);
+  }, [audience, service, timing, message, name, phone, email, city, company]);
 
-  function scrollCardIntoView() {
-    if (typeof window === "undefined") return;
-    cardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-  }
-
-  function goTo(next: Step) {
-    setStep(next);
-    setTimeout(scrollCardIntoView, 60);
+  function selectAudience(next: Audience) {
+    if (next === audience) return;
+    setAudience(next);
+    setService("");
   }
 
   function selectService(value: string) {
     setService(value);
-    setTimeout(() => goTo("timing"), 180);
+    setTimeout(() => setStep("timing"), 180);
   }
 
   function selectTiming(value: string) {
     setTiming(value);
-    setTimeout(() => goTo("details"), 180);
+    setTimeout(() => setStep("details"), 180);
   }
 
   function addFiles(fileList: FileList | null) {
@@ -166,8 +274,8 @@ export function ContactForm() {
     out.set("email", email.trim());
     out.set("phone", phone.trim());
     out.set("city", city.trim());
-    out.set("service", service);
-    out.set("message", composeMessage(timing, message));
+    out.set("service", serviceForDraft(audience, service));
+    out.set("message", composeMessage(audience, timing, company, message));
     out.set("sessionId", sessionIdRef.current);
     photos.forEach((p, i) => out.append(`photo_${i}`, p.file, p.file.name));
 
@@ -182,7 +290,7 @@ export function ContactForm() {
       setStatus("sent");
       photos.forEach((p) => URL.revokeObjectURL(p.preview));
       setPhotos([]);
-      goTo("done");
+      setStep("done");
     } catch {
       setStatus("error");
       setServerMessage("Kunne ikke sende. Tjek din forbindelse, eller ring direkte.");
@@ -192,15 +300,13 @@ export function ContactForm() {
   const stageIndex = step === "done" ? STEP_ORDER.length : STEP_ORDER.indexOf(step);
   const progress = step === "done" ? 100 : ((stageIndex + 1) / STEP_ORDER.length) * 100;
 
+  const serviceTiles = audience === "erhverv" ? SERVICE_TILES_ERHVERV : SERVICE_TILES_PRIVAT;
+
   return (
-    <div
-      ref={cardRef}
-      className="overflow-hidden rounded-md border border-[color:var(--color-line)] bg-[color:var(--color-surface)]"
-    >
-      {/* Header with progress */}
-      <div className="border-b border-[color:var(--color-line)] bg-white px-5 py-4 md:px-7 md:py-5">
+    <div className="overflow-hidden rounded-lg border border-[color:var(--color-line)] bg-[color:var(--color-surface)]">
+      <div className="border-b border-[color:var(--color-line)] bg-white px-6 py-5 md:px-8 md:py-6">
         <div className="mb-3 flex items-center justify-between gap-3">
-          <div className="eyebrow-accent">Få et gratis tilbud</div>
+          <div className="eyebrow-accent">Gratis tilbud</div>
           {step !== "done" ? (
             <span className="font-mono text-xs text-[color:var(--color-muted)]">
               {Math.min(stageIndex + 1, STEP_ORDER.length)}/{STEP_ORDER.length}
@@ -215,10 +321,12 @@ export function ContactForm() {
         </div>
       </div>
 
-      <div className="px-5 py-6 md:px-7 md:py-8">
+      <div className="px-6 py-8 md:px-10 md:py-10">
         {step === "service" && (
           <StepService
-            tiles={SERVICE_TILES}
+            audience={audience}
+            onAudienceChange={selectAudience}
+            tiles={serviceTiles}
             selected={service}
             onSelect={selectService}
           />
@@ -228,7 +336,7 @@ export function ContactForm() {
             tiles={TIMING_TILES}
             selected={timing}
             onSelect={selectTiming}
-            onBack={() => goTo("service")}
+            onBack={() => setStep("service")}
           />
         )}
         {step === "details" && (
@@ -241,23 +349,26 @@ export function ContactForm() {
             fileInputRef={fileInputRef}
             onAddFiles={addFiles}
             onRemovePhoto={removePhoto}
-            onBack={() => goTo("timing")}
-            onNext={() => goTo("contact")}
+            onBack={() => setStep("timing")}
+            onNext={() => setStep("contact")}
           />
         )}
         {step === "contact" && (
           <StepContact
+            audience={audience}
             name={name}
             phone={phone}
             email={email}
             city={city}
+            company={company}
             setName={setName}
             setPhone={setPhone}
             setEmail={setEmail}
             setCity={setCity}
+            setCompany={setCompany}
             status={status}
             serverMessage={serverMessage}
-            onBack={() => goTo("details")}
+            onBack={() => setStep("details")}
             onSubmit={submit}
           />
         )}
@@ -267,31 +378,52 @@ export function ContactForm() {
   );
 }
 
-function composeMessage(timing: string, message: string): string {
-  const prefix = timing ? `Tidsramme: ${timing}\n\n` : "";
-  return `${prefix}${message}`.trim();
+function composeMessage(
+  audience: Audience,
+  timing: string,
+  company: string,
+  message: string
+): string {
+  const lines: string[] = [];
+  lines.push(`Kundetype: ${audience === "erhverv" ? "Erhverv" : "Privat"}`);
+  if (audience === "erhverv" && company.trim()) lines.push(`Virksomhed: ${company.trim()}`);
+  if (timing) lines.push(`Tidsramme: ${timing}`);
+  const meta = lines.join("\n");
+  const body = message.trim();
+  return body ? `${meta}\n\n${body}` : meta;
 }
 
-/* ---------------------- Step 1: Service ---------------------- */
+function serviceForDraft(audience: Audience, service: string): string {
+  if (!service) return "";
+  return `${audience === "erhverv" ? "Erhverv" : "Privat"} · ${service}`;
+}
+
+/* ---------------------- Step 1: Audience + Service ---------------------- */
 function StepService({
+  audience,
+  onAudienceChange,
   tiles,
   selected,
   onSelect,
 }: {
+  audience: Audience;
+  onAudienceChange: (a: Audience) => void;
   tiles: ServiceTile[];
   selected: string;
   onSelect: (v: string) => void;
 }) {
   return (
-    <div className="space-y-5">
-      <div>
-        <h2 className="font-display text-2xl font-extrabold leading-tight text-[color:var(--color-ink)] md:text-3xl">
+    <div className="space-y-6">
+      <div className="text-center">
+        <h2 className="font-display text-2xl font-extrabold leading-tight text-[color:var(--color-ink)] md:text-[1.9rem]">
           Hvad kan vi hjælpe med?
         </h2>
-        <p className="mt-2 text-sm text-[color:var(--color-ink-soft)] md:text-base">
+        <p className="mx-auto mt-2 max-w-sm text-sm text-[color:var(--color-ink-soft)]">
           Vælg det der ligger tættest — vi spørger ind til detaljerne bagefter.
         </p>
       </div>
+
+      <AudienceToggle audience={audience} onChange={onAudienceChange} />
 
       <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
         {tiles.map((t) => {
@@ -302,40 +434,69 @@ function StepService({
               type="button"
               onClick={() => onSelect(t.value)}
               className={
-                "group flex items-start gap-3 rounded-md border-2 bg-white p-4 text-left transition-all duration-200 hover:border-[color:var(--color-blue)] hover:bg-[color:var(--color-blue)]/[0.03] " +
+                "group flex items-start gap-3.5 rounded-md border-2 bg-white p-4 text-left transition-all duration-200 hover:border-[color:var(--color-blue)] hover:bg-[color:var(--color-blue)]/[0.03] " +
                 (isActive
                   ? "border-[color:var(--color-blue)] bg-[color:var(--color-blue)]/[0.05] shadow-sm"
                   : "border-[color:var(--color-line)]")
               }
             >
-              <span className="text-2xl leading-none" aria-hidden>
+              <span
+                className={
+                  "mt-0.5 shrink-0 transition-colors " +
+                  (isActive ? "text-[color:var(--color-blue)]" : "text-[color:var(--color-ink-soft)] group-hover:text-[color:var(--color-blue)]")
+                }
+              >
                 {t.icon}
               </span>
               <span className="flex-1">
-                <span className="block font-display text-base font-bold text-[color:var(--color-ink)]">
+                <span className="block font-display text-base font-bold leading-tight text-[color:var(--color-ink)]">
                   {t.label}
                 </span>
-                <span className="mt-0.5 block text-xs text-[color:var(--color-ink-soft)]">
+                <span className="mt-1 block text-xs text-[color:var(--color-ink-soft)]">
                   {t.subtitle}
                 </span>
-              </span>
-              <span
-                className={
-                  "mt-0.5 text-[color:var(--color-muted)] transition-all duration-200 " +
-                  (isActive ? "translate-x-0 text-[color:var(--color-blue)] opacity-100" : "-translate-x-1 opacity-0 group-hover:translate-x-0 group-hover:opacity-100")
-                }
-                aria-hidden
-              >
-                →
               </span>
             </button>
           );
         })}
       </div>
+    </div>
+  );
+}
 
-      <p className="text-center text-xs text-[color:var(--color-muted)]">
-        Gratis og uforpligtende. Typisk svar samme dag.
-      </p>
+function AudienceToggle({
+  audience,
+  onChange,
+}: {
+  audience: Audience;
+  onChange: (a: Audience) => void;
+}) {
+  return (
+    <div
+      role="tablist"
+      aria-label="Vælg kundetype"
+      className="mx-auto flex w-full max-w-[280px] rounded-full bg-[color:var(--color-line)]/40 p-1"
+    >
+      {(["privat", "erhverv"] as const).map((a) => {
+        const isActive = audience === a;
+        return (
+          <button
+            key={a}
+            type="button"
+            role="tab"
+            aria-selected={isActive}
+            onClick={() => onChange(a)}
+            className={
+              "flex-1 rounded-full py-2 text-sm font-medium transition-all duration-200 " +
+              (isActive
+                ? "bg-white text-[color:var(--color-ink)] shadow-sm"
+                : "text-[color:var(--color-ink-soft)] hover:text-[color:var(--color-ink)]")
+            }
+          >
+            {a === "privat" ? "Privat" : "Erhverv"}
+          </button>
+        );
+      })}
     </div>
   );
 }
@@ -353,12 +514,12 @@ function StepTiming({
   onBack: () => void;
 }) {
   return (
-    <div className="space-y-5">
-      <div>
-        <h2 className="font-display text-2xl font-extrabold leading-tight text-[color:var(--color-ink)] md:text-3xl">
+    <div className="space-y-6">
+      <div className="text-center">
+        <h2 className="font-display text-2xl font-extrabold leading-tight text-[color:var(--color-ink)] md:text-[1.9rem]">
           Hvornår skal det laves?
         </h2>
-        <p className="mt-2 text-sm text-[color:var(--color-ink-soft)] md:text-base">
+        <p className="mx-auto mt-2 max-w-sm text-sm text-[color:var(--color-ink-soft)]">
           Bare så Finn ved hvor meget planlægning der er — du forpligter dig til intet.
         </p>
       </div>
@@ -372,24 +533,36 @@ function StepTiming({
               type="button"
               onClick={() => onSelect(t.value)}
               className={
-                "rounded-md border-2 bg-white p-4 text-left transition-all duration-200 hover:border-[color:var(--color-blue)] hover:bg-[color:var(--color-blue)]/[0.03] " +
+                "flex items-start gap-3.5 rounded-md border-2 bg-white p-4 text-left transition-all duration-200 hover:border-[color:var(--color-blue)] hover:bg-[color:var(--color-blue)]/[0.03] " +
                 (isActive
                   ? "border-[color:var(--color-blue)] bg-[color:var(--color-blue)]/[0.05] shadow-sm"
                   : "border-[color:var(--color-line)]")
               }
             >
-              <span className="block font-display text-base font-bold text-[color:var(--color-ink)]">
-                {t.label}
+              <span
+                className={
+                  "mt-0.5 shrink-0 " +
+                  (isActive ? "text-[color:var(--color-blue)]" : "text-[color:var(--color-ink-soft)]")
+                }
+              >
+                <IconClock />
               </span>
-              <span className="mt-0.5 block text-xs text-[color:var(--color-ink-soft)]">
-                {t.subtitle}
+              <span className="flex-1">
+                <span className="block font-display text-base font-bold leading-tight text-[color:var(--color-ink)]">
+                  {t.label}
+                </span>
+                <span className="mt-1 block text-xs text-[color:var(--color-ink-soft)]">
+                  {t.subtitle}
+                </span>
               </span>
             </button>
           );
         })}
       </div>
 
-      <BackButton onBack={onBack} />
+      <div className="text-center">
+        <BackLink onBack={onBack} />
+      </div>
     </div>
   );
 }
@@ -421,13 +594,13 @@ function StepDetails({
   const canContinue = message.trim().length >= 5;
 
   return (
-    <div className="space-y-5">
-      <div>
-        <h2 className="font-display text-2xl font-extrabold leading-tight text-[color:var(--color-ink)] md:text-3xl">
+    <div className="space-y-6">
+      <div className="text-center">
+        <h2 className="font-display text-2xl font-extrabold leading-tight text-[color:var(--color-ink)] md:text-[1.9rem]">
           Beskriv kort opgaven
         </h2>
-        <p className="mt-2 text-sm text-[color:var(--color-ink-soft)] md:text-base">
-          Et par linjer er rigeligt. Billeder hjælper Finn med at give et hurtigere tilbud.
+        <p className="mx-auto mt-2 max-w-sm text-sm text-[color:var(--color-ink-soft)]">
+          Et par linjer er rigeligt. Billeder hjælper os med at give et hurtigere tilbud.
         </p>
         {service ? (
           <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-[color:var(--color-blue)]/[0.08] px-3 py-1 text-xs font-medium text-[color:var(--color-blue)]">
@@ -437,17 +610,15 @@ function StepDetails({
       </div>
 
       <label className="grid gap-2">
-        <span className="text-sm font-medium text-[color:var(--color-ink)]">
-          Hvad skal laves?
-        </span>
+        <span className="text-sm font-medium text-[color:var(--color-ink)]">Hvad skal laves?</span>
         <textarea
           name="message"
-          rows={4}
+          rows={5}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           required
           className="rounded-md border border-[color:var(--color-line)] bg-white p-4 text-base text-[color:var(--color-ink)] focus:outline-none focus:ring-2 focus:ring-[color:var(--color-blue)]"
-          placeholder="Fx 'Nyt tag på 110 m² hus i Hillerød — eternit der trænger til udskiftning.'"
+          placeholder="Fx 'Nyt tag på 110 m² hus — eternit der trænger til udskiftning.'"
         />
       </label>
 
@@ -462,7 +633,7 @@ function StepDetails({
             e.preventDefault();
             onAddFiles(e.dataTransfer.files);
           }}
-          className="rounded-md border-2 border-dashed border-[color:var(--color-line)] bg-white/50 p-4 text-center transition-colors hover:border-[color:var(--color-blue)]"
+          className="rounded-md border-2 border-dashed border-[color:var(--color-line)] bg-white/50 p-5 text-center transition-colors hover:border-[color:var(--color-blue)]"
         >
           <input
             ref={fileInputRef}
@@ -515,7 +686,7 @@ function StepDetails({
         <button
           type="button"
           onClick={onBack}
-          className="h-[52px] rounded-md border border-[color:var(--color-line)] px-5 text-sm font-medium text-[color:var(--color-ink-soft)] hover:border-[color:var(--color-ink-soft)]"
+          className="h-[54px] rounded-md border border-[color:var(--color-line)] px-5 text-sm font-medium text-[color:var(--color-ink-soft)] hover:border-[color:var(--color-ink-soft)]"
         >
           Tilbage
         </button>
@@ -523,7 +694,7 @@ function StepDetails({
           type="button"
           onClick={onNext}
           disabled={!canContinue}
-          className="flex-1 h-[52px] rounded-md bg-[color:var(--color-blue)] px-5 text-sm font-semibold text-white transition-opacity hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-50"
+          className="h-[54px] flex-1 rounded-md bg-[color:var(--color-blue)] px-5 text-sm font-semibold text-white transition-opacity hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-50"
         >
           Fortsæt →
         </button>
@@ -534,34 +705,45 @@ function StepDetails({
 
 /* ---------------------- Step 4: Contact info ---------------------- */
 function StepContact({
+  audience,
   name,
   phone,
   email,
   city,
+  company,
   setName,
   setPhone,
   setEmail,
   setCity,
+  setCompany,
   status,
   serverMessage,
   onBack,
   onSubmit,
 }: {
+  audience: Audience;
   name: string;
   phone: string;
   email: string;
   city: string;
+  company: string;
   setName: (v: string) => void;
   setPhone: (v: string) => void;
   setEmail: (v: string) => void;
   setCity: (v: string) => void;
+  setCompany: (v: string) => void;
   status: Status;
   serverMessage: string;
   onBack: () => void;
   onSubmit: () => void;
 }) {
+  const isErhverv = audience === "erhverv";
+  const companyValid = !isErhverv || company.trim().length >= 2;
   const canSubmit =
-    name.trim().length >= 2 && phone.trim().length >= 6 && status !== "sending";
+    name.trim().length >= 2 &&
+    phone.trim().length >= 6 &&
+    companyValid &&
+    status !== "sending";
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -571,14 +753,25 @@ function StepContact({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5" noValidate>
-      <div>
-        <h2 className="font-display text-2xl font-extrabold leading-tight text-[color:var(--color-ink)] md:text-3xl">
+      <div className="text-center">
+        <h2 className="font-display text-2xl font-extrabold leading-tight text-[color:var(--color-ink)] md:text-[1.9rem]">
           Hvem skal Finn ringe til?
         </h2>
-        <p className="mt-2 text-sm text-[color:var(--color-ink-soft)] md:text-base">
+        <p className="mx-auto mt-2 max-w-sm text-sm text-[color:var(--color-ink-soft)]">
           Vi ringer typisk samme dag — du forpligter dig til intet.
         </p>
       </div>
+
+      {isErhverv ? (
+        <Field
+          label="Virksomhed"
+          required
+          value={company}
+          onChange={setCompany}
+          autoComplete="organization"
+          placeholder="Firma A/S"
+        />
+      ) : null}
 
       <div className="grid gap-4 sm:grid-cols-2">
         <Field
@@ -623,14 +816,14 @@ function StepContact({
         <button
           type="button"
           onClick={onBack}
-          className="h-[58px] rounded-md border border-[color:var(--color-line)] px-5 text-sm font-medium text-[color:var(--color-ink-soft)] hover:border-[color:var(--color-ink-soft)]"
+          className="h-[60px] rounded-md border border-[color:var(--color-line)] px-5 text-sm font-medium text-[color:var(--color-ink-soft)] hover:border-[color:var(--color-ink-soft)]"
         >
           Tilbage
         </button>
         <button
           type="submit"
           disabled={!canSubmit}
-          className="flex-1 h-[58px] rounded-md bg-[color:var(--color-blue)] px-5 text-base font-semibold text-white transition-opacity hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-50"
+          className="h-[60px] flex-1 rounded-md bg-[color:var(--color-blue)] px-5 text-base font-semibold text-white transition-opacity hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {status === "sending" ? "Sender…" : "Send til Finn →"}
         </button>
@@ -651,19 +844,29 @@ function StepContact({
 function StepDone({ name }: { name: string }) {
   const firstName = name.trim().split(" ")[0] || "";
   return (
-    <div className="space-y-4 py-4 text-center">
+    <div className="space-y-4 py-6 text-center">
       <div
         className="mx-auto inline-flex h-14 w-14 items-center justify-center rounded-full text-white"
         style={{ backgroundColor: "var(--color-blue)" }}
       >
-        <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+        <svg
+          viewBox="0 0 24 24"
+          width="28"
+          height="28"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden
+        >
           <polyline points="20 6 9 17 4 12" />
         </svg>
       </div>
-      <h2 className="font-display text-2xl font-extrabold leading-tight text-[color:var(--color-ink)] md:text-3xl">
+      <h2 className="font-display text-2xl font-extrabold leading-tight text-[color:var(--color-ink)] md:text-[1.9rem]">
         Tak{firstName ? `, ${firstName}` : ""} — vi er på det
       </h2>
-      <p className="mx-auto max-w-sm text-sm text-[color:var(--color-ink-soft)] md:text-base">
+      <p className="mx-auto max-w-sm text-sm text-[color:var(--color-ink-soft)]">
         Finn har modtaget din besked og vender personligt tilbage — typisk samme dag.
       </p>
     </div>
@@ -671,7 +874,7 @@ function StepDone({ name }: { name: string }) {
 }
 
 /* ---------------------- Shared ---------------------- */
-function BackButton({ onBack }: { onBack: () => void }) {
+function BackLink({ onBack }: { onBack: () => void }) {
   return (
     <button
       type="button"
