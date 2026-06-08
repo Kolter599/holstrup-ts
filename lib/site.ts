@@ -183,8 +183,8 @@ export const SERVICES: Service[] = [
     title: "Tagrenovering og tagudskiftning",
     shortTitle: "Tag",
     excerpt: "Udskiftning, reparation og isolering af tag — tegltag, stråtag, skifer og tagpap. Vi kan stå for hele processen eller samarbejde med dit eget firma.",
-    metaTitle: "Tagrenovering i Nordsjælland | Holstrup TS — 30+ års erfaring",
-    metaDescription: "Udskiftning og renovering af tag i Frederikssund, Hillerød og resten af Nordsjælland. Fast pris, BYG-garanti-lignende standard og 30+ års erfaring.",
+    metaTitle: "Tagrenovering i Nordsjælland – fast pris & gratis tjek",
+    metaDescription: "Nyt tag eller tagreparation i Nordsjælland. Gratis besigtigelse, fast pris og 30+ års erfaring. Vi tjekker undertag, ventilation og inddækning — ikke kun stenene.",
   },
   {
     slug: "traeterrasse",
@@ -239,8 +239,8 @@ export const SERVICES: Service[] = [
     title: "Døre og vinduer",
     shortTitle: "Døre og vinduer",
     excerpt: "Udskiftning af døre og vinduer — herunder Velux ovenlysvinduer. Vi tager hånd om den tætte tilslutning, isolering og den indvendige afslutning.",
-    metaTitle: "Udskiftning af døre og vinduer | Holstrup TS",
-    metaDescription: "Nye døre og vinduer i Nordsjælland — inkl. Velux ovenlys. Tæt, velisoleret og fagligt korrekt afsluttet.",
+    metaTitle: "Udskiftning af døre og vinduer i Nordsjælland – gratis opmåling",
+    metaDescription: "Skift døre og vinduer i Nordsjælland — inkl. Velux ovenlys. Gratis opmåling, uforpligtende tilbud og fast pris. 30+ års erfaring og tæt montage der sænker varmeregningen.",
   },
   {
     slug: "gipsvaeg",

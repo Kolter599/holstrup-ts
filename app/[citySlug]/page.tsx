@@ -30,8 +30,8 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   const { citySlug } = await params;
   const area = areaFromSlug(citySlug);
   if (!area) return {};
-  const title = `Tømrer ${area.name} | Holstrup TS — 30+ års erfaring`;
-  const description = `Holstrup TS løser tømrer- og entrepriseopgaver i ${area.name}. Tag, tilbygning, renovering og byggerådgivning. Ring til Finn på ${SITE.phoneDisplay}.`;
+  const title = `Tømrer ${area.name} – fast pris & gratis besøg`;
+  const description = `Erfaren tømrer i ${area.name} og omegn — tag, vinduer, tilbygning og renovering. Fast pris, gratis besigtigelse og 30+ års erfaring. Ring til Finn på ${SITE.phoneDisplay}.`;
   return {
     title,
     description,
