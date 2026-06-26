@@ -4,24 +4,17 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 
 type Status = "idle" | "sending" | "sent" | "error";
 type Attachment = { file: File; preview: string };
-type Step = "service" | "timing" | "details" | "contact" | "done";
+type Step = "service" | "contact" | "details" | "done";
 type Audience = "privat" | "erhverv";
 
 type ServiceTile = { value: string; label: string; subtitle: string; icon: ReactNode };
-type TimingTile = { value: string; label: string; subtitle: string };
 
 const MAX_PHOTOS = 5;
 const MAX_PHOTO_SIZE_MB = 8;
 const SESSION_KEY = "holstrup_visitor_id";
 
-const STEP_ORDER: Step[] = ["service", "timing", "details", "contact"];
-
-const TIMING_TILES: TimingTile[] = [
-  { value: "Hurtigst muligt", label: "Hurtigst muligt", subtitle: "Inden for nogle uger" },
-  { value: "Inden 3 måneder", label: "Inden 3 måneder", subtitle: "Vi planlægger fremad" },
-  { value: "Senere på året", label: "Senere på året", subtitle: "Vi har god tid" },
-  { value: "Bare et tilbud først", label: "Først et tilbud", subtitle: "Vi vil se økonomien" },
-];
+// Flow: service (hvad) → contact (oplysninger) → details (beskriv opgaven)
+const STEP_ORDER: Step[] = ["service", "contact", "details"];
 
 function getOrCreateSessionId(): string {
   if (typeof window === "undefined") return "";
@@ -137,13 +130,6 @@ const IconHardhat = () => (
   </svg>
 );
 
-const IconClock = () => (
-  <svg {...iconProps}>
-    <circle cx="12" cy="12" r="8" />
-    <path d="M12 8v4l2.5 2.5" />
-  </svg>
-);
-
 const SERVICE_TILES_PRIVAT: ServiceTile[] = [
   { value: "Nyt tag", label: "Nyt tag", subtitle: "Tagrenovering, omlægning", icon: <IconRoof /> },
   { value: "Tilbygning / udestue", label: "Tilbygning", subtitle: "Tilbygning, udestue, garage", icon: <IconExtension /> },
@@ -166,7 +152,6 @@ export function ContactForm() {
   const [audience, setAudience] = useState<Audience>("privat");
   const [step, setStep] = useState<Step>("service");
   const [service, setService] = useState<string>("");
-  const [timing, setTiming] = useState<string>("");
   const [message, setMessage] = useState<string>("");
   const [photos, setPhotos] = useState<Attachment[]>([]);
   const [photoError, setPhotoError] = useState<string | null>(null);
@@ -182,8 +167,59 @@ export function ContactForm() {
   const draftTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Latest field snapshot for the leave-the-page beacon (avoids stale closures).
+  const snapshotRef = useRef({
+    audience,
+    service,
+    message,
+    name,
+    phone,
+    email,
+    city,
+    company,
+    status,
+  });
+  snapshotRef.current = { audience, service, message, name, phone, email, city, company, status };
+  const partialSentRef = useRef(false);
+
   useEffect(() => {
     sessionIdRef.current = getOrCreateSessionId();
+  }, []);
+
+  // If the visitor gave name + phone but leaves before pressing Send, fire a
+  // one-shot beacon so Finn still gets the warm lead. Server dedupes per session.
+  useEffect(() => {
+    function notifyIfAbandoned() {
+      if (partialSentRef.current) return;
+      const s = snapshotRef.current;
+      if (s.status === "sent" || s.status === "sending") return;
+      if (s.name.trim().length < 2 || s.phone.trim().length < 6) return;
+      if (!sessionIdRef.current || typeof navigator === "undefined" || !navigator.sendBeacon)
+        return;
+      partialSentRef.current = true;
+      const payload = JSON.stringify({
+        sessionId: sessionIdRef.current,
+        name: s.name,
+        email: s.email,
+        phone: s.phone,
+        city: s.city,
+        service: serviceForDraft(s.audience, s.service),
+        message: composeMessage(s.audience, s.company, s.message),
+      });
+      navigator.sendBeacon(
+        "/api/contact-partial",
+        new Blob([payload], { type: "application/json" }),
+      );
+    }
+    function onVisibility() {
+      if (document.visibilityState === "hidden") notifyIfAbandoned();
+    }
+    window.addEventListener("pagehide", notifyIfAbandoned);
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => {
+      window.removeEventListener("pagehide", notifyIfAbandoned);
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
   }, []);
 
   useEffect(() => {
@@ -193,7 +229,7 @@ export function ContactForm() {
 
   useEffect(() => {
     if (!sessionIdRef.current) return;
-    if (!service && !timing && !message && !name && !phone && !email && !city && !company)
+    if (!service && !message && !name && !phone && !email && !city && !company)
       return;
     if (draftTimerRef.current) clearTimeout(draftTimerRef.current);
     draftTimerRef.current = setTimeout(() => {
@@ -207,7 +243,7 @@ export function ContactForm() {
           phone,
           city,
           service: serviceForDraft(audience, service),
-          message: composeMessage(audience, timing, company, message),
+          message: composeMessage(audience, company, message),
         }),
         keepalive: true,
       }).catch(() => {});
@@ -215,7 +251,7 @@ export function ContactForm() {
     return () => {
       if (draftTimerRef.current) clearTimeout(draftTimerRef.current);
     };
-  }, [audience, service, timing, message, name, phone, email, city, company]);
+  }, [audience, service, message, name, phone, email, city, company]);
 
   function selectAudience(next: Audience) {
     if (next === audience) return;
@@ -225,12 +261,7 @@ export function ContactForm() {
 
   function selectService(value: string) {
     setService(value);
-    setTimeout(() => setStep("timing"), 180);
-  }
-
-  function selectTiming(value: string) {
-    setTiming(value);
-    setTimeout(() => setStep("details"), 180);
+    setTimeout(() => setStep("contact"), 180);
   }
 
   function addFiles(fileList: FileList | null) {
@@ -275,7 +306,7 @@ export function ContactForm() {
     out.set("phone", phone.trim());
     out.set("city", city.trim());
     out.set("service", serviceForDraft(audience, service));
-    out.set("message", composeMessage(audience, timing, company, message));
+    out.set("message", composeMessage(audience, company, message));
     out.set("sessionId", sessionIdRef.current);
     photos.forEach((p, i) => out.append(`photo_${i}`, p.file, p.file.name));
 
@@ -331,28 +362,6 @@ export function ContactForm() {
             onSelect={selectService}
           />
         )}
-        {step === "timing" && (
-          <StepTiming
-            tiles={TIMING_TILES}
-            selected={timing}
-            onSelect={selectTiming}
-            onBack={() => setStep("service")}
-          />
-        )}
-        {step === "details" && (
-          <StepDetails
-            service={service}
-            message={message}
-            setMessage={setMessage}
-            photos={photos}
-            photoError={photoError}
-            fileInputRef={fileInputRef}
-            onAddFiles={addFiles}
-            onRemovePhoto={removePhoto}
-            onBack={() => setStep("timing")}
-            onNext={() => setStep("contact")}
-          />
-        )}
         {step === "contact" && (
           <StepContact
             audience={audience}
@@ -366,9 +375,23 @@ export function ContactForm() {
             setEmail={setEmail}
             setCity={setCity}
             setCompany={setCompany}
+            onBack={() => setStep("service")}
+            onNext={() => setStep("details")}
+          />
+        )}
+        {step === "details" && (
+          <StepDetails
+            service={service}
+            message={message}
+            setMessage={setMessage}
+            photos={photos}
+            photoError={photoError}
+            fileInputRef={fileInputRef}
+            onAddFiles={addFiles}
+            onRemovePhoto={removePhoto}
             status={status}
             serverMessage={serverMessage}
-            onBack={() => setStep("details")}
+            onBack={() => setStep("contact")}
             onSubmit={submit}
           />
         )}
@@ -380,14 +403,12 @@ export function ContactForm() {
 
 function composeMessage(
   audience: Audience,
-  timing: string,
   company: string,
   message: string
 ): string {
   const lines: string[] = [];
   lines.push(`Kundetype: ${audience === "erhverv" ? "Erhverv" : "Privat"}`);
   if (audience === "erhverv" && company.trim()) lines.push(`Virksomhed: ${company.trim()}`);
-  if (timing) lines.push(`Tidsramme: ${timing}`);
   const meta = lines.join("\n");
   const body = message.trim();
   return body ? `${meta}\n\n${body}` : meta;
@@ -501,73 +522,7 @@ function AudienceToggle({
   );
 }
 
-/* ---------------------- Step 2: Timing ---------------------- */
-function StepTiming({
-  tiles,
-  selected,
-  onSelect,
-  onBack,
-}: {
-  tiles: TimingTile[];
-  selected: string;
-  onSelect: (v: string) => void;
-  onBack: () => void;
-}) {
-  return (
-    <div className="space-y-6">
-      <div className="text-center">
-        <h2 className="font-display text-2xl font-extrabold leading-tight text-[color:var(--color-ink)] md:text-[1.9rem]">
-          Hvornår skal det laves?
-        </h2>
-        <p className="mx-auto mt-2 max-w-sm text-sm text-[color:var(--color-ink-soft)]">
-          Bare så Finn ved hvor meget planlægning der er — du forpligter dig til intet.
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-        {tiles.map((t) => {
-          const isActive = selected === t.value;
-          return (
-            <button
-              key={t.value}
-              type="button"
-              onClick={() => onSelect(t.value)}
-              className={
-                "flex items-start gap-3.5 rounded-md border-2 bg-white p-4 text-left transition-all duration-200 hover:border-[color:var(--color-blue)] hover:bg-[color:var(--color-blue)]/[0.03] " +
-                (isActive
-                  ? "border-[color:var(--color-blue)] bg-[color:var(--color-blue)]/[0.05] shadow-sm"
-                  : "border-[color:var(--color-line)]")
-              }
-            >
-              <span
-                className={
-                  "mt-0.5 shrink-0 " +
-                  (isActive ? "text-[color:var(--color-blue)]" : "text-[color:var(--color-ink-soft)]")
-                }
-              >
-                <IconClock />
-              </span>
-              <span className="flex-1">
-                <span className="block font-display text-base font-bold leading-tight text-[color:var(--color-ink)]">
-                  {t.label}
-                </span>
-                <span className="mt-1 block text-xs text-[color:var(--color-ink-soft)]">
-                  {t.subtitle}
-                </span>
-              </span>
-            </button>
-          );
-        })}
-      </div>
-
-      <div className="text-center">
-        <BackLink onBack={onBack} />
-      </div>
-    </div>
-  );
-}
-
-/* ---------------------- Step 3: Details + Photos ---------------------- */
+/* ---------------------- Step 3: Details + Photos (final — submits) ---------------------- */
 function StepDetails({
   service,
   message,
@@ -577,8 +532,10 @@ function StepDetails({
   fileInputRef,
   onAddFiles,
   onRemovePhoto,
+  status,
+  serverMessage,
   onBack,
-  onNext,
+  onSubmit,
 }: {
   service: string;
   message: string;
@@ -588,10 +545,12 @@ function StepDetails({
   fileInputRef: React.RefObject<HTMLInputElement | null>;
   onAddFiles: (files: FileList | null) => void;
   onRemovePhoto: (i: number) => void;
+  status: Status;
+  serverMessage: string;
   onBack: () => void;
-  onNext: () => void;
+  onSubmit: () => void;
 }) {
-  const canContinue = message.trim().length >= 5;
+  const canSubmit = message.trim().length >= 5 && status !== "sending";
 
   return (
     <div className="space-y-6">
@@ -686,24 +645,32 @@ function StepDetails({
         <button
           type="button"
           onClick={onBack}
-          className="h-[54px] rounded-md border border-[color:var(--color-line)] px-5 text-sm font-medium text-[color:var(--color-ink-soft)] hover:border-[color:var(--color-ink-soft)]"
+          className="h-[60px] rounded-md border border-[color:var(--color-line)] px-5 text-sm font-medium text-[color:var(--color-ink-soft)] hover:border-[color:var(--color-ink-soft)]"
         >
           Tilbage
         </button>
         <button
           type="button"
-          onClick={onNext}
-          disabled={!canContinue}
-          className="h-[54px] flex-1 rounded-md bg-[color:var(--color-blue)] px-5 text-sm font-semibold text-white transition-opacity hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-50"
+          onClick={onSubmit}
+          disabled={!canSubmit}
+          className="h-[60px] flex-1 rounded-md bg-[color:var(--color-blue)] px-5 text-base font-semibold text-white transition-opacity hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          Fortsæt →
+          {status === "sending" ? "Sender…" : "Send til Finn →"}
         </button>
       </div>
+
+      <p className="text-center text-xs text-[color:var(--color-muted)]">
+        Vi videregiver ikke dine oplysninger. Finn vender personligt tilbage.
+      </p>
+
+      {status === "error" && serverMessage ? (
+        <p className="text-sm text-red-600">{serverMessage}</p>
+      ) : null}
     </div>
   );
 }
 
-/* ---------------------- Step 4: Contact info ---------------------- */
+/* ---------------------- Step 2: Contact info ---------------------- */
 function StepContact({
   audience,
   name,
@@ -716,10 +683,8 @@ function StepContact({
   setEmail,
   setCity,
   setCompany,
-  status,
-  serverMessage,
   onBack,
-  onSubmit,
+  onNext,
 }: {
   audience: Audience;
   name: string;
@@ -732,23 +697,18 @@ function StepContact({
   setEmail: (v: string) => void;
   setCity: (v: string) => void;
   setCompany: (v: string) => void;
-  status: Status;
-  serverMessage: string;
   onBack: () => void;
-  onSubmit: () => void;
+  onNext: () => void;
 }) {
   const isErhverv = audience === "erhverv";
   const companyValid = !isErhverv || company.trim().length >= 2;
-  const canSubmit =
-    name.trim().length >= 2 &&
-    phone.trim().length >= 6 &&
-    companyValid &&
-    status !== "sending";
+  const canContinue =
+    name.trim().length >= 2 && phone.trim().length >= 6 && companyValid;
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!canSubmit) return;
-    onSubmit();
+    if (!canContinue) return;
+    onNext();
   }
 
   return (
@@ -822,25 +782,17 @@ function StepContact({
         </button>
         <button
           type="submit"
-          disabled={!canSubmit}
+          disabled={!canContinue}
           className="h-[60px] flex-1 rounded-md bg-[color:var(--color-blue)] px-5 text-base font-semibold text-white transition-opacity hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {status === "sending" ? "Sender…" : "Send til Finn →"}
+          Fortsæt →
         </button>
       </div>
-
-      <p className="text-center text-xs text-[color:var(--color-muted)]">
-        Vi videregiver ikke dine oplysninger. Finn vender personligt tilbage.
-      </p>
-
-      {status === "error" && serverMessage ? (
-        <p className="text-sm text-red-600">{serverMessage}</p>
-      ) : null}
     </form>
   );
 }
 
-/* ---------------------- Step 5: Done ---------------------- */
+/* ---------------------- Step 4: Done ---------------------- */
 function StepDone({ name }: { name: string }) {
   const firstName = name.trim().split(" ")[0] || "";
   return (
@@ -874,18 +826,6 @@ function StepDone({ name }: { name: string }) {
 }
 
 /* ---------------------- Shared ---------------------- */
-function BackLink({ onBack }: { onBack: () => void }) {
-  return (
-    <button
-      type="button"
-      onClick={onBack}
-      className="text-sm text-[color:var(--color-muted)] underline-offset-2 hover:text-[color:var(--color-ink-soft)] hover:underline"
-    >
-      ← Tilbage
-    </button>
-  );
-}
-
 type FieldProps = {
   label: string;
   required?: boolean;

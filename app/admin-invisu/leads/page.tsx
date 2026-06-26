@@ -32,11 +32,13 @@ type LeadRow = {
 
 type Stage = { key: string; label: string; rank: number };
 
+// Funnel mirrors the form order: service → oplysninger (navn, telefon, email) → besked → sendt.
+// "Skrev besked" is the last draft stage before submit, so it ranks highest below "Sendt".
 function computeStage(r: LeadRow): Stage {
   if (r.submitted) return { key: "submitted", label: "Sendt", rank: 5 };
   if (r.message && r.message.length > 5) return { key: "message", label: "Skrev besked", rank: 4 };
-  if (r.phone) return { key: "phone", label: "Skrev telefon", rank: 3 };
-  if (r.email) return { key: "email", label: "Skrev email", rank: 2 };
+  if (r.email) return { key: "email", label: "Skrev email", rank: 3 };
+  if (r.phone) return { key: "phone", label: "Skrev telefon", rank: 2 };
   if (r.name) return { key: "name", label: "Skrev navn", rank: 1 };
   return { key: "started", label: "Påbegyndt", rank: 0 };
 }
