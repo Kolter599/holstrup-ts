@@ -204,31 +204,34 @@ export function entryDates(repoRoot, file, arrayDeclaration) {
   const ranges = entryRanges(source, arrayDeclaration);
   const times = blameLineTimes(repoRoot, file);
 
-  // Invariant: én entry pr. slug inden for beholderen. Holder den ikke, er
-  // intervallerne forskudt, og så er datoerne stille forkerte — værre end
-  // ingen datoer. Tælles kun inden for beholderen, da samme fil kan indeholde
-  // flere arrays (fx AREAS og SERVICES side om side).
-  const from = ranges[0]?.startLine ?? 1;
-  const to = ranges[ranges.length - 1]?.endLine ?? lines.length;
-  const slugCount = lines
-    .slice(from - 1, to)
-    .filter((l) => /^\s*slug:\s*"/.test(l)).length;
-  if (ranges.length !== slugCount) {
+  // En tom beholder betyder næsten altid at vi peger det forkerte sted hen.
+  // Hellere en fejl end et sitemap der stille mister alle sine datoer.
+  if (ranges.length === 0) {
     throw new Error(
-      `${file}: fandt ${ranges.length} entries men ${slugCount} slugs. ` +
-        `Er filen omformateret? Ret parseren frem for at stole på datoerne.`
+      `${file}: fandt ingen entries under "${arrayDeclaration}". Er filen omskrevet?`
     );
   }
 
   const result = new Map();
   for (const { startLine, endLine } of ranges) {
+    // Første slug i intervallet er entryens egen — indlejrede objekter
+    // (fx relatedService: { slug }) står altid efter.
     let slug = null;
     for (let n = startLine; n <= endLine && !slug; n++) {
-      const m = lines[n - 1]?.match(/^\s*slug:\s*"([^"]+)"/);
+      const m = lines[n - 1]?.match(/\bslug:\s*"([^"]+)"/);
       if (m) slug = m[1];
     }
     if (!slug) {
       throw new Error(`Entry på linje ${startLine}-${endLine} i ${file} har ingen slug`);
+    }
+    // Invariant: slugs er unikke. To entries med samme slug betyder at
+    // intervallerne er forskudt eller smeltet sammen — og så er datoerne
+    // stille forkerte, hvilket er værre end ingen datoer.
+    if (result.has(slug)) {
+      throw new Error(
+        `${file}: slug "${slug}" optræder i to entries (linje ${startLine}-${endLine}). ` +
+          `Intervallerne er forskudt — ret parseren frem for at stole på datoerne.`
+      );
     }
 
     let newest = 0;
