@@ -93,8 +93,12 @@ Gem i `public/images/`. Brug real fotos af Finns egne projekter så vidt muligt.
 `<lastmod>` kommer fra `lib/lastmod.ts`, som er **genereret og committet** ud fra
 git-historikken — ikke beregnet under build.
 
+Det sker **automatisk**: en GitHub Action kører ved hvert push til main, aflæser
+historikken og committer datoerne tilbage — men kun hvis de faktisk har flyttet sig.
+Du skal ikke huske noget.
+
 ```bash
-npm run lastmod            # skriv de nye datoer
+npm run lastmod            # kan køres i hånden, hvis du vil se resultatet med det samme
 npm run lastmod -- --check # se kun hvad der ville ændre sig
 ```
 
