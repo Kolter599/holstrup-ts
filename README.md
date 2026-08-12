@@ -87,3 +87,27 @@ Gem i `public/images/`. Brug real fotos af Finns egne projekter så vidt muligt.
 - Telefon: +45 40 17 38 93
 - E-mail: finn@holstrup-ts.dk
 - Adresse: Sundbylillevej 48, 3600 Frederikssund
+
+## Sitemap-datoer
+
+`<lastmod>` kommer fra `lib/lastmod.ts`, som er **genereret og committet** ud fra
+git-historikken — ikke beregnet under build.
+
+```bash
+npm run lastmod            # skriv de nye datoer
+npm run lastmod -- --check # se kun hvad der ville ændre sig
+```
+
+| Sidetype | Hvad datoen aflæses fra |
+|---|---|
+| Statiske sider | Filerne i sidens egen mappe under `app/` |
+| Ydelsessider | Den enkelte entry i `lib/service-content.ts` (`git blame` pr. linjeinterval) |
+| Bysider | AREAS-entryen i `lib/site.ts` **og** den delte `lib/city-content.ts` |
+
+Bysiderne deler dato med vilje: deres tekst genereres af `buildCityContent()`, så
+ændres generatoren, ændrer alle 20 sider sig faktisk. Ydelsessider dateres derimod
+hver for sig — retter du tagrenovering, rykker kun tagrenovering.
+
+Delte komponenter og `layout.tsx` tæller ikke med: retter du navigationen eller en
+farve, har siden ikke ændret indhold. Bevidst ikke `new Date()` — et `lastmod` der
+altid er "i dag" er præcis det signal Google lærer at ignorere.
