@@ -159,6 +159,8 @@ type ArticleInput = {
   datePublished: string;
   image?: string;
   url: string;
+  /** Seneste ægte rettelse — samme kilde som sitemap'ets lastmod. */
+  dateModified?: string;
 };
 
 export function ArticleJsonLd({ article }: { article: ArticleInput }) {
@@ -168,7 +170,9 @@ export function ArticleJsonLd({ article }: { article: ArticleInput }) {
     headline: article.title,
     description: article.description,
     datePublished: article.datePublished,
-    dateModified: article.datePublished,
+    // Falder tilbage på udgivelsesdatoen, men skal helst få den ægte
+    // rettelsesdato ind udefra, så schema og sitemap siger det samme.
+    dateModified: article.dateModified ?? article.datePublished,
     image: article.image ? `${SITE.url}${article.image}` : undefined,
     author: { "@id": `${SITE.url}/#person` },
     publisher: { "@id": `${SITE.url}/#business` },

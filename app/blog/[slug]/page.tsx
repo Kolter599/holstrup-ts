@@ -6,6 +6,7 @@ import { Breadcrumbs } from "../../_components/Breadcrumbs";
 import { ContactCta } from "../../_components/ContactCta";
 import { ArticleJsonLd } from "../../_components/JsonLd";
 import { getAllPosts, getPost } from "@/lib/blog";
+import { LASTMOD } from "@/lib/lastmod";
 import { SITE } from "@/lib/site";
 
 type Params = Promise<{ slug: string }>;
@@ -46,6 +47,7 @@ export default async function BlogPost({ params }: { params: Params }) {
           title: post.title,
           description: post.description,
           datePublished: post.date,
+          dateModified: LASTMOD[`/blog/${post.slug}`],
           image: post.image,
           url: `${SITE.url}/blog/${post.slug}`,
         }}

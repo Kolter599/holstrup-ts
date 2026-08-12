@@ -15,6 +15,9 @@
 export const LASTMOD: Record<string, string> = {
   "/": "2026-04-22",
   "/blog": "2026-04-22",
+  "/blog/byggeraadgiver-med-fingre-i-traeet": "2026-04-22",
+  "/blog/hvad-koster-nyt-tag-2026": "2026-04-22",
+  "/blog/totalentreprise-vs-hovedentreprise": "2026-04-22",
   "/cookies": "2026-04-22",
   "/kontakt": "2026-06-26",
   "/om": "2026-04-22",

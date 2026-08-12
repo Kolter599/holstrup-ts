@@ -51,7 +51,10 @@ const CONFIG = {
       sharedSources: ["lib/city-content.ts", "app/[citySlug]/page.tsx"],
     },
   ],
-  hubs: { "/ydelser": "/ydelser/" },
+  // Blogindlæg er én markdown-fil pr. side. De er udeladt af sitemap'et indtil
+  // bloggen åbnes, men siderne er live, så deres schema skal sige sandheden.
+  fileRoutes: [{ prefix: "/blog/", dir: "content/blog", extensions: [".md", ".mdx"] }],
+  hubs: { "/ydelser": "/ydelser/", "/blog": "/blog/" },
 };
 
 /* ------------------------------------------------------------------ *
