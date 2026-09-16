@@ -126,11 +126,14 @@ async function forwardAction(formData: FormData) {
     message: (r.message ?? "").trim(),
     photoCount: r.photo_count ?? 0,
   };
+  // A resend of the same lead mail, without the bureau copy — the point of
+  // the button is to reach Finn again, not to mail ourselves twice.
   const { sent } = await sendLeadMail({
     to: forwardTo(),
+    cc: null,
     subject: submitSubject(fields),
-    html: buildLeadHtml("forward", fields),
-    text: buildLeadText("forward", fields),
+    html: buildLeadHtml("submit", fields),
+    text: buildLeadText("submit", fields),
     replyTo: fields.email,
   });
   if (sent) {
@@ -382,7 +385,7 @@ export default async function AdminLeads({
                     ) : null}
                     {r.forwarded_at ? (
                       <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] text-emerald-800">
-                        sendt til Finn
+                        videresendt
                       </span>
                     ) : null}
                     {r.photo_count > 0 ? (
@@ -463,7 +466,7 @@ export default async function AdminLeads({
                       type="submit"
                       className="rounded-full bg-[#1347a6] px-3.5 py-1.5 text-[12.5px] font-medium text-white hover:opacity-90"
                     >
-                      {r.forwarded_at ? "Send til Finn igen" : "Videresend til Finn"}
+                      {r.forwarded_at ? "Videresend igen" : "Videresend"}
                     </button>
                   </form>
                   <span className="mx-1 h-4 w-px bg-[#dbd0b9]" aria-hidden />

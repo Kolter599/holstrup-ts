@@ -11,11 +11,12 @@ import { Resend } from "resend";
 // holstrup-ts.dk.
 const FROM_DEFAULT = "Holstrup TS via Invisu <info@invisu.dk>";
 
-// Leads land with the bureau first — Sebastian reads them and forwards to Finn
-// himself (one click in /admin-invisu/leads). Finn's address only exists as the
-// forward target, never as a default recipient.
-const TO_DEFAULT = "sebastian@invisu.dk";
-const FORWARD_DEFAULT = "finn@holstrup-ts.dk";
+// Leads go to Finn, with the bureau in copy on every single one. Note for
+// quota: Resend counts each To/CC recipient separately, so one lead mail is
+// two against the plan.
+const TO_DEFAULT = "finn@holstrup-ts.dk";
+const CC_DEFAULT = "sebastian@invisu.dk";
+const FORWARD_DEFAULT = TO_DEFAULT;
 
 export const NUDGE = "Ring inden for 24 timer — det er der opgaverne vindes.";
 
@@ -41,7 +42,13 @@ export function mailTo(): string {
   return process.env.CONTACT_TO_EMAIL ?? TO_DEFAULT;
 }
 
-/** Where "Videresend til Finn" in the admin sends a lead. */
+/** The bureau, in copy on every lead mail. Empty value turns the copy off. */
+export function mailCc(): string | undefined {
+  const cc = process.env.CONTACT_CC_EMAIL ?? CC_DEFAULT;
+  return cc.trim() ? cc : undefined;
+}
+
+/** Where "Videresend" in the admin sends a lead. */
 export function forwardTo(): string {
   return process.env.FORWARD_TO_EMAIL ?? FORWARD_DEFAULT;
 }
@@ -57,6 +64,8 @@ export async function sendLeadMail(args: {
   replyTo?: string;
   /** Defaults to mailTo(); only the admin forward passes something else. */
   to?: string;
+  /** Defaults to mailCc(); the admin forward passes null to send without copy. */
+  cc?: string | null;
   attachments?: MailAttachment[];
 }): Promise<SendResult> {
   const apiKey = process.env.RESEND_API_KEY;
@@ -68,6 +77,7 @@ export async function sendLeadMail(args: {
     const result = await resend.emails.send({
       from: mailFrom(),
       to: args.to ?? mailTo(),
+      cc: args.cc === null ? undefined : (args.cc ?? mailCc()),
       replyTo: args.replyTo || undefined,
       subject: args.subject,
       html: args.html,
@@ -103,22 +113,18 @@ export function partialSubject(f: LeadMail): string {
 
 /* --------------------------------- bodies -------------------------------- */
 
-type Variant = "submit" | "partial" | "forward";
+type Variant = "submit" | "partial";
 
 const COPY: Record<Variant, { title: string; intro: (name: string) => string }> = {
   submit: {
-    title: "Ny henvendelse fra holstrup-ts.dk",
-    intro: (name) => `${name || "En besøgende"} har sendt en henvendelse via holstrup-ts.dk.`,
+    title: "Du har fået en ny opgave fra hjemmesiden",
+    intro: (name) =>
+      `Hej Finn — ${name || "en besøgende"} har sendt en henvendelse via holstrup-ts.dk.`,
   },
   partial: {
-    title: "Nogen er i gang med en henvendelse",
+    title: "Nogen begyndte en henvendelse — men nåede ikke at sende",
     intro: (name) =>
-      `${name || "En besøgende"} har lagt sine kontaktoplysninger på holstrup-ts.dk uden at trykke "Send". Det er et varmt lead.`,
-  },
-  forward: {
-    title: "Ny opgave til dig fra hjemmesiden",
-    intro: (name) =>
-      `Hej Finn — ${name || "en besøgende"} har skrevet via holstrup-ts.dk. Her er deres oplysninger.`,
+      `Hej Finn — ${name || "en besøgende"} har lagt sine kontaktoplysninger på holstrup-ts.dk uden at trykke "Send". Det er et varmt lead.`,
   },
 };
 
@@ -187,7 +193,7 @@ export function buildReminderHtml(leads: ReminderLead[]): string {
   });
   return shell(
     leads.length === 1 ? "Der ligger stadig en henvendelse og venter" : `Der ligger ${leads.length} henvendelser og venter`,
-    `Disse har stået som "ny" i mere end et døgn. <strong>${escapeHtml(NUDGE)}</strong>`,
+    `Hej Finn — disse har stået som "ny" i mere end et døgn. <strong>${escapeHtml(NUDGE)}</strong>`,
     items,
     `<a href="${escapeHtml(leads[0]?.adminUrl ?? "")}" style="color:#1347a6">Markér dem som kontaktet i oversigten →</a>`,
     "Du får kun denne mail, så længe der ligger ubehandlede henvendelser.",

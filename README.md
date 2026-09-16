@@ -31,17 +31,19 @@ Set these in Vercel / `.env.local`:
 
 ```
 RESEND_API_KEY=
-CONTACT_TO_EMAIL=sebastian@invisu.dk   # alle leads lander her først
-FORWARD_TO_EMAIL=finn@holstrup-ts.dk   # "Videresend til Finn" i admin
+CONTACT_TO_EMAIL=finn@holstrup-ts.dk   # modtager af alle leads
+CONTACT_CC_EMAIL=sebastian@invisu.dk   # bureauet i kopi på hver eneste
+FORWARD_TO_EMAIL=finn@holstrup-ts.dk   # "Videresend"-knappen i admin
 DATABASE_URL=                          # Neon — uden den gemmes leads ikke
 BLOB_READ_WRITE_TOKEN=                 # Vercel Blob — billeder
 CRON_SECRET=                           # bearer-token til /api/cron/leads
 ALERT_WEBHOOK_URL=                     # valgfri push når mail fejler
 ```
 
-Leads sendes **kun** til `CONTACT_TO_EMAIL`. Finns adresse bruges udelukkende
-som mål for videresend-knappen i `/admin-invisu/leads` — ingen mail går
-automatisk til klienten.
+Alle lead-mails går til `CONTACT_TO_EMAIL` med `CONTACT_CC_EMAIL` i kopi —
+submit, påbegyndt, cron-genafsendelse og den daglige påmindelse. Sæt
+`CONTACT_CC_EMAIL=""` for at slå kopien fra. Bemærk at Resend tæller hver
+modtager (To **og** Cc) for sig i kvoten: én lead-mail er to mod planen.
 
 ## Leads må aldrig gå tabt
 
