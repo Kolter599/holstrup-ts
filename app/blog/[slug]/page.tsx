@@ -105,7 +105,7 @@ export default async function BlogPost({ params }: { params: Params }) {
         </section>
       )}
 
-      <LeadFormSection source={`/blog/${slug}`} />
+      <LeadFormSection path={`/blog/${slug}`} />
       <ContactCta />
     </>
   );

@@ -88,7 +88,7 @@ export default function AreasPage() {
         </div>
       </section>
 
-      <LeadFormSection source="/omraader" />
+      <LeadFormSection path="/omraader" />
       <ContactCta
         heading={<>Bor du <span style={{ color: "var(--color-accent)" }}>uden for listen</span>?</>}
         body="Ring alligevel — vi tager ofte opgaver i resten af Sjælland når omfanget passer. Den første snak er gratis."

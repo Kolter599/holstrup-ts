@@ -125,7 +125,7 @@ export default function ProjectsPage() {
 
       <CityMarquee variant="light" />
 
-      <LeadFormSection source="/projekter" />
+      <LeadFormSection path="/projekter" />
       <ContactCta />
     </>
   );

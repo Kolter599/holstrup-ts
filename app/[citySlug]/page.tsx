@@ -187,7 +187,7 @@ export default async function CityPage({ params }: { params: Params }) {
         ]}
       />
 
-      <LeadFormSection source={`/${citySlug}`} />
+      <LeadFormSection path={`/${citySlug}`} />
       <ContactCta
         heading={<>Opgave i <span style={{ color: "var(--color-accent)" }}>{area.name}</span>?</>}
         body="Ring til Finn personligt — du får én fagmand i røret, ikke et call-center. Den første besigtigelse er gratis og uforpligtende."

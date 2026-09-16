@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { LeadForm } from "@/app/_components/LeadForm";
+import { LeadFormPage } from "@/app/_components/LeadFormSection";
 
 export const metadata: Metadata = {
   title: "Få et tilbud — Holstrup TS",
@@ -23,8 +23,7 @@ export default function KontaktPage() {
 
       {/* Form stays constrained so the headline visually overflows it */}
       <div className="mx-auto mt-12 w-full max-w-[1160px] px-6 md:mt-16 md:px-8">
-        {/* No Blob store connected = no upload control, rest of the form works. */}
-        <LeadForm variant="full" source="/kontakt" photosEnabled={Boolean(process.env.BLOB_READ_WRITE_TOKEN)} />
+        <LeadFormPage />
       </div>
     </section>
   );

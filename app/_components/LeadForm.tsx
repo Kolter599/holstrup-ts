@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
 import { SITE } from "@/lib/site";
 import {
   SERVICE_GROUPS,
@@ -9,23 +10,25 @@ import {
   groupForSlug,
   type ServiceGroup,
 } from "@/lib/service-groups";
-
-type Status = "idle" | "sending" | "error";
-type Photo = { file: File; preview: string };
+import { claimSource, patch, resetForPath, useLeadState } from "@/lib/lead-form-store";
 
 const SESSION_KEY = "holstrup_visitor_id";
 const MAX_PHOTOS = 5;
 const MAX_PHOTO_SIZE_MB = 8;
-/** Sticky header is 80px; leave the description just below it after expanding. */
+/** Sticky header is 80px; land the target just below it. */
 const SCROLL_OFFSET = 96;
 
 export type LeadFormProps = {
-  /** "full" on /kontakt, "inline" at the bottom of content pages. */
-  variant?: "full" | "inline";
+  /** Unique per placement on a page — also the anchor id for the handoff. */
+  id: string;
+  /** "compact" sits beside the promise; "full" is the wide one after the proof. */
+  variant?: "full" | "compact";
+  /** Id of the placement that should open instead of this one. */
+  handoffTo?: string;
   /** Service slug of the page this form sits on — preselects the chip. */
   serviceSlug?: string;
-  /** Path the lead came from, so Finn can see which page produced it. */
-  source?: string;
+  /** Where this placement sits, e.g. /ydelser/tagrenovering#top. */
+  source: string;
   /** False when no Blob store is connected — hides the upload, rest still works. */
   photosEnabled?: boolean;
 };
@@ -56,60 +59,54 @@ function emailOk(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
 }
 
+function scrollTo(el: HTMLElement) {
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  window.scrollTo({
+    top: el.getBoundingClientRect().top + window.scrollY - SCROLL_OFFSET,
+    behavior: reduce ? "auto" : "smooth",
+  });
+}
+
 export function LeadForm({
+  id,
   variant = "full",
+  handoffTo,
   serviceSlug,
   source,
   photosEnabled = true,
 }: LeadFormProps) {
-  const [expanded, setExpanded] = useState(false);
-  const [done, setDone] = useState(false);
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [email, setEmail] = useState("");
-  const [message, setMessage] = useState("");
-  const [group, setGroup] = useState<ServiceGroup | null>(groupForSlug(serviceSlug));
-  const [detail, setDetail] = useState(detailForSlug(serviceSlug));
-  const [photos, setPhotos] = useState<Photo[]>([]);
-  const [photoError, setPhotoError] = useState<string | null>(null);
-  const [touched, setTouched] = useState<{ phone?: boolean; email?: boolean }>({});
-  const [status, setStatus] = useState<Status>("idle");
-  const [serverMessage, setServerMessage] = useState("");
+  const s = useLeadState();
+  const pathname = usePathname();
+  const compact = variant === "compact";
 
   const sessionIdRef = useRef("");
   const draftTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
   const detailsRef = useRef<HTMLFormElement>(null);
-  const partialSentRef = useRef(false);
 
-  const service = composeService(group, detail);
-  const pagePath = source ?? "/kontakt";
-
-  const snapshotRef = useRef({ name, phone, email, message, service, expanded });
-  snapshotRef.current = { name, phone, email, message, service, expanded };
+  const service = composeService(s.group, s.detail);
+  const expanded = s.expandedId === id;
 
   useEffect(() => {
     sessionIdRef.current = getOrCreateSessionId();
-    // /kontakt?ydelse=<slug> — an inline form gets the same thing via props.
-    if (serviceSlug) return;
-    try {
-      const slug = new URLSearchParams(window.location.search).get("ydelse") ?? undefined;
-      const preset = groupForSlug(slug);
-      if (preset) {
-        setGroup(preset);
-        setDetail(detailForSlug(slug));
+    const slugFromQuery = (() => {
+      if (serviceSlug) return serviceSlug;
+      try {
+        return new URLSearchParams(window.location.search).get("ydelse") ?? undefined;
+      } catch {
+        return undefined;
       }
-    } catch {
-      /* no query string, no problem */
-    }
-  }, [serviceSlug]);
+    })();
+    resetForPath(pathname ?? "", groupForSlug(slugFromQuery), detailForSlug(slugFromQuery));
+  }, [pathname, serviceSlug]);
 
-  useEffect(() => () => photos.forEach((p) => URL.revokeObjectURL(p.preview)), [photos]);
-
-  // Autosave as they type, so a partial row exists even if they never click on.
+  // Only the placement they are actually typing in talks to the server, so two
+  // forms on one page never race each other with two drafts.
+  const owns = s.activeId === id;
   useEffect(() => {
-    if (!sessionIdRef.current) return;
-    if (!name && !phone && !email && !message && !service) return;
+    if (!owns || !sessionIdRef.current) return;
+    if (!s.name && !s.phone && !s.email && !s.message && !service) return;
     if (draftTimerRef.current) clearTimeout(draftTimerRef.current);
     draftTimerRef.current = setTimeout(() => {
       void fetch("/api/contact-draft", {
@@ -117,12 +114,12 @@ export function LeadForm({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           sessionId: sessionIdRef.current,
-          name,
-          phone,
-          email,
-          message,
+          name: s.name,
+          phone: s.phone,
+          email: s.email,
+          message: s.message,
           service,
-          source: pagePath,
+          source: s.leadSource || source,
         }),
         keepalive: true,
       }).catch(() => {});
@@ -130,40 +127,15 @@ export function LeadForm({
     return () => {
       if (draftTimerRef.current) clearTimeout(draftTimerRef.current);
     };
-  }, [name, phone, email, message, service, pagePath]);
+  }, [owns, s.name, s.phone, s.email, s.message, s.leadSource, service, source]);
 
-  /**
-   * Clicking "Beskriv opgaven" IS the lead: from here on we can reach them.
-   * The mail goes out on that click — not on a timer, not on unload. If they
-   * never describe the job, Finn already has the name, number and service.
-   */
-  function notifyPartial() {
-    if (partialSentRef.current || !sessionIdRef.current) return;
-    partialSentRef.current = true;
-    const s = snapshotRef.current;
-    void fetch("/api/contact-partial", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        sessionId: sessionIdRef.current,
-        name: s.name,
-        phone: s.phone,
-        email: s.email,
-        service: s.service,
-        source: pagePath,
-      }),
-      keepalive: true,
-    }).catch(() => {});
-  }
-
-  // Backup only: they filled in a number and closed the tab before clicking on.
+  // Backup only: a number typed in, then the tab closed before clicking on.
   useEffect(() => {
     function onLeave() {
-      const s = snapshotRef.current;
-      if (partialSentRef.current || s.expanded) return;
+      if (!owns || s.partialSent || s.expandedId) return;
       if (!phoneOk(s.phone) && !emailOk(s.email)) return;
       if (typeof navigator === "undefined" || !navigator.sendBeacon) return;
-      partialSentRef.current = true;
+      patch({ partialSent: true });
       navigator.sendBeacon(
         "/api/contact-partial",
         new Blob(
@@ -173,8 +145,8 @@ export function LeadForm({
               name: s.name,
               phone: s.phone,
               email: s.email,
-              service: s.service,
-              source: pagePath,
+              service,
+              source: s.leadSource || source,
             }),
           ],
           { type: "application/json" },
@@ -183,147 +155,180 @@ export function LeadForm({
     }
     window.addEventListener("pagehide", onLeave);
     return () => window.removeEventListener("pagehide", onLeave);
-  }, [pagePath]);
+  });
 
-  // On phones the panel grows downwards, so bring the description into view
-  // while leaving their own details visible above it. On desktop the panel
-  // widens sideways instead and nothing needs to move.
+  // Whoever just opened brings itself into view: the whole panel after a
+  // handoff, otherwise (phones only) the description, so their own details
+  // stay visible above it. Desktop widens sideways and needs no scrolling.
   useEffect(() => {
-    if (!expanded || !detailsRef.current) return;
-    if (window.matchMedia("(min-width: 1024px)").matches) return;
-    const el = detailsRef.current;
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    requestAnimationFrame(() => {
-      window.scrollTo({
-        top: el.getBoundingClientRect().top + window.scrollY - SCROLL_OFFSET,
-        behavior: reduce ? "auto" : "smooth",
-      });
-    });
-  }, [expanded]);
+    if (!expanded) return;
+    const handedOff = s.pendingScroll === id;
+    if (handedOff) patch({ pendingScroll: null });
+    const desktop = window.matchMedia("(min-width: 1024px)").matches;
+    const el = handedOff ? wrapperRef.current : desktop ? null : detailsRef.current;
+    if (!el) return;
+    requestAnimationFrame(() => scrollTo(el));
+  }, [expanded, s.pendingScroll, id]);
 
-  const phoneError = touched.phone && !phoneOk(phone) ? "Skriv et telefonnummer på 8 cifre." : null;
-  const emailError =
-    touched.email && email.trim() && !emailOk(email) ? "E-mailen ser ikke rigtig ud." : null;
-
-  function expand(e: React.FormEvent) {
-    e.preventDefault();
-    setTouched((t) => ({ ...t, phone: true }));
-    if (!phoneOk(phone)) return;
-    notifyPartial();
-    setExpanded(true);
+  function edit(next: Parameters<typeof patch>[0]) {
+    claimSource(id, source);
+    patch(next);
   }
 
-  function chooseGroup(g: ServiceGroup) {
-    if (g === group) return;
-    setGroup(g);
-    // They just corrected us — the slug we came in with no longer describes it.
-    setDetail("");
+  /**
+   * Clicking "Beskriv opgaven" IS the lead: from here on we can reach them, so
+   * the mail goes out on that click. A compact placement hands the job over to
+   * the wide one — same state, so nothing they typed is lost.
+   */
+  function expand(e: React.FormEvent) {
+    e.preventDefault();
+    patch({ touched: { ...s.touched, phone: true } });
+    if (!phoneOk(s.phone)) return;
+
+    const target = handoffTo ?? id;
+    if (!s.partialSent && sessionIdRef.current) {
+      patch({ partialSent: true });
+      void fetch("/api/contact-partial", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sessionId: sessionIdRef.current,
+          name: s.name,
+          phone: s.phone,
+          email: s.email,
+          service,
+          source: s.leadSource || source,
+        }),
+        keepalive: true,
+      }).catch(() => {});
+    }
+    patch({ expandedId: target, pendingScroll: target === id ? null : target });
   }
 
   function addFiles(list: FileList | null) {
     if (!list || list.length === 0) return;
-    setPhotoError(null);
-    const next = [...photos];
+    const next = [...s.photos];
+    let err: string | null = null;
     for (const file of Array.from(list)) {
       if (next.length >= MAX_PHOTOS) {
-        setPhotoError(`Max ${MAX_PHOTOS} billeder.`);
+        err = `Max ${MAX_PHOTOS} billeder.`;
         break;
       }
       if (!file.type.startsWith("image/")) {
-        setPhotoError("Kun billed-filer (jpg, png, heic).");
+        err = "Kun billed-filer (jpg, png, heic).";
         continue;
       }
       if (file.size > MAX_PHOTO_SIZE_MB * 1024 * 1024) {
-        setPhotoError(`Billeder skal være under ${MAX_PHOTO_SIZE_MB} MB.`);
+        err = `Billeder skal være under ${MAX_PHOTO_SIZE_MB} MB.`;
         continue;
       }
       next.push({ file, preview: URL.createObjectURL(file) });
     }
-    setPhotos(next);
+    patch({ photos: next, photoError: err });
+  }
+
+  function removePhoto(index: number) {
+    const next = [...s.photos];
+    const [removed] = next.splice(index, 1);
+    if (removed) URL.revokeObjectURL(removed.preview);
+    patch({ photos: next });
   }
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (status === "sending") return;
-    setStatus("sending");
-    setServerMessage("");
+    if (s.status === "sending") return;
+    patch({ status: "sending", serverMessage: "" });
 
     const out = new FormData();
-    out.set("name", name.trim());
-    out.set("email", email.trim());
-    out.set("phone", phone.trim());
+    out.set("name", s.name.trim());
+    out.set("email", s.email.trim());
+    out.set("phone", s.phone.trim());
     out.set("service", service);
-    out.set("message", message.trim());
-    out.set("source", pagePath);
+    out.set("message", s.message.trim());
+    out.set("source", s.leadSource || source);
     out.set("sessionId", sessionIdRef.current);
-    photos.forEach((p, i) => out.append(`photo_${i}`, p.file, p.file.name));
+    s.photos.forEach((p, i) => out.append(`photo_${i}`, p.file, p.file.name));
 
     try {
       const res = await fetch("/api/contact", { method: "POST", body: out });
       const json = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setStatus("error");
-        setServerMessage(json.error || "Noget gik galt. Prøv igen, eller ring direkte.");
+        patch({
+          status: "error",
+          serverMessage: json.error || "Noget gik galt. Prøv igen, eller ring direkte.",
+        });
         return;
       }
-      setStatus("idle");
-      setDone(true);
+      patch({ status: "idle", done: true });
     } catch {
-      setStatus("error");
-      setServerMessage("Kunne ikke sende. Tjek din forbindelse, eller ring direkte.");
+      patch({
+        status: "error",
+        serverMessage: "Kunne ikke sende. Tjek din forbindelse, eller ring direkte.",
+      });
     }
   }
 
-  const firstName = name.trim().split(" ")[0];
-  const compact = variant === "inline";
+  const phoneError =
+    s.touched.phone && !phoneOk(s.phone) ? "Skriv et telefonnummer på 8 cifre." : null;
+  const emailError =
+    s.touched.email && s.email.trim() && !emailOk(s.email) ? "E-mailen ser ikke rigtig ud." : null;
+  const firstName = s.name.trim().split(" ")[0];
 
   return (
     <div
+      id={id}
+      ref={wrapperRef}
       className={
-        "mx-auto w-full transition-[max-width] duration-500 ease-out max-w-[680px] " +
-        (expanded && !done ? "lg:max-w-[1160px]" : "")
+        "mx-auto w-full scroll-mt-28 transition-[max-width] duration-500 ease-out " +
+        (compact ? "max-w-full " : "max-w-[680px] ") +
+        (expanded && !s.done && !compact ? "lg:max-w-[1160px]" : "")
       }
     >
       <div className="overflow-hidden rounded-lg border border-[color:var(--color-line)] bg-[color:var(--color-surface)]">
-        {done ? (
-          <Done firstName={firstName} />
+        {s.done ? (
+          <Done firstName={firstName} compact={compact} />
         ) : (
           <div
             className={
-              (compact ? "px-5 py-6 md:px-8 md:py-8 " : "px-6 py-8 md:px-10 md:py-10 ") +
-              // Widen into two columns instead of reflowing what they typed:
-              // the left column keeps exactly the width it had.
-              (expanded ? "lg:grid lg:grid-cols-[minmax(0,600px)_minmax(0,1fr)] lg:gap-10" : "")
+              (compact ? "px-5 py-6 " : "px-6 py-8 md:px-10 md:py-10 ") +
+              (expanded && !compact
+                ? "lg:grid lg:grid-cols-[minmax(0,600px)_minmax(0,1fr)] lg:gap-10"
+                : "")
             }
           >
-            {/* ---------------- contact details, always visible ---------------- */}
-            <form onSubmit={expand} noValidate className="space-y-5">
-              <div className={compact ? "" : "text-center"}>
+            <form onSubmit={expand} noValidate className="space-y-4">
+              <div className={compact ? "" : "space-y-1 text-center"}>
                 <h2
                   className={
                     "font-display font-extrabold leading-tight text-[color:var(--color-ink)] " +
-                    (compact ? "text-xl md:text-2xl" : "text-2xl md:text-[1.9rem]")
+                    (compact ? "text-lg" : "text-2xl md:text-[1.9rem]")
                   }
                 >
                   Få et uforpligtende tilbud
                 </h2>
                 <p
                   className={
-                    "mt-2 text-sm text-[color:var(--color-ink-soft)] " +
-                    (compact ? "" : "mx-auto max-w-sm")
+                    "text-sm text-[color:var(--color-ink-soft)] " +
+                    (compact ? "mt-1" : "mx-auto max-w-sm pt-1")
                   }
                 >
                   Vi ringer typisk samme dag. Du forpligter dig til intet.
                 </p>
               </div>
 
-              <Field label="Navn" value={name} onChange={setName} autoComplete="name" placeholder="Fornavn Efternavn" />
+              <Field
+                label="Navn"
+                value={s.name}
+                onChange={(v) => edit({ name: v })}
+                autoComplete="name"
+                placeholder="Fornavn Efternavn"
+              />
               <Field
                 label="Telefon"
                 required
-                value={phone}
-                onChange={setPhone}
-                onBlur={() => setTouched((t) => ({ ...t, phone: true }))}
+                value={s.phone}
+                onChange={(v) => edit({ phone: v })}
+                onBlur={() => patch({ touched: { ...s.touched, phone: true } })}
                 type="tel"
                 inputMode="tel"
                 autoComplete="tel"
@@ -333,9 +338,9 @@ export function LeadForm({
               <Field
                 label="E-mail"
                 optional
-                value={email}
-                onChange={setEmail}
-                onBlur={() => setTouched((t) => ({ ...t, email: true }))}
+                value={s.email}
+                onChange={(v) => edit({ email: v })}
+                onBlur={() => patch({ touched: { ...s.touched, email: true } })}
                 type="email"
                 inputMode="email"
                 autoComplete="email"
@@ -347,14 +352,17 @@ export function LeadForm({
                 <>
                   <button
                     type="submit"
-                    className="h-[60px] w-full rounded-md bg-[color:var(--color-blue)] px-5 text-base font-semibold text-white transition-opacity hover:opacity-95"
+                    className={
+                      "w-full rounded-md bg-[color:var(--color-blue)] px-5 font-semibold text-white transition-opacity hover:opacity-95 " +
+                      (compact ? "h-[52px] text-[15px]" : "h-[60px] text-base")
+                    }
                   >
                     Beskriv opgaven →
                   </button>
                   <p className="text-center text-xs text-[color:var(--color-muted)]">
                     Ved at klikke videre giver du lov til, at vi må kontakte dig om opgaven.
                   </p>
-                  <div className="!my-6 h-px w-full bg-[color:var(--color-line)]" />
+                  <div className="!my-5 h-px w-full bg-[color:var(--color-line)]" />
                   <p className="text-center text-sm text-[color:var(--color-ink-soft)]">
                     Eller ring:{" "}
                     <a href={`tel:${SITE.phone}`} className="font-semibold text-[color:var(--color-blue)]">
@@ -365,7 +373,6 @@ export function LeadForm({
               )}
             </form>
 
-            {/* ------------- the job: grows down on phones, sideways on desktop ------------- */}
             {expanded ? (
               <form
                 onSubmit={submit}
@@ -379,29 +386,29 @@ export function LeadForm({
                     tilbud.
                   </h3>
                   <p className="mt-2 text-sm text-[color:var(--color-ink-soft)]">
-                    Jo flere detaljer, jo nemmere er det for os.
+                    Jo flere detaljer, jo nemmere er det for os. Skriv gerne hvilken by opgaven er i.
                   </p>
                 </div>
 
                 <fieldset className="grid gap-2">
                   <legend className="text-sm font-medium text-[color:var(--color-ink)]">
-                    Hvad drejer det sig om?
+                    Er du privat eller erhverv?
                   </legend>
                   <div className="flex flex-wrap gap-2">
-                    {SERVICE_GROUPS.map((g) => (
+                    {CUSTOMER_TYPES.map((t) => (
                       <button
-                        key={g}
+                        key={t}
                         type="button"
-                        onClick={() => chooseGroup(g)}
-                        aria-pressed={group === g}
+                        onClick={() => edit({ customerType: t })}
+                        aria-pressed={s.customerType === t}
                         className={
                           "rounded-full border-2 px-4 py-2 text-sm font-medium transition-colors " +
-                          (group === g
+                          (s.customerType === t
                             ? "border-[color:var(--color-blue)] bg-[color:var(--color-blue)]/[0.06] text-[color:var(--color-blue)]"
                             : "border-[color:var(--color-line)] bg-white text-[color:var(--color-ink)] hover:border-[color:var(--color-blue)]")
                         }
                       >
-                        {g}
+                        {t}
                       </button>
                     ))}
                   </div>
@@ -413,9 +420,9 @@ export function LeadForm({
                   </span>
                   <textarea
                     rows={5}
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    placeholder="Fx 'Nyt tag på 110 m² hus — eternit der trænger til udskiftning.'"
+                    value={s.message}
+                    onChange={(e) => edit({ message: e.target.value })}
+                    placeholder={"Fx 'Nyt tag på 110 m\u00b2 hus i Hiller\u00f8d \u2014 eternit der tr\u00e6nger til udskiftning.'\n\nSkriv gerne hvor i landet opgaven er, s\u00e5 kan vi sige noget om tid og pris med det samme."}
                     className="rounded-md border border-[color:var(--color-line)] bg-white p-4 text-base text-[color:var(--color-ink)] focus:outline-none focus:ring-2 focus:ring-[color:var(--color-blue)]"
                   />
                 </label>
@@ -456,25 +463,18 @@ export function LeadForm({
                         Et billede af taget eller vinduet hjælper os meget.
                       </p>
                     </div>
-                    {photos.length > 0 ? (
+                    {s.photos.length > 0 ? (
                       <ul className="mt-2 grid grid-cols-3 gap-2 sm:grid-cols-5">
-                        {photos.map((p, i) => (
+                        {s.photos.map((p, i) => (
                           <li
-                            key={i}
+                            key={p.preview}
                             className="relative aspect-square overflow-hidden rounded-md border border-[color:var(--color-line)] bg-white"
                           >
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img src={p.preview} alt="" className="absolute inset-0 h-full w-full object-cover" />
                             <button
                               type="button"
-                              onClick={() =>
-                                setPhotos((prev) => {
-                                  const next = [...prev];
-                                  const [removed] = next.splice(i, 1);
-                                  if (removed) URL.revokeObjectURL(removed.preview);
-                                  return next;
-                                })
-                              }
+                              onClick={() => removePhoto(i)}
                               className="absolute right-1 top-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-black/65 text-xs text-white hover:bg-black"
                               aria-label="Fjern billede"
                             >
@@ -484,20 +484,20 @@ export function LeadForm({
                         ))}
                       </ul>
                     ) : null}
-                    {photoError ? <p className="text-xs text-red-600">{photoError}</p> : null}
+                    {s.photoError ? <p className="text-xs text-red-600">{s.photoError}</p> : null}
                   </div>
                 ) : null}
 
                 <button
                   type="submit"
-                  disabled={status === "sending"}
+                  disabled={s.status === "sending"}
                   className="h-[60px] w-full rounded-md bg-[color:var(--color-blue)] px-5 text-base font-semibold text-white transition-opacity hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  {status === "sending" ? "Sender…" : "Send til Holstrup"}
+                  {s.status === "sending" ? "Sender…" : "Send til Holstrup"}
                 </button>
 
-                {status === "error" && serverMessage ? (
-                  <p className="text-sm text-red-600">{serverMessage}</p>
+                {s.status === "error" && s.serverMessage ? (
+                  <p className="text-sm text-red-600">{s.serverMessage}</p>
                 ) : null}
               </form>
             ) : null}
@@ -506,22 +506,33 @@ export function LeadForm({
       </div>
     </div>
   );
+
+  function chooseGroup(g: ServiceGroup) {
+    if (g === s.group) return;
+    // They just corrected us — the slug we arrived with no longer describes it.
+    edit({ group: g, detail: "" });
+  }
 }
 
 /* --------------------------------- pieces -------------------------------- */
 
-function Done({ firstName }: { firstName: string }) {
+function Done({ firstName, compact }: { firstName: string; compact: boolean }) {
   return (
-    <div className="space-y-4 px-6 py-10 text-center md:px-10">
+    <div className={"space-y-3 text-center " + (compact ? "px-5 py-8" : "px-6 py-10 md:px-10")}>
       <div
-        className="mx-auto inline-flex h-14 w-14 items-center justify-center rounded-full text-white"
+        className="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-full text-white"
         style={{ backgroundColor: "var(--color-blue)" }}
       >
-        <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+        <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
           <polyline points="20 6 9 17 4 12" />
         </svg>
       </div>
-      <h2 className="font-display text-2xl font-extrabold leading-tight text-[color:var(--color-ink)] md:text-[1.9rem]">
+      <h2
+        className={
+          "font-display font-extrabold leading-tight text-[color:var(--color-ink)] " +
+          (compact ? "text-lg" : "text-2xl md:text-[1.9rem]")
+        }
+      >
         Tak{firstName ? `, ${firstName}` : ""} — vi er på det
       </h2>
       <p className="mx-auto max-w-sm text-sm text-[color:var(--color-ink-soft)]">
@@ -562,7 +573,7 @@ function Field({
   error?: string | null;
 }) {
   return (
-    <label className="grid gap-2">
+    <label className="grid gap-1.5">
       <span className="text-sm font-medium text-[color:var(--color-ink)]">
         {label}
         {required ? <span className="text-[color:var(--color-muted)]"> *</span> : null}
@@ -578,7 +589,7 @@ function Field({
         inputMode={inputMode}
         aria-invalid={Boolean(error)}
         className={
-          "rounded-md border bg-white p-4 text-base text-[color:var(--color-ink)] focus:outline-none focus:ring-2 focus:ring-[color:var(--color-blue)] " +
+          "rounded-md border bg-white p-3.5 text-base text-[color:var(--color-ink)] focus:outline-none focus:ring-2 focus:ring-[color:var(--color-blue)] " +
           (error ? "border-red-500" : "border-[color:var(--color-line)]")
         }
       />

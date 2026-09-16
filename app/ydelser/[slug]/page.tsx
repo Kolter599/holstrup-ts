@@ -4,7 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Breadcrumbs } from "../../_components/Breadcrumbs";
 import { ContactCta } from "../../_components/ContactCta";
-import { LeadFormSection } from "../../_components/LeadFormSection";
+import { LeadFormAside, LeadFormSection } from "../../_components/LeadFormSection";
 import { Faq } from "../../_components/Faq";
 import { ServiceJsonLd } from "../../_components/JsonLd";
 import { SectionHeader } from "../../_components/SectionHeader";
@@ -85,7 +85,10 @@ export default async function ServicePage({ params }: { params: Params }) {
       {/* INDHOLD */}
       <section className="py-24 md:py-36">
         <div className="mx-auto max-w-7xl px-6 md:px-10 grid md:grid-cols-12 gap-12 md:gap-20">
-          <aside className="md:col-span-4 md:sticky md:top-32 self-start">
+          <aside className="md:col-span-4 md:order-2 md:sticky md:top-32 self-start">
+            {/* On phones this lands right after the intro, before the long copy. */}
+            <LeadFormAside path={`/ydelser/${svc.slug}`} serviceSlug={svc.slug} />
+            <div className="hairline my-8" />
             <div className="eyebrow-accent mb-4">Det omfatter</div>
             <ul className="space-y-3">
               {content.bullets.map((b, i) => (
@@ -101,7 +104,7 @@ export default async function ServicePage({ params }: { params: Params }) {
               30+ års erfaring fra rigtige byggepladser i Nordsjælland. Fast pris, skriftlig aftale, ét fast kontaktpunkt — fra første samtale til afleveringen.
             </p>
           </aside>
-          <div className="md:col-span-8 prose-body">
+          <div className="md:col-span-8 md:order-1 prose-body">
             {content.sections.map((s, i) => (
               <section key={i}>
                 <h2>{s.heading}</h2>
@@ -154,7 +157,7 @@ export default async function ServicePage({ params }: { params: Params }) {
 
       <Faq number="—" items={content.faq} title={`FAQ — ${svc.title.toLowerCase()}`} />
 
-      <LeadFormSection serviceSlug={svc.slug} source={`/ydelser/${svc.slug}`} />
+      <LeadFormSection path={`/ydelser/${svc.slug}`} serviceSlug={svc.slug} />
       <ContactCta />
     </>
   );

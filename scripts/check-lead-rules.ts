@@ -48,4 +48,35 @@ assert.equal(isReminderDue(null, now), true, "never reminded before");
 assert.equal(isReminderDue(hoursAgo(25), now), true);
 assert.equal(isReminderDue(hoursAgo(3), now), false, "already nagged today");
 
+/* --- two placements on one page are one lead --- */
+
+const store = await import("../lib/lead-form-store.ts");
+
+store.resetForPath("/ydelser/tagrenovering", "Tag", "Tagrenovering og tagudskiftning");
+assert.equal(store.getState().group, "Tag", "the page's slug preselects the chip");
+
+// Typing in the compact one claims the lead for that position.
+store.patch({ phone: "40173893" });
+store.claimSource("tilbud-top", "/ydelser/tagrenovering#top");
+assert.equal(store.getState().activeId, "tilbud-top");
+assert.equal(store.getState().leadSource, "/ydelser/tagrenovering#top");
+
+// The wide one below must not steal the attribution when they finish there.
+store.claimSource("tilbud", "/ydelser/tagrenovering#efter-proof");
+assert.equal(store.getState().leadSource, "/ydelser/tagrenovering#top", "source is set once");
+assert.equal(store.getState().phone, "40173893", "state is shared between placements");
+
+// Only one placement can be open, and the handoff keeps what was typed.
+store.patch({ expandedId: "tilbud" });
+assert.equal(store.getState().expandedId, "tilbud");
+assert.equal(store.getState().phone, "40173893");
+
+// Same page again = same lead; a different page starts a fresh one.
+const before = store.getState();
+store.resetForPath("/ydelser/tagrenovering", "Tag", "");
+assert.equal(store.getState(), before, "re-mount on the same page keeps the lead");
+store.resetForPath("/blog/hvad-koster-nyt-tag-2026", null, "");
+assert.equal(store.getState().phone, "", "a new page starts a new lead");
+assert.equal(store.getState().leadSource, "");
+
 console.log("lead rules OK");
