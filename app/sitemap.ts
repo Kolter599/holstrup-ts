@@ -45,6 +45,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const longform: MetadataRoute.Sitemap = [
     entry("/velux-ovenlysvinduer", "monthly", 0.9),
     entry("/velux-udskiftning-pris", "monthly", 0.85),
+    entry("/velux-frederikssund", "monthly", 0.85),
     entry("/traeterrasse-frederikssund", "monthly", 0.85),
     entry("/traeterrasse-egedal", "monthly", 0.8),
     entry("/guides/haevet-terrasse", "monthly", 0.8),

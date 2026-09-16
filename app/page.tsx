@@ -12,6 +12,7 @@ import { PartnerMarquee } from "./_components/PartnerMarquee";
 import { PartnerRow } from "./_components/PartnerRow";
 import { SITE, SERVICES, AREAS } from "@/lib/site";
 import { Reviews } from "./_components/Reviews";
+import { LeadFormAside, LeadFormSection } from "./_components/LeadFormSection";
 
 const HERO_SERVICES = ["tagrenovering", "tilbygning", "totalentreprise", "traeterrasse"];
 const PROCESS = [
@@ -117,7 +118,21 @@ export default function Home() {
           intro="Holstrup TS dækker hele faget. Klassiske tømreropgaver, hele entrepriser — og uvildig byggerådgivning fra en fagmand med fingre i træet."
         />
         <div className="mx-auto max-w-7xl px-6 md:px-10">
-          <div className="grid md:grid-cols-2 gap-px bg-[color:var(--color-line)] border border-[color:var(--color-line)]">
+          {/*
+            Formularen sidder i højre spalte og følger med ned gennem hele
+            ydelses-sektionen, præcis som på ydelsessiderne. På telefon står
+            den først i DOM'en, så den lander lige efter hero og de tre
+            trust-bullets — før den lange tekst, ikke efter den.
+
+            Fliserne bliver 1-op på md og 2-op fra lg, fordi spalten er
+            smallere her end når de lå i fuld bredde.
+          */}
+          <div className="grid md:grid-cols-12 gap-12 lg:gap-16">
+            <aside className="md:col-span-5 md:order-2 md:sticky md:top-32 self-start">
+              <LeadFormAside path="/" />
+            </aside>
+            <div className="md:col-span-7 md:order-1">
+          <div className="grid lg:grid-cols-2 gap-px bg-[color:var(--color-line)] border border-[color:var(--color-line)]">
             {HERO_SERVICES.map((slug, i) => {
               const s = SERVICES.find((x) => x.slug === slug)!;
               const img = `/images/service-${slug === "tagrenovering" ? "tag" : slug === "totalentreprise" ? "totalentreprise" : slug === "traeterrasse" ? "terrasse" : slug}.jpg`;
@@ -132,7 +147,7 @@ export default function Home() {
                       src={img}
                       alt={s.title}
                       fill
-                      sizes="(min-width:768px) 50vw, 100vw"
+                      sizes="(min-width:1024px) 30vw, (min-width:768px) 58vw, 100vw"
                       className="object-cover group-hover:scale-[1.03] transition-transform duration-700"
                     />
                   </div>
@@ -149,8 +164,10 @@ export default function Home() {
               );
             })}
           </div>
-          <div className="mt-10 flex justify-end">
-            <Link href="/ydelser" className="link-arrow">Se alle 12 ydelser</Link>
+              <div className="mt-10 flex justify-end">
+                <Link href="/ydelser" className="link-arrow">Se alle 12 ydelser</Link>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -282,6 +299,8 @@ export default function Home() {
       <Faq number="06" items={HOME_FAQ} />
 
       <Reviews />
+      {/* Anden og sidste placering — efter beviserne, samme som alle andre sider. */}
+      <LeadFormSection path="/" />
       <ContactCta />
     </>
   );

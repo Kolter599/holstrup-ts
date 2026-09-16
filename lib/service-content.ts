@@ -316,6 +316,7 @@ export const SERVICE_CONTENT: Record<string, ServiceContent> = {
     links: [
       { href: "/velux-ovenlysvinduer", label: "Velux ovenlysvinduer — montering til fast pris" },
       { href: "/velux-udskiftning-pris", label: "Hvad koster det at skifte et Velux-vindue?" },
+      { href: "/velux-frederikssund", label: "Velux montering i Frederikssund" },
     ],
   },
   gipsvaeg: {

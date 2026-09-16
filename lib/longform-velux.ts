@@ -162,6 +162,11 @@ export const VELUX_CONTENT: LongformContent = {
       note: "Scenarier, tillæg, og hvornår en udskiftning ikke kan svare sig.",
     },
     {
+      href: "/velux-frederikssund",
+      label: "Velux montering i Frederikssund",
+      note: "Den lokale side — ti minutter fra kontoret, intet kørselstillæg.",
+    },
+    {
       href: "/ydelser/doere-og-vinduer",
       label: "Døre og vinduer",
       note: "Hele ydelsen — facadevinduer, hoveddøre og terrassedøre.",
@@ -328,6 +333,11 @@ export const VELUX_PRIS_CONTENT: LongformContent = {
       href: "/velux-ovenlysvinduer",
       label: "Velux ovenlysvinduer",
       note: "Hovedsiden — hvordan montagen foregår, og hvad inddækningen betyder.",
+    },
+    {
+      href: "/velux-frederikssund",
+      label: "Velux montering i Frederikssund",
+      note: "Bor du lokalt: ingen kørsel, og besigtigelse indenfor få dage.",
     },
     {
       href: "/ydelser/tagrenovering",
