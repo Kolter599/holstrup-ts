@@ -4,7 +4,7 @@ import { ContactForm } from "./ContactForm";
 export const metadata: Metadata = {
   title: "Få et tilbud — Holstrup TS",
   description:
-    "Få et uforpligtende tilbud fra Holstrup TS. Skriv dit telefonnummer — Finn ringer personligt tilbage, typisk samme dag.",
+    "Få et uforpligtende tilbud fra Holstrup TS. Navn og nummer først, opgaven bagefter — Finn ringer personligt tilbage, typisk samme dag.",
   alternates: { canonical: "/kontakt" },
 };
 
@@ -17,13 +17,14 @@ export default function KontaktPage() {
           Få et tilbud fra <span style={{ color: "var(--color-blue)" }}>Finn</span>
         </h1>
         <p className="mx-auto mt-6 max-w-md text-[color:var(--color-ink-soft)] text-base md:text-lg">
-          Ét felt — dit telefonnummer. Så ringer Finn.
+          To skridt — navn og nummer først, opgaven bagefter.
         </p>
       </header>
 
       {/* Form stays constrained so the headline visually overflows it */}
       <div className="mx-auto mt-12 w-full max-w-[680px] px-6 md:mt-16 md:px-8">
-        <ContactForm />
+        {/* No Blob store connected = no upload control, rest of the form works. */}
+        <ContactForm photosEnabled={Boolean(process.env.BLOB_READ_WRITE_TOKEN)} />
       </div>
     </section>
   );

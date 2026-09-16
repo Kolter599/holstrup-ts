@@ -128,6 +128,9 @@ export async function POST(req: Request) {
   // draft row was older than a minute — that is the 8 September lead that
   // Finn never heard about.)
   let leadId: string | null = null;
+  // Step 1 ("Beskriv opgaven") already mailed Finn about this person. The mail
+  // below is the same lead completed, not a second customer.
+  let alreadyNotified = false;
   const photoCount = attachments.length;
   const photoUrlsJson = photoUrls.length > 0 ? JSON.stringify(photoUrls) : null;
 
@@ -154,19 +157,21 @@ export async function POST(req: Request) {
           photo_count = GREATEST(holstrup_leads.photo_count, EXCLUDED.photo_count),
           photo_urls = COALESCE(EXCLUDED.photo_urls, holstrup_leads.photo_urls),
           updated_at = NOW()
-        RETURNING id;
-      `) as Array<{ id: string }>;
+        RETURNING id, partial_notified;
+      `) as Array<{ id: string; partial_notified: boolean }>;
       leadId = rows[0]?.id ?? null;
+      alreadyNotified = rows[0]?.partial_notified ?? false;
     } catch (e) {
       console.error("[holstrup/contact] db insert failed", e);
     }
   }
 
   const fields = { name, email, phone, city, service, message, photoCount };
+  const variant = alreadyNotified ? "completed" : "submit";
   const { sent, error } = await sendLeadMail({
-    subject: submitSubject(fields),
-    html: buildLeadHtml("submit", fields),
-    text: buildLeadText("submit", fields),
+    subject: submitSubject(fields, alreadyNotified),
+    html: buildLeadHtml(variant, fields),
+    text: buildLeadText(variant, fields),
     replyTo: email,
     attachments: attachments.map((a) => ({ filename: a.filename, content: a.content })),
   });

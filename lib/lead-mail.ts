@@ -100,20 +100,21 @@ function what(f: LeadMail): string {
   return parts.join(" ");
 }
 
-export function submitSubject(f: LeadMail): string {
+export function submitSubject(f: LeadMail, isCompletion = false): string {
   const who = f.name || f.phone || "ukendt";
   const photos = f.photoCount ? ` · ${f.photoCount} billede${f.photoCount === 1 ? "" : "r"}` : "";
-  return `Ny henvendelse: ${what(f)} — ${who}${photos}`;
+  const lead = isCompletion ? "Opgave beskrevet" : "Ny henvendelse";
+  return `${lead}: ${what(f)} — ${who}${photos}`;
 }
 
 export function partialSubject(f: LeadMail): string {
   const who = f.name || f.phone || "ukendt";
-  return `⚠️ Ikke afsendt: ${what(f)} — ${who}`;
+  return `Nyt lead: ${what(f)} — ${who}`;
 }
 
 /* --------------------------------- bodies -------------------------------- */
 
-type Variant = "submit" | "partial";
+type Variant = "submit" | "completed" | "partial";
 
 const COPY: Record<Variant, { title: string; intro: (name: string) => string }> = {
   submit: {
@@ -121,10 +122,17 @@ const COPY: Record<Variant, { title: string; intro: (name: string) => string }> 
     intro: (name) =>
       `Hej Finn — ${name || "en besøgende"} har sendt en henvendelse via holstrup-ts.dk.`,
   },
-  partial: {
-    title: "Nogen begyndte en henvendelse — men nåede ikke at sende",
+  // Step 1 already mailed you this person; this is the same lead, now with
+  // the description. Same thread of thought, not a second customer.
+  completed: {
+    title: "Den samme henvendelse — nu med beskrivelse af opgaven",
     intro: (name) =>
-      `Hej Finn — ${name || "en besøgende"} har lagt sine kontaktoplysninger på holstrup-ts.dk uden at trykke "Send". Det er et varmt lead.`,
+      `Hej Finn — ${name || "den besøgende"}, som du fik besked om for lidt siden, har nu beskrevet opgaven. Det er ikke et nyt lead.`,
+  },
+  partial: {
+    title: "Nyt lead — oplysningerne er på plads, opgaven mangler",
+    intro: (name) =>
+      `Hej Finn — ${name || "en besøgende"} har lige givet navn og nummer på holstrup-ts.dk og er gået videre til at beskrive opgaven. Kommer beskrivelsen, får du den i en mail mere; kommer den ikke, har du stadig alt hvad du skal bruge for at ringe.`,
   },
 };
 
