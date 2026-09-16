@@ -165,7 +165,9 @@ export function PersonJsonLd() {
   });
 }
 
-type ServiceRef = { slug: string; title: string; description: string };
+// `url` er kun nødvendig for sider der ikke ligger under /ydelser/ —
+// langform-siderne har deres egne ruter i roden.
+type ServiceRef = { slug: string; title: string; description: string; url?: string };
 
 export function ServiceJsonLd({ services }: { services: ServiceRef[] }) {
   return emit({
@@ -176,7 +178,7 @@ export function ServiceJsonLd({ services }: { services: ServiceRef[] }) {
       description: s.description,
       provider: { "@id": `${SITE.url}/#business` },
       areaServed: AREAS.map((a) => ({ "@type": "City", name: a.name })),
-      url: `${SITE.url}/ydelser/${s.slug}`,
+      url: s.url ?? `${SITE.url}/ydelser/${s.slug}`,
       serviceType: s.title,
     })),
   });

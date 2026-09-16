@@ -8,6 +8,12 @@ export type ServiceContent = {
   sections: Section[];
   bullets: string[];
   faq: { q: string; a: string }[];
+  /**
+   * Links til de dybere sider om en del af ydelsen — Velux, terrasse i en
+   * bestemt by, guides. Uden dem er de sider blindgyder Google kun finder
+   * gennem sitemap'et, og et link fra en etableret side vejer tungere.
+   */
+  links?: { href: string; label: string }[];
 };
 
 export const SERVICE_CONTENT: Record<string, ServiceContent> = {
@@ -50,6 +56,9 @@ export const SERVICE_CONTENT: Record<string, ServiceContent> = {
       { q: "Hvor lang tid tager det?", a: "En villa kan typisk få nyt tag på 2-4 uger afhængigt af vejr og kompleksitet. Vi dækker altid af, så regnen ikke skader noget, også selvom arbejdet strækker sig." },
       { q: "Kan jeg få håndværkerfradrag?", a: "Arbejdet på isolering og efterisolering kan typisk give håndværkerfradrag. Vi sender en specificeret regning som kan bruges til fradrag." },
     ],
+    links: [
+      { href: "/velux-ovenlysvinduer", label: "Velux ovenlysvinduer — montering til fast pris" },
+    ],
   },
   traeterrasse: {
     slug: "traeterrasse",
@@ -84,6 +93,11 @@ export const SERVICE_CONTENT: Record<string, ServiceContent> = {
       { q: "Hvad koster en ny terrasse?", a: "En ny terrasse starter typisk omkring 1.800-3.500 kr pr. m² inkl. materiale og montage, afhængigt af træsort og underlag. Hårdtræ og komposit ligger højere end fyr." },
       { q: "Hvor lang tid holder terrassen?", a: "Hårdtræ 30+ år uden behandling. Trykimprægneret fyr 15-20 år med olie. Komposit typisk 25-30 år." },
       { q: "Skal jeg søge om tilladelse?", a: "En terrasse i terrænhøjde kræver normalt ikke tilladelse. Skal den hæves, overdækkes eller bygges tæt på skel, kan der være regler. Vi tjekker altid lokalplanen." },
+    ],
+    links: [
+      { href: "/traeterrasse-frederikssund", label: "Træterrasse i Frederikssund — pris pr. m²" },
+      { href: "/traeterrasse-egedal", label: "Træterrasse i Egedal, Slangerup og Jyllinge" },
+      { href: "/guides/haevet-terrasse", label: "Guide: hævet terrasse, de 30 cm og byggetilladelse" },
     ],
   },
   tilbygning: {
@@ -298,6 +312,10 @@ export const SERVICE_CONTENT: Record<string, ServiceContent> = {
       { q: "Hvor meget kan jeg spare på energien?", a: "Med skift fra gamle termovinduer til moderne A-vinduer kan man typisk spare 3.000-7.000 kr om året på varmeregningen i et almindeligt parcelhus — afhængig af vinduesareal og varmekilde." },
       { q: "Skal jeg vælge træ, træ-alu eller plast?", a: "Træ kræver vedligeholdelse men er smukt og reparérbart. Træ-alu er vedligeholdelsesfrit udvendigt men koster mere. Plast er billigst men har kortere levetid. Vi rådgiver gerne efter hvad der passer dit hus." },
       { q: "Hvor hurtigt kan I komme?", a: "Levering af vinduer tager typisk 4-8 uger. Selve montagen kan tit ske indenfor 1-2 uger efter levering." },
+    ],
+    links: [
+      { href: "/velux-ovenlysvinduer", label: "Velux ovenlysvinduer — montering til fast pris" },
+      { href: "/velux-udskiftning-pris", label: "Hvad koster det at skifte et Velux-vindue?" },
     ],
   },
   gipsvaeg: {

@@ -99,6 +99,19 @@ export default async function ServicePage({ params }: { params: Params }) {
                 </li>
               ))}
             </ul>
+            {content.links && content.links.length > 0 && (
+              <>
+                <div className="hairline my-8" />
+                <div className="eyebrow-accent mb-4">Læs mere om</div>
+                <ul className="space-y-3">
+                  {content.links.map((l) => (
+                    <li key={l.href}>
+                      <Link href={l.href} className="link-arrow">{l.label}</Link>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
             <div className="hairline my-8" />
             <div className="eyebrow-accent mb-4">Holstrup TS</div>
             <p className="text-[color:var(--color-ink-soft)] text-sm leading-relaxed">

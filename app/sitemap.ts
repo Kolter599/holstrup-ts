@@ -40,6 +40,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const services = SERVICES.map((s) => entry(`/ydelser/${s.slug}`, "monthly", 0.85));
 
+  // Langform-siderne. Prioritet på niveau med ydelsessiderne — de er skrevet
+  // til at bære en søgning alene, ikke til at støtte en anden side.
+  const longform: MetadataRoute.Sitemap = [
+    entry("/velux-ovenlysvinduer", "monthly", 0.9),
+    entry("/velux-udskiftning-pris", "monthly", 0.85),
+    entry("/traeterrasse-frederikssund", "monthly", 0.85),
+    entry("/traeterrasse-egedal", "monthly", 0.8),
+    entry("/guides/haevet-terrasse", "monthly", 0.8),
+  ];
+
   const cities = AREAS.map((a) =>
     entry(`/tomrer-${a.slug}`, "monthly", a.tier === "core" ? 0.85 : 0.75)
   );
@@ -48,5 +58,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
   // doesn't index it. Keep getAllPosts() available for when we re-enable it.
   void getAllPosts;
 
-  return [...staticEntries, ...services, ...cities];
+  return [...staticEntries, ...services, ...longform, ...cities];
 }
