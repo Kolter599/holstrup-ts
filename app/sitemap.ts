@@ -35,6 +35,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     entry("/projekter", "monthly", 0.8),
     entry("/om", "yearly", 0.7),
     entry("/kontakt", "yearly", 0.7),
+    entry("/handelsbetingelser", "yearly", 0.3),
     entry("/cookies", "yearly", 0.2),
   ];
 

@@ -1,5 +1,5 @@
 import { SITE } from "./site";
-import { TERRASSE_PRICES } from "./priser";
+import { prisForbehold, TERRASSE_PRICES } from "./priser";
 import type { Block, LongformContent } from "./longform";
 
 /**
@@ -20,7 +20,7 @@ const PRICE_BLOCK: Block = {
   intro:
     "Priserne er inkl. materiale, fundament, montage og bortkørsel af det gamle. Det der afgør hvor i intervallet du lander, er terrassens form — en firkant er billigere pr. m² end en der skal gå om et hjørne, rundt om et træ og ned ad to trin.",
   rows: TERRASSE_PRICES,
-  note: "Trapper, værn, overdækning og indbyggede plantekasser prissættes særskilt. Skal terrassen hæves mere end 30 cm over terræn, gælder andre regler og en anden pris — det står i guiden om hævet terrasse.",
+  note: `Trapper, værn, overdækning og indbyggede plantekasser prissættes særskilt. Skal terrassen hæves mere end 30 cm over terræn, gælder andre regler og en anden pris — det står i guiden om hævet terrasse. ${prisForbehold("terrassen og det den skal ligge på")}`,
 };
 
 const NOT_RECOMMENDED: Block = {

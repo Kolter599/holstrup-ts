@@ -1,4 +1,4 @@
-import { HAEVET_PRICES } from "./priser";
+import { HAEVET_PRICES, prisForbehold } from "./priser";
 import type { LongformContent } from "./longform";
 
 /**
@@ -104,7 +104,7 @@ export const HAEVET_TERRASSE_CONTENT: LongformContent = {
       intro:
         "En hævet terrasse koster mere pr. m² end en i terræn, og det er ikke fordi den er mere besværlig at lægge brædder på. Det er fordi bæringen skal regnes, fundamenterne skal være dybere og tage større last, og fordi værn og trappe er reelt tømrerarbejde.",
       rows: HAEVET_PRICES,
-      note: "Priserne er inkl. moms. Byggesagsgebyr til kommunen kommer oveni og varierer meget — nogle kommuner tager ikke noget for en simpel terrassesag, andre afregner efter timeforbrug. Vi oplyser hvad din kommune tager, inden vi sender ansøgningen.",
+      note: `Priserne er inkl. moms. Byggesagsgebyr til kommunen kommer oveni og varierer meget — nogle kommuner tager ikke noget for en simpel terrassesag, andre afregner efter timeforbrug. Vi oplyser hvad din kommune tager, inden vi sender ansøgningen. ${prisForbehold("grunden og det terrassen skal bære på")}`,
     },
     {
       kind: "list",

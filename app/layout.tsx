@@ -169,7 +169,8 @@ function Footer() {
             <li><Link href="/blog" className="hover:text-[color:var(--color-accent)]">Viden</Link></li>
             <li><Link href="/omraader" className="hover:text-[color:var(--color-accent)]">Områder</Link></li>
             <li><Link href="/kontakt" className="hover:text-[color:var(--color-accent)]">Kontakt</Link></li>
-            <li className="pt-1"><Link href="/cookies" className="text-white/55 hover:text-[color:var(--color-accent)]">Cookies</Link></li>
+            <li className="pt-1"><Link href="/handelsbetingelser" className="text-white/55 hover:text-[color:var(--color-accent)]">Handelsbetingelser</Link></li>
+            <li><Link href="/cookies" className="text-white/55 hover:text-[color:var(--color-accent)]">Cookies</Link></li>
           </ul>
         </div>
       </div>

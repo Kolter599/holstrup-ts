@@ -1,5 +1,5 @@
 import { AREAS, SITE } from "./site";
-import { kr, VELUX_EKSTRA, VELUX_PRICES, VELUX_TILLAEG } from "./priser";
+import { kr, krFra, prisForbehold, VELUX_EKSTRA, VELUX_PRICES, VELUX_TILLAEG } from "./priser";
 import type { LongformContent } from "./longform";
 
 const TOWNS = AREAS.map((a) => a.name);
@@ -8,7 +8,7 @@ const TOWNS = AREAS.map((a) => a.name);
  * /velux-ovenlysvinduer — hovedsiden.
  *
  * Laget "tømrer + velux + område" ejes af små lokale tømrere, ikke portaler,
- * og siden der ligger nr. 1 vinder på fire faste priser i kroner. Derfor er
+ * og siden der ligger nr. 1 vinder på at skrive priser i kroner. Derfor er
  * pristabellen det første indhold under indledningen — ikke en FAQ til sidst.
  * På "velux montering frederikssund" er der i dag ingen Frederikssund-firmaer
  * i resultaterne overhovedet.
@@ -19,11 +19,11 @@ export const VELUX_CONTENT: LongformContent = {
   eyebrow: "Velux · Ovenlys · Fast pris",
   h1: "Velux ovenlysvinduer — montering og udskiftning til fast pris",
   intro:
-    "Et ovenlysvindue er den billigste måde at få rigtigt dagslys ind i en tagetage. Det er også et af de steder hvor forkert montage koster mest, fordi fejlen først viser sig som en fugtplet på gipsloftet to vintre senere. Vi har sat Velux i tage i Nordsjælland siden 1992. Her står priserne i kroner, så du ved hvad opgaven koster inden vi kører ud.",
+    "Et ovenlysvindue er den billigste måde at få rigtigt dagslys ind i en tagetage. Det er også et af de steder hvor forkert montage koster mest, fordi fejlen først viser sig som en fugtplet på gipsloftet to vintre senere. Vi har sat Velux i tage i Nordsjælland siden 1992. Her står priserne i kroner, så du kender niveauet inden vi kører ud — og du får din faste pris når vi har set taget.",
   hero: "/images/detail-tag-velux.jpg",
   heroAlt: "Velux ovenlysvindue monteret i tegltag",
-  metaTitle: `Velux ovenlysvinduer – fast pris fra ${kr(VELUX_PRICES.udskiftningStandard)}`,
-  metaDescription: `Montering og udskiftning af Velux ovenlysvinduer i Frederikssund og Nordsjælland. Faste priser i kroner, ikke timeregning. Tømrer siden 1992. Ring Finn: ${SITE.phoneDisplay}.`,
+  metaTitle: `Velux ovenlysvinduer – fast pris ${krFra(VELUX_PRICES.udskiftningStandard)}`,
+  metaDescription: `Montering og udskiftning af Velux ovenlysvinduer i Frederikssund og Nordsjælland. Priser i kroner, fast pris efter besigtigelse — ikke timeregning. Tømrer siden 1992. Ring Finn: ${SITE.phoneDisplay}.`,
   breadcrumb: [
     { name: "Forside", href: "/" },
     { name: "Ydelser", href: "/ydelser" },
@@ -68,7 +68,7 @@ export const VELUX_CONTENT: LongformContent = {
           price: kr(VELUX_PRICES.fladtTag),
         },
       ],
-      note: "Priserne er inkl. moms og gælder ved normal adgang til tagfladen. Skal der stillads på, eller er undertaget mørt, står tillæggene længere nede.",
+      note: `Priserne er inkl. moms og gælder ved normal adgang til tagfladen. Skal der stillads på, eller er undertaget mørt, står tillæggene længere nede. ${prisForbehold("taget")}`,
     },
     {
       kind: "prose",
@@ -105,7 +105,7 @@ export const VELUX_CONTENT: LongformContent = {
         "Nye ovenlys i et tag der skal skiftes indenfor fem år. Inddækningen skal alligevel laves om når tagstenene kommer af. Vent, og lad vinduerne indgå i tagprojektet — så betaler du kun for inddækningen én gang.",
         "Ovenlys mod syd uden udvendig solafskærmning. En tagetage med to sydvendte ovenlys og intet udenpå bliver over 30 grader i juli. Indvendige gardiner stopper lyset, men de stopper ikke varmen — den er allerede inde. En udvendig markise gør.",
         "Ovenlys som svar på et fugtproblem på loftet. Får du kondens eller skimmel deroppe, er årsagen næsten altid manglende ventilation i tagrummet eller en utæt dampspærre. Et vindue fjerner ikke årsagen, det giver bare et nyt sted den kan sætte sig.",
-        `Ny rude i en karm der er over 25 år gammel. Ruden kan skiftes, og det koster omkring ${kr(VELUX_EKSTRA.rudeUdskiftning)}. Men beslag, tætningslister og selve karmtræet er lige så gamle, og så har du betalt en tredjedel af prisen for at udsætte det hele i tre-fire år.`,
+        `Ny rude i en karm der er over 25 år gammel. Ruden kan skiftes, og det koster typisk ${kr(VELUX_EKSTRA.rudeUdskiftning)}. Men beslag, tætningslister og selve karmtræet er lige så gamle, og så har du betalt en tredjedel af prisen for at udsætte det hele i tre-fire år.`,
       ],
     },
     {
@@ -128,7 +128,7 @@ export const VELUX_CONTENT: LongformContent = {
   faq: [
     {
       q: "Hvad koster det at få skiftet et Velux-vindue?",
-      a: `${kr(VELUX_PRICES.udskiftningStandard)} for en udskiftning i eksisterende hul i standardstørrelse, inkl. nyt vindue, ny inddækning, tilslutning til undertag og ny indvendig lysning. Skal der et nyt hul i taget, er prisen ${kr(VELUX_PRICES.nytHul)}. Priserne er inkl. moms.`,
+      a: `${kr(VELUX_PRICES.udskiftningStandard)} for en udskiftning i eksisterende hul i standardstørrelse, inkl. nyt vindue, ny inddækning, tilslutning til undertag og ny indvendig lysning. Skal der et nyt hul i taget, ligger det på ${kr(VELUX_PRICES.nytHul)}. Priserne er inkl. moms, og du får ét fast tal når vi har set taget.`,
     },
     {
       q: "Kan I skifte vinduet uden at ændre hullet i taget?",
@@ -206,8 +206,8 @@ export const VELUX_PRIS_CONTENT: LongformContent = {
     "De fleste tilbud på en Velux-udskiftning svinger med 15.000 kroner, og det er sjældent fordi håndværkerne er uenige om arbejdet. Det er fordi de regner forskellige ting med. Her står hvad en udskiftning koster hos os, hvad der kan komme oveni, og hvornår vi vil fraråde dig at gøre det.",
   hero: "/images/finn-velux.jpg",
   heroAlt: "Finn i gang med at montere et Velux-vinduesparti",
-  metaTitle: `Velux udskiftning pris – ${kr(VELUX_PRICES.udskiftningStandard)} fast`,
-  metaDescription: `Hvad koster det at skifte et Velux-vindue? Fast pris fra ${kr(VELUX_PRICES.udskiftningStandard)} inkl. inddækning og lysning. Se tillæg og hvornår det ikke kan svare sig. Nordsjælland.`,
+  metaTitle: `Velux udskiftning pris – ${kr(VELUX_PRICES.udskiftningStandard)}`,
+  metaDescription: `Hvad koster det at skifte et Velux-vindue? Typisk ${kr(VELUX_PRICES.udskiftningStandard)} inkl. inddækning og lysning. Se tillæg og hvornår det ikke kan svare sig. Nordsjælland.`,
   breadcrumb: [
     { name: "Forside", href: "/" },
     { name: "Velux ovenlysvinduer", href: "/velux-ovenlysvinduer" },
@@ -252,7 +252,7 @@ export const VELUX_PRIS_CONTENT: LongformContent = {
           price: kr(VELUX_PRICES.fladtTag),
         },
       ],
-      note: "Alle priser er pr. vindue, inkl. moms, materialer, arbejde, oprydning og bortkørsel.",
+      note: `Alle priser er pr. vindue, inkl. moms, materialer, arbejde, oprydning og bortkørsel. ${prisForbehold("taget")}`,
     },
     {
       kind: "prices",
@@ -260,6 +260,7 @@ export const VELUX_PRIS_CONTENT: LongformContent = {
       intro:
         "De her fem er dem vi oftest ender med at skulle tage stilling til. De står som intervaller, fordi de afhænger af huset — men de bliver altid aftalt skriftligt inden vi laver dem, aldrig sat på regningen bagefter.",
       rows: VELUX_TILLAEG,
+      note: "Hvad vi gør hvis der dukker noget uventet op efter vi er gået i gang — råd, et mørt undertag, et underlag der ikke bærer — står i vores handelsbetingelser. Kort fortalt: vi stopper, ringer til dig, og aftaler prisen inden vi laver arbejdet.",
     },
     {
       kind: "prose",
@@ -267,7 +268,7 @@ export const VELUX_PRIS_CONTENT: LongformContent = {
       body: [
         "Tagtypen er den største faktor. Et vindue i tegl er den billigste opgave, fordi inddækningen er lavet til netop den profil og stenene kan løftes af og lægges tilbage. Skifer, naturskifer og profilerede plader kræver mere tilpasning. Fladt tag er en helt anden konstruktion og koster derfor dobbelt.",
         "Undertaget er den næststørste, og den man ikke kan se hjemmefra. Er huset fra 70'erne og har en gammel banevare som undertag, smuldrer den typisk når man rører den. Så skal der nyt i omkring vinduet, ellers er der ingen tætning at slutte til. Det er den enkelte post der oftest overrasker folk.",
-        `Adgangen er den tredje. Kan vi nå tagfladen forsvarligt fra en stige, er der intet tillæg. Er tagfladen stejl, facaden høj, eller ligger vinduet over en glasoverdækning, skal der stillads på — og så koster opgaven fra ${kr(VELUX_EKSTRA.stillads)} mere.`,
+        `Adgangen er den tredje. Kan vi nå tagfladen forsvarligt fra en stige, er der intet tillæg. Er tagfladen stejl, facaden høj, eller ligger vinduet over en glasoverdækning, skal der stillads på — og så koster opgaven ${krFra(VELUX_EKSTRA.stillads)} mere.`,
         "Lysningen er den fjerde, og den fylder mere end folk tror. Er den gamle lysning skæv, fugtskadet eller lavet i krydsfiner der er gået op i lag, skal der bygges ny. Det er tømrerarbejde indvendigt, og det tager tid.",
       ],
     },
@@ -286,9 +287,9 @@ export const VELUX_PRIS_CONTENT: LongformContent = {
         "Det her koster os opgaver, men vi siger det alligevel, fordi vi hellere vil have et opkald om tre år end en dårlig historie i morgen:",
       items: [
         "Når taget skal skiftes indenfor tre til fem år. Inddækningen skal alligevel laves om når stenene kommer af, så du betaler for den to gange. Vent, og tag vinduerne med i tagprojektet — der koster de langt mindre, fordi taget alligevel er åbent.",
-        `Når kun ruden er punkteret og karmen er under 15 år. Så skift ruden. Det koster omkring ${kr(VELUX_EKSTRA.rudeUdskiftning)}, og resten af vinduet har stadig halvdelen af sin levetid tilbage.`,
+        `Når kun ruden er punkteret og karmen er under 15 år. Så skift ruden. Det koster typisk ${kr(VELUX_EKSTRA.rudeUdskiftning)}, og resten af vinduet har stadig halvdelen af sin levetid tilbage.`,
         "Når ét vindue skal skiftes, men der sidder tre af samme årgang. Skift dem samlet. Stillads, opstart, afdækning og oprydning betales én gang i stedet for tre, og du sparer typisk 20 procent i forhold til tre særskilte opgaver.",
-        `Når vinduet sidder et forkert sted. Sidder ovenlyset over en skunk eller helt oppe i kippen hvor ingen kan se ud af det, så flyt det i stedet for at skifte det. Det koster omkring ${kr(VELUX_EKSTRA.flytVindue)} mere, og du får et rum der virker i stedet for et nyt vindue på et dumt sted.`,
+        `Når vinduet sidder et forkert sted. Sidder ovenlyset over en skunk eller helt oppe i kippen hvor ingen kan se ud af det, så flyt det i stedet for at skifte det. Det koster typisk ${kr(VELUX_EKSTRA.flytVindue)} mere, og du får et rum der virker i stedet for et nyt vindue på et dumt sted.`,
       ],
       outro:
         "Er du i tvivl om hvilken af dem der gælder dig, så ring. Det tager ti minutter at afgøre i telefonen, og det koster ikke noget.",
@@ -309,7 +310,7 @@ export const VELUX_PRIS_CONTENT: LongformContent = {
     },
     {
       q: "Kan jeg nøjes med at skifte ruden?",
-      a: `Hvis karmen er under 15 år og i god stand, ja. En ny rude koster omkring ${kr(VELUX_EKSTRA.rudeUdskiftning)}. Er karmen ældre end det, er beslag og tætningslister lige så gamle, og så har du betalt en tredjedel af prisen for at udskyde det hele i nogle få år.`,
+      a: `Hvis karmen er under 15 år og i god stand, ja. En ny rude koster typisk ${kr(VELUX_EKSTRA.rudeUdskiftning)}. Er karmen ældre end det, er beslag og tætningslister lige så gamle, og så har du betalt en tredjedel af prisen for at udskyde det hele i nogle få år.`,
     },
     {
       q: "Hvad koster det hvis undertaget er ødelagt?",
@@ -317,7 +318,7 @@ export const VELUX_PRIS_CONTENT: LongformContent = {
     },
     {
       q: "Skal der stillads på?",
-      a: `Kun hvis tagfladen ikke kan nås forsvarligt fra en stige. Det gælder typisk stejle tage, huse i to fulde etager, og vinduer der sidder over en carport eller glasoverdækning. Stillads koster fra ${kr(VELUX_EKSTRA.stillads)}. På et almindeligt parcelhus i halvanden etage er der som regel ikke behov.`,
+      a: `Kun hvis tagfladen ikke kan nås forsvarligt fra en stige. Det gælder typisk stejle tage, huse i to fulde etager, og vinduer der sidder over en carport eller glasoverdækning. Stillads koster ${krFra(VELUX_EKSTRA.stillads)}. På et almindeligt parcelhus i halvanden etage er der som regel ikke behov.`,
     },
     {
       q: "Hvad koster det at få to eller tre vinduer skiftet på én gang?",
