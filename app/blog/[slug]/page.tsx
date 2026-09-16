@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Breadcrumbs } from "../../_components/Breadcrumbs";
 import { ContactCta } from "../../_components/ContactCta";
+import { LeadFormSection } from "../../_components/LeadFormSection";
 import { ArticleJsonLd } from "../../_components/JsonLd";
 import { getAllPosts, getPost } from "@/lib/blog";
 import { LASTMOD } from "@/lib/lastmod";
@@ -104,6 +105,7 @@ export default async function BlogPost({ params }: { params: Params }) {
         </section>
       )}
 
+      <LeadFormSection source={`/blog/${slug}`} />
       <ContactCta />
     </>
   );

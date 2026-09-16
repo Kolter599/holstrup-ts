@@ -35,6 +35,7 @@ type LeadRow = {
   email_error: string | null;
   status: string;
   notes: string | null;
+  source: string | null;
   email_error_at: string | null;
   forwarded_at: string | null;
   created_at: string;
@@ -398,7 +399,7 @@ export default async function AdminLeads({
                     {r.name ?? <span className="text-[#6e6557]">(uden navn)</span>}
                   </h3>
                   <p className="mt-0.5 text-[13px] text-[#6e6557]">
-                    {[r.service, r.city].filter(Boolean).join(" · ") || "—"} ·{" "}
+                    {[r.service, r.city, r.source].filter(Boolean).join(" · ") || "—"} ·{" "}
                     {new Date(r.created_at).toLocaleString("da-DK")}
                   </p>
                 </div>

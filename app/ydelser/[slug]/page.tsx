@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Breadcrumbs } from "../../_components/Breadcrumbs";
 import { ContactCta } from "../../_components/ContactCta";
+import { LeadFormSection } from "../../_components/LeadFormSection";
 import { Faq } from "../../_components/Faq";
 import { ServiceJsonLd } from "../../_components/JsonLd";
 import { SectionHeader } from "../../_components/SectionHeader";
@@ -153,6 +154,7 @@ export default async function ServicePage({ params }: { params: Params }) {
 
       <Faq number="—" items={content.faq} title={`FAQ — ${svc.title.toLowerCase()}`} />
 
+      <LeadFormSection serviceSlug={svc.slug} source={`/ydelser/${svc.slug}`} />
       <ContactCta />
     </>
   );

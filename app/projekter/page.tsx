@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { Breadcrumbs } from "../_components/Breadcrumbs";
 import { ContactCta } from "../_components/ContactCta";
+import { LeadFormSection } from "../_components/LeadFormSection";
 import { SectionHeader } from "../_components/SectionHeader";
 import { Reveal } from "../_components/Reveal";
 import { CityMarquee } from "../_components/CityMarquee";
@@ -124,6 +125,7 @@ export default function ProjectsPage() {
 
       <CityMarquee variant="light" />
 
+      <LeadFormSection source="/projekter" />
       <ContactCta />
     </>
   );

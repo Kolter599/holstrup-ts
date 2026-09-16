@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Breadcrumbs } from "../_components/Breadcrumbs";
 import { ContactCta } from "../_components/ContactCta";
+import { LeadFormSection } from "../_components/LeadFormSection";
 import { Faq } from "../_components/Faq";
 import { ServiceJsonLd } from "../_components/JsonLd";
 import { SectionHeader } from "../_components/SectionHeader";
@@ -186,6 +187,7 @@ export default async function CityPage({ params }: { params: Params }) {
         ]}
       />
 
+      <LeadFormSection source={`/${citySlug}`} />
       <ContactCta
         heading={<>Opgave i <span style={{ color: "var(--color-accent)" }}>{area.name}</span>?</>}
         body="Ring til Finn personligt — du får én fagmand i røret, ikke et call-center. Den første besigtigelse er gratis og uforpligtende."

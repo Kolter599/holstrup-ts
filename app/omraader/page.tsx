@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Breadcrumbs } from "../_components/Breadcrumbs";
 import { ContactCta } from "../_components/ContactCta";
+import { LeadFormSection } from "../_components/LeadFormSection";
 import { CityMarquee } from "../_components/CityMarquee";
 import { SectionHeader } from "../_components/SectionHeader";
 import { AREAS, SITE } from "@/lib/site";
@@ -87,6 +88,7 @@ export default function AreasPage() {
         </div>
       </section>
 
+      <LeadFormSection source="/omraader" />
       <ContactCta
         heading={<>Bor du <span style={{ color: "var(--color-accent)" }}>uden for listen</span>?</>}
         body="Ring alligevel — vi tager ofte opgaver i resten af Sjælland når omfanget passer. Den første snak er gratis."
