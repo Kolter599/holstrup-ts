@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     template: "%s · Holstrup TS",
   },
   description:
-    "Tømrer- og snedkerfirma i Frederikssund med 30+ års erfaring. Tag, tilbygning, renovering og hovedentrepriser i Nordsjælland. Ring til Finn på 40 17 38 93.",
+    "Tømrer- og snedkerfirma i Frederikssund med erfaring siden 1992. Tag, tilbygning, renovering og hovedentrepriser i Nordsjælland. Ring til Finn på 40 17 38 93.",
   applicationName: SITE.name,
   authors: [{ name: SITE.owner }],
   generator: "Next.js",
@@ -65,7 +65,7 @@ export const metadata: Metadata = {
     siteName: SITE.name,
     title: "Holstrup TS — Tømrer & byggerådgiver i Nordsjælland",
     description:
-      "30+ års erfaring med tømrer- og entrepriseopgaver. Frederikssund, Hillerød og resten af Nordsjælland.",
+      "erfaring siden 1992 med tømrer- og entrepriseopgaver. Frederikssund, Hillerød og resten af Nordsjælland.",
     images: [
       {
         url: "/images/service-tag.jpg",
@@ -78,7 +78,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Holstrup TS — Tømrer & byggerådgiver i Nordsjælland",
-    description: "30+ års erfaring med tømrer- og entrepriseopgaver. Frederikssund, Hillerød og resten af Nordsjælland.",
+    description: "erfaring siden 1992 med tømrer- og entrepriseopgaver. Frederikssund, Hillerød og resten af Nordsjælland.",
     images: ["/images/service-tag.jpg"],
   },
   alternates: { canonical: SITE.url },
@@ -132,7 +132,7 @@ function Footer() {
             className="mb-6 bg-white/95 rounded-sm p-2 w-auto h-12"
           />
           <p className="text-white/70 max-w-sm leading-relaxed text-lg">
-            Tømrerfirma i Frederikssund. 30+ års erfaring med renovering, tag, tilbygninger og hovedentrepriser i hele Nordsjælland.
+            Tømrerfirma i Frederikssund. erfaring siden 1992 med renovering, tag, tilbygninger og hovedentrepriser i hele Nordsjælland.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link href="/kontakt" className="btn-accent">Indhent tilbud</Link>

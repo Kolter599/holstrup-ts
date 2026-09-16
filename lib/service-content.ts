@@ -375,7 +375,7 @@ export const SERVICE_CONTENT: Record<string, ServiceContent> = {
     eyebrow: "Rådgivning · Bygherre · Ekspert",
     h1: "Byggerådgivning fra en tømrer med fingre i træet",
     intro:
-      "De fleste byggesagkyndige har læst om byggeri. Vi har bygget. 30+ års erfaring fra rigtige byggepladser ser og vurderer noget helt andet end en ren teoretisk rådgiver — og det viser sig særligt når noget skal vurderes i praksis.",
+      "De fleste byggesagkyndige har læst om byggeri. Vi har bygget. erfaring fra rigtige byggepladser siden 1992 ser og vurderer noget helt andet end en ren teoretisk rådgiver — og det viser sig særligt når noget skal vurderes i praksis.",
     hero: "/images/service-raadgivning.jpg",
     sections: [
       {
@@ -405,7 +405,7 @@ export const SERVICE_CONTENT: Record<string, ServiceContent> = {
     ],
     faq: [
       { q: "Hvad koster byggerådgivning?", a: "Timebaseret — typisk 1.200-1.600 kr i timen. En gennemgang af et hus og skriftlig rapport koster typisk 6.000-12.000 kr." },
-      { q: "Er I autoriserede byggesagkyndige?", a: "Nej, vi er ikke autoriserede byggesagkyndige (tilstandsrapport-ordningen). Vi er håndværkere med 30+ års erfaring. For en formel tilstandsrapport henviser vi til en certificeret person." },
+      { q: "Er I autoriserede byggesagkyndige?", a: "Nej, vi er ikke autoriserede byggesagkyndige (tilstandsrapport-ordningen). Vi er håndværkere med erfaring siden 1992. For en formel tilstandsrapport henviser vi til en certificeret person." },
       { q: "Kan jeg få en second opinion på et tilbud?", a: "Ja. Send os tilbuddet og en kort beskrivelse, så giver vi feedback — typisk indenfor 3-5 arbejdsdage." },
     ],
   },

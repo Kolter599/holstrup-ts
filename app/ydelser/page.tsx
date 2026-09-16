@@ -13,7 +13,7 @@ import { SERVICE_CONTENT } from "@/lib/service-content";
 export const metadata: Metadata = {
   title: "Ydelser — tømrer, entreprise og byggerådgivning",
   description:
-    "Se alle ydelser fra Holstrup TS — tag, terrasse, tilbygning, totalentreprise, renovering, sommerhus, vinduer og byggerådgivning. 30+ års erfaring i Nordsjælland.",
+    "Tag, terrasse, tilbygning, totalentreprise, renovering, sommerhus, vinduer og byggerådgivning i Nordsjælland. Tømrer siden 1992, fast pris.",
   alternates: { canonical: "/ydelser" },
   openGraph: {
     url: `${SITE.url}/ydelser`,
@@ -38,7 +38,7 @@ export default function YdelserPage() {
             </h1>
           </div>
           <p className="md:col-span-4 text-lg text-[color:var(--color-ink-soft)] leading-relaxed">
-            Fra gipsvæg til hovedentreprise — det hele med 30+ års erfaring bag hver beslutning. Holstrup TS dækker tømrer- og snedkerfaget bredt.
+            Fra gipsvæg til hovedentreprise — det hele med erfaring siden 1992 bag hver beslutning. Holstrup TS dækker tømrer- og snedkerfaget bredt.
           </p>
         </div>
       </section>

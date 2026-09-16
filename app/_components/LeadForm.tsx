@@ -4,11 +4,10 @@ import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { SITE } from "@/lib/site";
 import {
-  SERVICE_GROUPS,
+  CUSTOMER_TYPES,
   composeService,
   detailForSlug,
   groupForSlug,
-  type ServiceGroup,
 } from "@/lib/service-groups";
 import { claimSource, patch, resetForPath, useLeadState } from "@/lib/lead-form-store";
 
@@ -85,7 +84,7 @@ export function LeadForm({
   const wrapperRef = useRef<HTMLDivElement>(null);
   const detailsRef = useRef<HTMLFormElement>(null);
 
-  const service = composeService(s.group, s.detail);
+  const service = composeService(s.group, s.detail, s.customerType);
   const expanded = s.expandedId === id;
 
   useEffect(() => {
@@ -507,11 +506,6 @@ export function LeadForm({
     </div>
   );
 
-  function chooseGroup(g: ServiceGroup) {
-    if (g === s.group) return;
-    // They just corrected us — the slug we arrived with no longer describes it.
-    edit({ group: g, detail: "" });
-  }
 }
 
 /* --------------------------------- pieces -------------------------------- */
@@ -533,15 +527,15 @@ function Done({ firstName, compact }: { firstName: string; compact: boolean }) {
           (compact ? "text-lg" : "text-2xl md:text-[1.9rem]")
         }
       >
-        Tak{firstName ? `, ${firstName}` : ""} — vi er på det
+        Tak{firstName ? `, ${firstName}` : ""} — vi har modtaget din besked
       </h2>
       <p className="mx-auto max-w-sm text-sm text-[color:var(--color-ink-soft)]">
-        Finn har modtaget din besked og vender personligt tilbage — typisk samme dag. Haster det, så
-        ring på{" "}
+        Gem gerne vores nummer{" "}
         <a href={`tel:${SITE.phone}`} className="font-medium text-[color:var(--color-blue)]">
           {SITE.phoneDisplay}
         </a>
-        .
+        . Vi ringer som regel op for at tale opgaven igennem, før vi giver et endeligt tilbud — så
+        ved du, hvem der er i røret.
       </p>
     </div>
   );

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { LeadFormPage } from "@/app/_components/LeadFormSection";
 
 export const metadata: Metadata = {
-  title: "Få et tilbud — Holstrup TS",
+  title: "Få et tilbud",
   description:
     "Få et uforpligtende tilbud fra Holstrup TS. Navn og nummer først, opgaven bagefter — Finn ringer personligt tilbage, typisk samme dag.",
   alternates: { canonical: "/kontakt" },

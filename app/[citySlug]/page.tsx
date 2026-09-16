@@ -13,6 +13,7 @@ import { Reveal } from "../_components/Reveal";
 import { AREAS, SERVICES, SITE } from "@/lib/site";
 import { buildCityContent } from "@/lib/city-content";
 import { SERVICE_CONTENT } from "@/lib/service-content";
+import { Reviews } from "@/app/_components/Reviews";
 
 export const dynamicParams = false;
 
@@ -31,8 +32,18 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   const { citySlug } = await params;
   const area = areaFromSlug(citySlug);
   if (!area) return {};
-  const title = `Tømrer ${area.name} – fast pris & gratis besøg`;
-  const description = `Erfaren tømrer i ${area.name} og omegn — tag, vinduer, tilbygning og renovering. Fast pris, gratis besigtigelse og 30+ års erfaring. Ring til Finn på ${SITE.phoneDisplay}.`;
+  // Titel og beskrivelse er det eneste vi styrer i selve søgeresultatet.
+  // Konkurrenterne på side 1 sætter beviser i titlen — stjerner, årstal, priser.
+  // "siden 1992" er vores stærkeste, og det er efterprøveligt.
+  const title = `Tømrer ${area.name} – fast pris, siden 1992`;
+
+  // Beskrivelsen var før ordret ens på alle 20 byer med kun navnet skiftet ud.
+  // buildingStyle er unikt pr. by, så hvert uddrag i Google bliver forskelligt.
+  // Kun den første husstil — hele listen sprængte de ~160 tegn Google viser.
+  const style = area.buildingStyle?.split(",")[0]?.trim().toLowerCase();
+  const description = style
+    ? `Tømrer i ${area.name} siden 1992. Tag, vinduer, tilbygning og renovering af ${style}. Gratis besigtigelse og fast pris. Ring Finn: ${SITE.phoneDisplay}.`
+    : `Tømrer i ${area.name} siden 1992. Tag, vinduer, tilbygning og renovering. Gratis besigtigelse og fast pris. Ring Finn: ${SITE.phoneDisplay}.`;
   return {
     title,
     description,
@@ -187,6 +198,7 @@ export default async function CityPage({ params }: { params: Params }) {
         ]}
       />
 
+      <Reviews city={area.name} />
       <LeadFormSection path={`/${citySlug}`} />
       <ContactCta
         heading={<>Opgave i <span style={{ color: "var(--color-accent)" }}>{area.name}</span>?</>}

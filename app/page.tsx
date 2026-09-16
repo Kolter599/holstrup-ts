@@ -11,6 +11,7 @@ import { BeforeAfter } from "./_components/BeforeAfter";
 import { PartnerMarquee } from "./_components/PartnerMarquee";
 import { PartnerRow } from "./_components/PartnerRow";
 import { SITE, SERVICES, AREAS } from "@/lib/site";
+import { Reviews } from "./_components/Reviews";
 
 const HERO_SERVICES = ["tagrenovering", "tilbygning", "totalentreprise", "traeterrasse"];
 const PROCESS = [
@@ -21,7 +22,7 @@ const PROCESS = [
 ];
 
 const TRUST_BULLETS: { heading: string; body: string }[] = [
-  { heading: "30+ års erfaring", body: "Bygget både som hustømrer på de store byggepladser og som totalentreprenør på private villaer. Vi har set hvad der virker og hvad der ikke holder." },
+  { heading: "erfaring siden 1992", body: "Bygget både som hustømrer på de store byggepladser og som totalentreprenør på private villaer. Vi har set hvad der virker og hvad der ikke holder." },
   { heading: "Ét fast kontaktpunkt", body: "Vi styrer murer, VVS, el og maler så du kun har ét sted at ringe. Det betyder kortere svartid, færre misforståelser og en jævnere proces." },
   { heading: "Fast pris. Skriftlig aftale.", body: "Vi besigtiger grundigt, giver tilbud med fast pris, og dokumenterer alle ændringer skriftligt undervejs. Du ved altid præcis hvad næste regning kommer til at lyde på." },
 ];
@@ -56,7 +57,7 @@ export default function Home() {
               </Reveal>
               <Reveal delay={140}>
                 <p className="mt-8 text-lg md:text-xl text-[color:var(--color-ink-soft)] max-w-xl leading-relaxed">
-                  Holstrup TS er et lokalt tømrerfirma i Frederikssund med 30+ års erfaring. Fra enkelte tømreropgaver til fulde hovedentrepriser — udført ordentligt, til tiden, og med ét fast kontaktpunkt.
+                  Holstrup TS er et lokalt tømrerfirma i Frederikssund med erfaring siden 1992. Fra enkelte tømreropgaver til fulde hovedentrepriser — udført ordentligt, til tiden, og med ét fast kontaktpunkt.
                 </p>
               </Reveal>
               <Reveal delay={220}>
@@ -280,6 +281,7 @@ export default function Home() {
 
       <Faq number="06" items={HOME_FAQ} />
 
+      <Reviews />
       <ContactCta />
     </>
   );

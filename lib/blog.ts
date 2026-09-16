@@ -8,6 +8,8 @@ const BLOG_DIR = path.join(process.cwd(), "content", "blog");
 export type BlogPostMeta = {
   slug: string;
   title: string;
+  /** Kort titel til <title> — den lange overskrift bliver klippet i Google. */
+  metaTitle?: string;
   description: string;
   date: string;
   image?: string;
@@ -33,6 +35,7 @@ export function getPost(slug: string): BlogPost | null {
   return {
     slug,
     title: String(data.title ?? slug),
+    metaTitle: data.metaTitle ? String(data.metaTitle) : undefined,
     description: String(data.description ?? ""),
     date: String(data.date ?? ""),
     image: data.image ? String(data.image) : undefined,
@@ -48,6 +51,7 @@ function readMeta(file: string): BlogPostMeta {
   return {
     slug,
     title: String(data.title ?? slug),
+    metaTitle: data.metaTitle ? String(data.metaTitle) : undefined,
     description: String(data.description ?? ""),
     date: String(data.date ?? ""),
     image: data.image ? String(data.image) : undefined,

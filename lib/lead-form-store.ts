@@ -1,7 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import type { ServiceGroup } from "@/lib/service-groups";
+import type { CustomerType, ServiceGroup } from "@/lib/service-groups";
 
 // A page can carry the form twice — compact next to the promise, full-width
 // after the proof. They are the same lead, so they are the same state: type in
@@ -19,6 +19,7 @@ export type LeadState = {
   message: string;
   group: ServiceGroup | null;
   detail: string;
+  customerType: CustomerType | null;
   photos: LeadPhoto[];
   photoError: string | null;
   touched: { phone?: boolean; email?: boolean };
@@ -45,6 +46,7 @@ function empty(pathname: string, group: ServiceGroup | null, detail: string): Le
     message: "",
     group,
     detail,
+    customerType: null,
     photos: [],
     photoError: null,
     touched: {},

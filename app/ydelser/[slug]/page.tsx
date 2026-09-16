@@ -13,6 +13,7 @@ import { CityMarquee } from "../../_components/CityMarquee";
 import { PartnerMarquee } from "../../_components/PartnerMarquee";
 import { SERVICES, SITE } from "@/lib/site";
 import { SERVICE_CONTENT } from "@/lib/service-content";
+import { Reviews } from "@/app/_components/Reviews";
 
 const B2B_SLUGS = new Set(["hovedentreprise", "totalentreprise", "byggeraadgivning"]);
 
@@ -101,7 +102,7 @@ export default async function ServicePage({ params }: { params: Params }) {
             <div className="hairline my-8" />
             <div className="eyebrow-accent mb-4">Holstrup TS</div>
             <p className="text-[color:var(--color-ink-soft)] text-sm leading-relaxed">
-              30+ års erfaring fra rigtige byggepladser i Nordsjælland. Fast pris, skriftlig aftale, ét fast kontaktpunkt — fra første samtale til afleveringen.
+              erfaring fra rigtige byggepladser siden 1992 i Nordsjælland. Fast pris, skriftlig aftale, ét fast kontaktpunkt — fra første samtale til afleveringen.
             </p>
           </aside>
           <div className="md:col-span-8 md:order-1 prose-body">
@@ -157,6 +158,7 @@ export default async function ServicePage({ params }: { params: Params }) {
 
       <Faq number="—" items={content.faq} title={`FAQ — ${svc.title.toLowerCase()}`} />
 
+      <Reviews />
       <LeadFormSection path={`/ydelser/${svc.slug}`} serviceSlug={svc.slug} />
       <ContactCta />
     </>

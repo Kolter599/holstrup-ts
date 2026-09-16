@@ -6,7 +6,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: SITE.fullName,
     short_name: SITE.name,
     description:
-      "Tømrer- og snedkerfirma i Frederikssund med 30+ års erfaring. Tag, tilbygning, renovering og hovedentrepriser i Nordsjælland.",
+      "Tømrer- og snedkerfirma i Frederikssund med erfaring siden 1992. Tag, tilbygning, renovering og hovedentrepriser i Nordsjælland.",
     start_url: "/",
     display: "standalone",
     background_color: "#ffffff",

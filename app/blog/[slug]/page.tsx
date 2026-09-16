@@ -21,12 +21,12 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   const post = getPost(slug);
   if (!post) return {};
   return {
-    title: post.title,
+    title: post.metaTitle ?? post.title,
     description: post.description,
     alternates: { canonical: `/blog/${post.slug}` },
     openGraph: {
       url: `${SITE.url}/blog/${post.slug}`,
-      title: post.title,
+      title: post.metaTitle ?? post.title,
       description: post.description,
       images: post.image ? [{ url: post.image }] : undefined,
       type: "article",
@@ -45,7 +45,7 @@ export default async function BlogPost({ params }: { params: Params }) {
     <>
       <ArticleJsonLd
         article={{
-          title: post.title,
+          title: post.metaTitle ?? post.title,
           description: post.description,
           datePublished: post.date,
           dateModified: LASTMOD[`/blog/${post.slug}`],

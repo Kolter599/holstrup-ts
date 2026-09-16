@@ -20,6 +20,10 @@ const FORWARD_DEFAULT = TO_DEFAULT;
 
 export const NUDGE = "Ring inden for 24 timer — det er der opgaverne vindes.";
 
+/** For the reminder: the usual failure is one unanswered call and then nothing. */
+export const REMINDER_NUDGE =
+  "Tog de den ikke? Ring igen på et andet tidspunkt, og send en sms med dit navn — folk svarer sjældent et nummer, de ikke kender.";
+
 export type MailAttachment = { filename: string; content: Buffer };
 
 export type SendResult = { sent: boolean; error: string | null };
@@ -205,7 +209,7 @@ export function buildReminderHtml(leads: ReminderLead[]): string {
   });
   return shell(
     leads.length === 1 ? "Der ligger stadig en henvendelse og venter" : `Der ligger ${leads.length} henvendelser og venter`,
-    `Hej Finn — disse har stået som "ny" i mere end et døgn. <strong>${escapeHtml(NUDGE)}</strong>`,
+    `Hej Finn — disse har stået som "ny" i mere end et døgn. <strong>${escapeHtml(REMINDER_NUDGE)}</strong>`,
     items,
     `<a href="${escapeHtml(leads[0]?.adminUrl ?? "")}" style="color:#1347a6">Markér dem som kontaktet i oversigten →</a>`,
     "Du får kun denne mail, så længe der ligger ubehandlede henvendelser.",
@@ -215,7 +219,7 @@ export function buildReminderHtml(leads: ReminderLead[]): string {
 export function buildReminderText(leads: ReminderLead[]): string {
   return [
     `Ubehandlede henvendelser på holstrup-ts.dk: ${leads.length}`,
-    NUDGE,
+    REMINDER_NUDGE,
     "",
     ...leads.map((l) =>
       `- ${l.name || "(uden navn)"} · ${l.phone || "(intet nummer)"}${l.email ? ` · ${l.email}` : ""}${l.city ? ` · ${l.city}` : ""}${l.service ? ` · ${l.service}` : ""}`,

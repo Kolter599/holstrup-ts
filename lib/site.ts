@@ -14,8 +14,68 @@ export const SITE = {
     country: "Danmark",
   },
   foundedYear: 1992,
+  /** Beholdt for bagudkompatibilitet — brug EXPERIENCE_YEARS, der ikke bliver forældet. */
   experienceYears: 30,
+  /** Sundbylillevej 48, 3600 Frederikssund. Bruges til LocalBusiness-schema. */
+  geo: { lat: 55.8397, lng: 12.0664 },
+  /**
+   * Profiler Google kan bruge til at bekræfte at firmaet er ægte.
+   * Den tidligere værdi her var et Google *søgeresultat*, hvilket ikke tæller
+   * som en profil. Udfyld med rigtige URL'er efterhånden som de oprettes —
+   * en tom liste er bedre end en forkert.
+   */
+  profiles: [
+    "https://www.haandvaerker.dk/profil/firma/holstrup-vfinn-holm-pedersen/17696",
+    "https://www.krak.dk/holstrup+t%C3%B8mrer+og+snedker+frederikssund/66235947/firma",
+  ] as string[],
+  /** Google Business Profile — indsæt maps-URL når profilen er verificeret. */
+  googleBusinessUrl: "" as string,
+  openingHours: [
+    { days: ["Monday", "Tuesday", "Wednesday", "Thursday"], opens: "07:00", closes: "16:00" },
+    { days: ["Friday"], opens: "07:00", closes: "14:00" },
+  ],
 } as const;
+
+/**
+ * Anmeldelser. TOM MED VILJE.
+ *
+ * aggregateRating i schema skal svare til anmeldelser der faktisk er synlige på
+ * siden og er ægte — ellers er det en manuel straf fra Google værd. Der kunne
+ * ikke dokumenteres et offentligt anmeldelsestal for Holstrup nogen steder
+ * (Håndværker.dk-profilen har ingen rating i sit eget schema).
+ *
+ * Når der ligger rigtige anmeldelser: udfyld `items` og sæt `aggregate`.
+ * Så tænder både anmeldelses-sektionen og stjerne-markup automatisk.
+ */
+export type Review = {
+  author: string;
+  /** By, så anmeldelsen bærer lokal vægt på by-siderne. */
+  city?: string;
+  rating: 1 | 2 | 3 | 4 | 5;
+  /** ISO-dato. */
+  date: string;
+  body: string;
+  /** Hvor den er hentet fra — vises som kilde. */
+  source?: string;
+};
+
+/**
+ * Faktisk anciennitet, regnet ud ved build. Sitet sagde "tømrer siden 1992"
+ * overalt — firmaet er stiftet i 1992, så det underspillede med fire år.
+ * "Siden 1992" er både stærkere og konkret, og bliver aldrig forkert.
+ */
+export const EXPERIENCE_YEARS = new Date().getFullYear() - SITE.foundedYear;
+
+/**
+ * Referencer der bærer vægt. Holstrup har løst opgaver for entreprenører og
+ * rådgivere i den tunge ende — det er en troværdighed ingen af konkurrenterne
+ * på side 1 kan matche, og den stod indtil nu kun i en logo-karrusel.
+ */
+export const TOP_REFERENCES = ["NCC", "MT Højgaard", "Rambøll", "PwC"] as const;
+
+export const REVIEWS: Review[] = [];
+
+export const REVIEW_AGGREGATE: { ratingValue: number; reviewCount: number } | null = null;
 
 // Firmaer Holstrup TS har udført arbejde for — som hustømrer, underentreprenør eller direkte kunde.
 // `inRow` = vis i den statiske logorække i hero (kun logoer der ser pæne ud i lille format).
@@ -183,15 +243,15 @@ export const SERVICES: Service[] = [
     title: "Tagrenovering og tagudskiftning",
     shortTitle: "Tag",
     excerpt: "Udskiftning, reparation og isolering af tag — tegltag, stråtag, skifer og tagpap. Vi kan stå for hele processen eller samarbejde med dit eget firma.",
-    metaTitle: "Tagrenovering i Nordsjælland – fast pris & gratis tjek",
-    metaDescription: "Nyt tag eller tagreparation i Nordsjælland. Gratis besigtigelse, fast pris og 30+ års erfaring. Vi tjekker undertag, ventilation og inddækning — ikke kun stenene.",
+    metaTitle: "Tagrenovering – fast pris, siden 1992",
+    metaDescription: "Nyt tag eller tagreparation i Nordsjælland. Gratis besigtigelse og fast pris. Vi tjekker undertag, ventilation og inddækning — ikke kun stenene.",
   },
   {
     slug: "traeterrasse",
     title: "Træterrasser og udendørs anlæg",
     shortTitle: "Terrasse",
     excerpt: "Nye terrasser i hårdtræ, trykimprægneret fyr eller komposit. Vi leverer både design, tegning og udførelse — også med overdækning og integrerede plantekasser.",
-    metaTitle: "Træterrasse i Nordsjælland | Holstrup TS",
+    metaTitle: "Træterrasse i Nordsjælland",
     metaDescription: "Nye træterrasser i hårdtræ, fyr eller komposit. Design, tegning og udførelse i Frederikssund, Hillerød og resten af Nordsjælland.",
   },
   {
@@ -199,31 +259,31 @@ export const SERVICES: Service[] = [
     title: "Tilbygning, udestue og kvist",
     shortTitle: "Tilbygning",
     excerpt: "Tilbygning til villa, udestuer, kviste og indretning af tagetage. Vi tager hånd om tegning, byggetilladelse, tømrerarbejde og koordinering af øvrige fag.",
-    metaTitle: "Tilbygning og kvist i Nordsjælland | Holstrup TS",
-    metaDescription: "Tilbygning, udestue, kvist og indretning af tagetage. Fuld pakke fra tegning til færdigt resultat — 30+ års erfaring med bygningsmyndigheder.",
+    metaTitle: "Tilbygning og kvist – fast pris",
+    metaDescription: "Tilbygning, udestue, kvist og indretning af tagetage. Fuld pakke fra tegning til færdigt resultat — tømrer siden 1992 med bygningsmyndigheder.",
   },
   {
     slug: "totalentreprise",
     title: "Totalentreprise",
     shortTitle: "Totalentreprise",
     excerpt: "Ét ansvar. Ét tilbud. Én kontaktperson. Holstrup TS står i spidsen for hele projektet og koordinerer alle fag — fra nedrivning til afleveringsforretning.",
-    metaTitle: "Totalentreprise på villa og sommerhus | Holstrup TS",
-    metaDescription: "Totalentreprise med én fast kontaktperson og samlet ansvar. Renovering, tilbygning og nybyg i Nordsjælland — 30+ års erfaring.",
+    metaTitle: "Totalentreprise på villa og sommerhus",
+    metaDescription: "Totalentreprise med én fast kontaktperson og samlet ansvar. Renovering, tilbygning og nybyg i Nordsjælland — tømrer siden 1992.",
   },
   {
     slug: "hovedentreprise",
     title: "Hovedentreprise",
     shortTitle: "Hovedentreprise",
     excerpt: "Vi styrer byggepladsen som hovedentreprenør, mens bygherren selv står for projektering og udbud. Ideel til erhverv og boligforeninger med egen rådgiver.",
-    metaTitle: "Hovedentreprise i Nordsjælland | Holstrup TS",
-    metaDescription: "Hovedentreprise på renovering af villa, ejendom eller sommerhus. Styring af byggeplads, fag og tidsplan — 30+ års erfaring.",
+    metaTitle: "Hovedentreprise i Nordsjælland",
+    metaDescription: "Hovedentreprise på renovering af villa, ejendom eller sommerhus. Styring af byggeplads, fag og tidsplan — tømrer siden 1992.",
   },
   {
     slug: "renovering",
     title: "Renovering af villa og lejlighed",
     shortTitle: "Renovering",
     excerpt: "Fra enkel opfriskning til gennemgribende renovering. Vi tager os af tømrerarbejdet og kan agere totalentreprenør når du ønsker ét fast kontaktpunkt.",
-    metaTitle: "Renovering af villa og lejlighed | Holstrup TS",
+    metaTitle: "Renovering af villa og lejlighed",
     metaDescription: "Villa- og lejlighedsrenovering i Nordsjælland. Ét kontaktpunkt for hele processen — fra nedrivning til afleveringsforretning.",
   },
   {
@@ -231,23 +291,23 @@ export const SERVICES: Service[] = [
     title: "Sommerhusbyggeri og -renovering",
     shortTitle: "Sommerhus",
     excerpt: "Nye sommerhuse, tilbygninger og renovering langs den nordsjællandske kyst. Vi vælger materialer der tåler salt, sand og vind i årtier.",
-    metaTitle: "Sommerhus tømrer i Nordsjælland | Holstrup TS",
-    metaDescription: "Bygger og renoverer sommerhuse i Hornbæk, Tisvildeleje, Gilleleje og resten af Nordsjælland. Kystmaterialer og 30+ års erfaring.",
+    metaTitle: "Sommerhus tømrer i Nordsjælland",
+    metaDescription: "Bygger og renoverer sommerhuse i Hornbæk, Tisvildeleje, Gilleleje og resten af Nordsjælland. Kystmaterialer og tømrer siden 1992.",
   },
   {
     slug: "doere-og-vinduer",
     title: "Døre og vinduer",
     shortTitle: "Døre og vinduer",
     excerpt: "Udskiftning af døre og vinduer — herunder Velux ovenlysvinduer. Vi tager hånd om den tætte tilslutning, isolering og den indvendige afslutning.",
-    metaTitle: "Udskiftning af døre og vinduer i Nordsjælland – gratis opmåling",
-    metaDescription: "Skift døre og vinduer i Nordsjælland — inkl. Velux ovenlys. Gratis opmåling, uforpligtende tilbud og fast pris. 30+ års erfaring og tæt montage der sænker varmeregningen.",
+    metaTitle: "Døre og vinduer – gratis opmåling",
+    metaDescription: "Skift døre og vinduer i Nordsjælland — inkl. Velux ovenlys. Gratis opmåling og fast pris. Tæt montage der sænker varmeregningen. Tømrer siden 1992.",
   },
   {
     slug: "gipsvaeg",
     title: "Gipsvægge og lette skillevægge",
     shortTitle: "Gipsvæg",
     excerpt: "Opsætning af gipsvægge, indretning af eksisterende rum, lydisolerede skillevægge og tekniske gipsløsninger til boliger, kontorer og institutioner.",
-    metaTitle: "Gipsvæg opsat af tømrer | Holstrup TS",
+    metaTitle: "Gipsvæg opsat af tømrer",
     metaDescription: "Opsætning af gipsvægge, lydvægge og tekniske skillevægge i Nordsjælland. Fast pris, præcist håndværk.",
   },
   {
@@ -255,23 +315,23 @@ export const SERVICES: Service[] = [
     title: "Gulve og gulvrenovering",
     shortTitle: "Gulve",
     excerpt: "Parket, lamelgulv, plankegulv og slibning af eksisterende trægulve. Vi sørger for at underlaget er korrekt, så gulvet holder i årtier.",
-    metaTitle: "Nye gulve og gulvrenovering | Holstrup TS",
+    metaTitle: "Nye gulve og gulvrenovering",
     metaDescription: "Lægning af nye gulve og slibning af gamle i Nordsjælland. Parket, lamelgulv, plankegulv og undergulv.",
   },
   {
     slug: "byggeraadgivning",
     title: "Byggerådgivning og bygherrerådgivning",
     shortTitle: "Byggerådgivning",
-    excerpt: "Uvildig rådgivning fra en tømrer med 30+ års fingre i træet. Vi gennemgår tilbud, tegninger og tidsplaner — og hjælper dig med at stille de rigtige krav.",
-    metaTitle: "Byggerådgivning af erfaren tømrer | Holstrup TS",
-    metaDescription: "Uvildig bygherrerådgivning i Nordsjælland — fra en håndværker med 30+ års praktisk erfaring. Sparring, kvalitetsgennemgang og forhandling.",
+    excerpt: "Uvildig rådgivning fra en tømrer med fingre i træet siden 1992. Vi gennemgår tilbud, tegninger og tidsplaner — og hjælper dig med at stille de rigtige krav.",
+    metaTitle: "Byggerådgivning fra en tømrer",
+    metaDescription: "Uvildig bygherrerådgivning i Nordsjælland — fra en håndværker med praktisk erfaring siden 1992. Sparring, kvalitetsgennemgang og forhandling.",
   },
   {
     slug: "fejlsoegning",
     title: "Fejlsøgning, tilsyn og 1-års gennemgang",
     shortTitle: "Tilsyn",
     excerpt: "Mistanke om fejl i byggeriet? Vi laver grundig gennemgang, dokumentation og rapport — både under byggeriet og ved 1- og 5-års eftersyn.",
-    metaTitle: "Fejlsøgning og tilsyn af bygninger | Holstrup TS",
+    metaTitle: "Fejlsøgning, tilsyn og 1-års eftersyn",
     metaDescription: "Tømrerfaglig fejlsøgning, tilsyn og 1-års eftersyn i Nordsjælland. Grundig gennemgang og skriftlig rapport.",
   },
 ];

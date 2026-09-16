@@ -83,8 +83,8 @@ export function buildCityContent(area: Area): CityContent {
     {
       heading: advisoryHeading,
       body: area.buildingStyle
-        ? `Mange byggerådgivnings-opgaver i ${area.name} kommer fra ejere af ${area.buildingStyle.toLowerCase()}. Hvis du ikke selv ønsker at hyre håndværkere men har brug for en uvildig fagmand til at gennemgå tilbud, byggeri eller 1-års eftersyn i ${area.name}, så ring til Holstrup TS. 30+ års praktisk byggeerfaring ser detaljer som teoretiske byggesagkyndige overser.`
-        : `Hvis du ikke selv ønsker at hyre håndværkere men har brug for en uvildig fagmand til byggerådgivning, tilbudsgennemgang eller 1-års eftersyn i ${area.name}, så ring. 30+ års praktisk byggeerfaring ser detaljer som teoretiske byggesagkyndige overser — særligt ved tag, undertag, ventilation og fugtproblemer.`,
+        ? `Mange byggerådgivnings-opgaver i ${area.name} kommer fra ejere af ${area.buildingStyle.toLowerCase()}. Hvis du ikke selv ønsker at hyre håndværkere men har brug for en uvildig fagmand til at gennemgå tilbud, byggeri eller 1-års eftersyn i ${area.name}, så ring til Holstrup TS. byggeerfaring siden 1992 ser detaljer som teoretiske byggesagkyndige overser.`
+        : `Hvis du ikke selv ønsker at hyre håndværkere men har brug for en uvildig fagmand til byggerådgivning, tilbudsgennemgang eller 1-års eftersyn i ${area.name}, så ring. byggeerfaring siden 1992 ser detaljer som teoretiske byggesagkyndige overser — særligt ved tag, undertag, ventilation og fugtproblemer.`,
     },
   ];
 

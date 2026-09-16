@@ -1,4 +1,4 @@
-import { AREAS, SERVICES, SITE } from "@/lib/site";
+import { AREAS, SERVICES, SITE, REVIEWS, REVIEW_AGGREGATE } from "@/lib/site";
 
 type Json = Record<string, unknown>;
 
@@ -19,7 +19,7 @@ export function LocalBusinessJsonLd() {
     name: SITE.fullName,
     alternateName: SITE.name,
     description:
-      "Tømrer- og snedkerfirma i Frederikssund med 30+ års erfaring. Renovering, tag, tilbygning, totalentreprise og byggerådgivning i hele Nordsjælland.",
+      "Tømrer- og snedkerfirma i Frederikssund med erfaring siden 1992. Renovering, tag, tilbygning, totalentreprise og byggerådgivning i hele Nordsjælland.",
     url: SITE.url,
     telephone: SITE.phone,
     email: SITE.email,
@@ -58,7 +58,58 @@ export function LocalBusinessJsonLd() {
       "Gipsvægge",
       "Træterrasse",
     ],
-    sameAs: [`https://www.google.com/search?q=Holstrup+TS+Frederikssund`],
+    geo: {
+      "@type": "GeoCoordinates",
+      latitude: SITE.geo.lat,
+      longitude: SITE.geo.lng,
+    },
+    openingHoursSpecification: SITE.openingHours.map((h) => ({
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: h.days,
+      opens: h.opens,
+      closes: h.closes,
+    })),
+    // Serviceradius — hjælper Google med at forstå hvor langt vi reelt kører ud.
+    serviceArea: {
+      "@type": "GeoCircle",
+      geoMidpoint: {
+        "@type": "GeoCoordinates",
+        latitude: SITE.geo.lat,
+        longitude: SITE.geo.lng,
+      },
+      geoRadius: "45000",
+    },
+    // Kun rigtige profiler. Et Google-søgeresultat er ikke en profil og blev fjernet.
+    sameAs: [...SITE.profiles, SITE.googleBusinessUrl].filter(Boolean),
+    ...(SITE.googleBusinessUrl ? { hasMap: SITE.googleBusinessUrl } : {}),
+    // Tændes automatisk når der ligger dokumenterede anmeldelser i REVIEW_AGGREGATE.
+    ...(REVIEW_AGGREGATE
+      ? {
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: REVIEW_AGGREGATE.ratingValue,
+            reviewCount: REVIEW_AGGREGATE.reviewCount,
+            bestRating: 5,
+            worstRating: 1,
+          },
+        }
+      : {}),
+    ...(REVIEWS.length
+      ? {
+          review: REVIEWS.map((r) => ({
+            "@type": "Review",
+            author: { "@type": "Person", name: r.author },
+            datePublished: r.date,
+            reviewBody: r.body,
+            reviewRating: {
+              "@type": "Rating",
+              ratingValue: r.rating,
+              bestRating: 5,
+              worstRating: 1,
+            },
+          })),
+        }
+      : {}),
   });
 }
 

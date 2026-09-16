@@ -173,6 +173,7 @@ async function remindStaleLeads(): Promise<number> {
     subject: reminderSubject(leads),
     html: buildReminderHtml(leads),
     text: buildReminderText(leads),
+    cc: null, // the nudge is Finn's alone; we already saw the lead when it came in
   });
   if (!sent) {
     console.error("[holstrup/cron] reminder failed", error);

@@ -33,6 +33,10 @@ export function detailForSlug(slug: string | undefined): string {
 }
 
 /** What lands in holstrup_leads.service: the group, plus the detail if we have one. */
-export function composeService(group: ServiceGroup | null, detail: string): string {
-  return [group, detail].filter(Boolean).join(" · ");
+export const CUSTOMER_TYPES = ["Privat", "Erhverv"] as const;
+export type CustomerType = (typeof CUSTOMER_TYPES)[number];
+
+/** What Finn reads in the mail: "Privat · Tag · Tagrenovering", with whatever we know. */
+export function composeService(group: ServiceGroup | null, detail: string, customerType?: CustomerType | null): string {
+  return [customerType, group, detail].filter(Boolean).join(" · ");
 }

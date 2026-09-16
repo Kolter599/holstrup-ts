@@ -12,7 +12,7 @@ import { SITE } from "@/lib/site";
 export const metadata: Metadata = {
   title: "Om Holstrup TS — tømrerfirma siden 1992",
   description:
-    "Holstrup TS er et tømrer- og snedkerfirma i Frederikssund med 30+ års erfaring. Læs om firmaet, manden bag, og hvordan vi arbejder.",
+    "Holstrup TS er et tømrer- og snedkerfirma i Frederikssund med erfaring siden 1992. Læs om firmaet, manden bag, og hvordan vi arbejder.",
   alternates: { canonical: "/om" },
   openGraph: {
     url: `${SITE.url}/om`,
@@ -37,7 +37,7 @@ export default function AboutPage() {
           </h1>
           <div className="mt-10 md:mt-14 grid md:grid-cols-12 gap-10 md:gap-16 items-end">
             <p className="md:col-span-7 text-lg md:text-xl text-[color:var(--color-ink-soft)] leading-relaxed">
-              Holstrup TS er et lokalt tømrerfirma drevet af Finn Holm Pedersen — fortsat på pladsen hver dag, og med 30+ års erfaring fra byggepladser i Nordsjælland og hovedstaden.
+              Holstrup TS er et lokalt tømrerfirma drevet af Finn Holm Pedersen — fortsat på pladsen hver dag, og med erfaring siden 1992 fra byggepladser i Nordsjælland og hovedstaden.
             </p>
             <div className="md:col-span-5 grid grid-cols-2 gap-4">
               <Stat label="År i faget" value="30+" />
@@ -84,7 +84,7 @@ export default function AboutPage() {
 
             <h2>Manden bag firmaet</h2>
             <p>
-              Bag Holstrup TS står Finn Holm Pedersen. Han har arbejdet i byggebranchen siden ung og har stået på byggepladser i Nordsjælland, i København og på store entrepriser — fra klassiske villarenoveringer til nybyg og renovering af ejendomskomplekser. Det er 30+ års erfaring man ikke læser sig til.
+              Bag Holstrup TS står Finn Holm Pedersen. Han har arbejdet i byggebranchen siden ung og har stået på byggepladser i Nordsjælland, i København og på store entrepriser — fra klassiske villarenoveringer til nybyg og renovering af ejendomskomplekser. Det er erfaring siden 1992 man ikke læser sig til.
             </p>
 
             <h2>Hustømrer for de store, egenmester for de private</h2>

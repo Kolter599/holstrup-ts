@@ -11,7 +11,7 @@ import { SITE } from "@/lib/site";
 export const metadata: Metadata = {
   title: "Viden — tømrer-guider og byggerådgivning",
   description:
-    "Guides, prisestimater og byggerådgivning fra en tømrer med 30+ års erfaring. Priser på tag, renovering, sommerhus og totalentreprise.",
+    "Guides, prisestimater og byggerådgivning fra en tømrer med erfaring siden 1992. Priser på tag, renovering, sommerhus og totalentreprise.",
   alternates: { canonical: "/blog" },
   openGraph: {
     url: `${SITE.url}/blog`,
@@ -35,7 +35,7 @@ export default function BlogIndex() {
             <span className="block whitespace-nowrap" style={{ color: "var(--color-blue)" }}>byggerådgivning.</span>
           </h1>
           <p className="mt-10 md:mt-14 max-w-xl text-lg md:text-xl text-[color:var(--color-ink-soft)] leading-relaxed">
-            Priser, faldgruber og praktisk byggerådgivning — fra en tømrer med 30+ års erfaring. Skrevet for boligejere der gerne vil træffe gode beslutninger.
+            Priser, faldgruber og praktisk byggerådgivning — fra en tømrer med erfaring siden 1992. Skrevet for boligejere der gerne vil træffe gode beslutninger.
           </p>
         </div>
       </section>
