@@ -1,5 +1,6 @@
 ---
 title: "Totalentreprise vs. hovedentreprise: hvad skal du vælge som privat bygherre?"
+metaTitle: "Totalentreprise eller hovedentreprise?"
 description: "Forskellen på total- og hovedentreprise forklaret for privatejere. Hvad passer dit projekt, hvem står med ansvaret, og hvad koster det?"
 date: "2026-04-12"
 category: "Byggerådgivning"

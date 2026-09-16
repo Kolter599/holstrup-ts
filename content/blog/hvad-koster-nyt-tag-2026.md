@@ -1,6 +1,7 @@
 ---
 title: "Hvad koster et nyt tag i 2026? Prisguide for boligejere i Nordsjælland"
-description: "Realistiske priser på nyt tag i 2026 — tegltag, betontag, skifer og tagpap. Fra en tømrer med 30+ års erfaring i Nordsjælland."
+metaTitle: "Hvad koster et nyt tag i 2026?"
+description: "Realistiske priser på nyt tag i 2026 — tegltag, betontag, skifer og tagpap. Fra en tømrer med erfaring siden 1992 i Nordsjælland."
 date: "2026-04-20"
 category: "Priser & guider"
 image: "/images/finn-velux.jpg"

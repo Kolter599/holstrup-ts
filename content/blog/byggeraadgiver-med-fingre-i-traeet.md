@@ -1,5 +1,6 @@
 ---
 title: "Byggerådgivning fra en tømrer — hvorfor det slår en teoretisk byggesagkyndig"
+metaTitle: "Byggerådgivning fra en tømrer"
 description: "De fleste byggesagkyndige er ingeniører eller arkitekter uden praktisk erfaring. En rådgiver med fingre i træet ser ting de andre overser."
 date: "2026-04-05"
 category: "Byggerådgivning"
@@ -12,7 +13,7 @@ De fleste certificerede byggesagkyndige er ingeniører eller arkitekter. De kan 
 
 ## Det en praktisk rådgiver fanger
 
-Finn har 30+ års erfaring på byggepladser i Nordsjælland. Når han gennemgår et hus, ser han:
+Finn har erfaring siden 1992 på byggepladser i Nordsjælland. Når han gennemgår et hus, ser han:
 
 - **Dårlig undertagsmontage** som ikke vises i en visuel inspektion, men som kommer til at betyde fugt indenfor 5-10 år
 - **Forkert skotrende-opbygning** hvor vand ikke ledes væk, men trænger ind i vægkonstruktionen
