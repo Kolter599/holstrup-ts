@@ -85,8 +85,8 @@ export default async function ServicePage({ params }: { params: Params }) {
 
       {/* INDHOLD */}
       <section className="py-24 md:py-36">
-        <div className="mx-auto max-w-7xl px-6 md:px-10 grid md:grid-cols-12 gap-12 md:gap-20">
-          <aside className="md:col-span-4 md:order-2 md:sticky md:top-32 self-start">
+        <div className="mx-auto max-w-7xl px-6 md:px-10 grid md:grid-cols-12 gap-12 md:gap-12 lg:gap-16">
+          <aside className="md:col-span-5 md:order-2 md:sticky md:top-32 self-start">
             {/* On phones this lands right after the intro, before the long copy. */}
             <LeadFormAside path={`/ydelser/${svc.slug}`} serviceSlug={svc.slug} />
             <div className="hairline my-8" />
@@ -105,7 +105,7 @@ export default async function ServicePage({ params }: { params: Params }) {
               erfaring fra rigtige byggepladser siden 1992 i Nordsjælland. Fast pris, skriftlig aftale, ét fast kontaktpunkt — fra første samtale til afleveringen.
             </p>
           </aside>
-          <div className="md:col-span-8 md:order-1 prose-body">
+          <div className="md:col-span-7 md:order-1 prose-body">
             {content.sections.map((s, i) => (
               <section key={i}>
                 <h2>{s.heading}</h2>

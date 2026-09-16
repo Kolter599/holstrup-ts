@@ -290,7 +290,7 @@ export function LeadForm({
         ) : (
           <div
             className={
-              (compact ? "px-5 py-6 " : "px-6 py-8 md:px-10 md:py-10 ") +
+              (compact ? "px-5 py-6 md:px-6 " : "px-6 py-8 md:px-10 md:py-10 ") +
               (expanded && !compact
                 ? "lg:grid lg:grid-cols-[minmax(0,600px)_minmax(0,1fr)] lg:gap-10"
                 : "")
@@ -378,7 +378,12 @@ export function LeadForm({
                 onSubmit={submit}
                 noValidate
                 ref={detailsRef}
-                className="mt-8 space-y-6 border-t border-[color:var(--color-line)] pt-8 lg:mt-0 lg:border-l lg:border-t-0 lg:pl-10 lg:pt-0"
+                className={
+                  "mt-8 space-y-6 border-t border-[color:var(--color-line)] pt-8 " +
+                  // Only the full-width form gets a second column; in the narrow
+                  // aside the description stays stacked under the contact fields.
+                  (compact ? "" : "lg:mt-0 lg:border-l lg:border-t-0 lg:pl-10 lg:pt-0")
+                }
               >
                 <div>
                   <h3 className="font-display text-xl font-extrabold leading-tight text-[color:var(--color-ink)] md:text-2xl">

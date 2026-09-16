@@ -101,7 +101,7 @@ export async function POST(req: Request) {
   // later. Best-effort — if Blob token isn't set or upload fails, we still
   // attach the bytes to the email and skip persisting URLs.
   const photoUrls: string[] = [];
-  if (attachments.length > 0 && process.env.BLOB_READ_WRITE_TOKEN) {
+  if (attachments.length > 0 && (process.env.BLOB_READ_WRITE_TOKEN || process.env.BLOB_STORE_ID)) {
     const folder = `holstrup-leads/${sessionId ?? "anon"}-${Date.now()}`;
     const uploads = attachments.map(async (a, i) => {
       try {

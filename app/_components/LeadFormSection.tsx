@@ -8,21 +8,22 @@ import { LeadForm } from "./LeadForm";
 export const TOP_ID = "tilbud-top";
 export const MAIN_ID = "tilbud";
 
+// Vercel sets BLOB_READ_WRITE_TOKEN on older integrations and BLOB_STORE_ID on
+// newer ones (the SDK then authenticates through the project itself).
 function photosEnabled() {
-  return Boolean(process.env.BLOB_READ_WRITE_TOKEN);
+  return Boolean(process.env.BLOB_READ_WRITE_TOKEN || process.env.BLOB_STORE_ID);
 }
 
 /**
  * Beside the opening section. Sticky within it on desktop, straight after the
- * intro on phones. Clicking through hands over to the wide one below, keeping
- * everything typed — one form, one submit.
+ * intro on phones. It opens where it stands — being thrown to the bottom of the
+ * page mid-thought is worse than a slightly narrower column.
  */
 export function LeadFormAside({ path, serviceSlug }: { path: string; serviceSlug?: string }) {
   return (
     <LeadForm
       id={TOP_ID}
       variant="compact"
-      handoffTo={MAIN_ID}
       serviceSlug={serviceSlug}
       source={`${path}#top`}
       photosEnabled={photosEnabled()}
