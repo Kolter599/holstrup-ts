@@ -15,6 +15,7 @@ type Payload = {
   service?: string;
   message?: string;
   company?: string;
+  source?: string;
   sessionId?: string;
 };
 
@@ -39,6 +40,7 @@ export async function POST(req: Request) {
         service: String(form.get("service") ?? ""),
         message: String(form.get("message") ?? ""),
         company: String(form.get("company") ?? ""),
+        source: String(form.get("source") ?? ""),
         sessionId: String(form.get("sessionId") ?? ""),
       };
       // Pull up to MAX_PHOTOS files keyed photo_0 … photo_N
@@ -76,6 +78,7 @@ export async function POST(req: Request) {
   const message = (body.message || "").trim().slice(0, 4000);
   const city = (body.city || "").trim().slice(0, 120);
   const service = (body.service || "").trim().slice(0, 200);
+  const source = (body.source || "").trim().slice(0, 300);
 
   // A phone number is the whole lead. Everything else is a bonus — the old
   // form demanded name + phone + a 5-char message and lost 7 people out of 9.
@@ -139,12 +142,12 @@ export async function POST(req: Request) {
       const rows = (await sql`
         INSERT INTO holstrup_leads (
           session_id, name, email, phone, city, service, message,
-          user_agent, referrer, country, submitted, photo_count, photo_urls
+          user_agent, referrer, country, submitted, photo_count, photo_urls, source
         ) VALUES (
           ${sessionId}, ${name || null}, ${email || null}, ${phone},
           ${city || null}, ${service || null}, ${message || null},
           ${userAgent}, ${referrer}, ${country}, TRUE, ${photoCount},
-          ${photoUrlsJson}::jsonb
+          ${photoUrlsJson}::jsonb, ${source || null}
         )
         ON CONFLICT (session_id) DO UPDATE SET
           name = COALESCE(EXCLUDED.name, holstrup_leads.name),
@@ -156,6 +159,7 @@ export async function POST(req: Request) {
           submitted = TRUE,
           photo_count = GREATEST(holstrup_leads.photo_count, EXCLUDED.photo_count),
           photo_urls = COALESCE(EXCLUDED.photo_urls, holstrup_leads.photo_urls),
+          source = COALESCE(holstrup_leads.source, EXCLUDED.source),
           updated_at = NOW()
         RETURNING id, partial_notified;
       `) as Array<{ id: string; partial_notified: boolean }>;
@@ -166,7 +170,7 @@ export async function POST(req: Request) {
     }
   }
 
-  const fields = { name, email, phone, city, service, message, photoCount };
+  const fields = { name, email, phone, city, service, message, source, photoCount };
   const variant = alreadyNotified ? "completed" : "submit";
   const { sent, error } = await sendLeadMail({
     subject: submitSubject(fields, alreadyNotified),

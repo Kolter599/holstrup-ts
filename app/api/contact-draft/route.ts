@@ -11,6 +11,7 @@ type Body = {
   city?: string;
   service?: string;
   message?: string;
+  source?: string;
 };
 
 function isUuidLike(value: string): boolean {
@@ -47,7 +48,7 @@ export async function POST(req: Request) {
     await sql`
       INSERT INTO holstrup_leads (
         session_id, name, email, phone, city, service, message,
-        user_agent, referrer, country
+        user_agent, referrer, country, source
       ) VALUES (
         ${body.sessionId},
         ${clip(body.name, 200)},
@@ -56,7 +57,8 @@ export async function POST(req: Request) {
         ${clip(body.city, 120)},
         ${clip(body.service, 200)},
         ${clip(body.message, 4000)},
-        ${userAgent}, ${referrer}, ${country}
+        ${userAgent}, ${referrer}, ${country},
+        ${clip(body.source, 300)}
       )
       ON CONFLICT (session_id) DO UPDATE SET
         name    = COALESCE(EXCLUDED.name, holstrup_leads.name),
@@ -65,6 +67,7 @@ export async function POST(req: Request) {
         city    = COALESCE(EXCLUDED.city, holstrup_leads.city),
         service = COALESCE(EXCLUDED.service, holstrup_leads.service),
         message = COALESCE(EXCLUDED.message, holstrup_leads.message),
+        source  = COALESCE(holstrup_leads.source, EXCLUDED.source),
         updated_at = NOW();
     `;
     return NextResponse.json({ ok: true, persisted: true });

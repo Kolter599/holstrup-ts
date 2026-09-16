@@ -7,6 +7,7 @@ export type PartialRow = {
   city: string | null;
   service: string | null;
   message: string | null;
+  source?: string | null;
 };
 
 /** Mail Finn about an abandoned draft. Returns whether it actually went out. */
@@ -18,6 +19,7 @@ export async function notifyPartial(row: PartialRow): Promise<boolean> {
     city: (row.city ?? "").trim(),
     service: (row.service ?? "").trim(),
     message: (row.message ?? "").trim(),
+    source: (row.source ?? "").trim(),
   };
   const { sent, error } = await sendLeadMail({
     subject: partialSubject(fields),

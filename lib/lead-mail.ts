@@ -31,6 +31,8 @@ export type LeadMail = {
   city: string;
   service: string;
   message: string;
+  /** Page the lead came from, e.g. /ydelser/tagrenovering. */
+  source?: string;
   photoCount?: number;
 };
 
@@ -147,6 +149,7 @@ export function buildLeadHtml(variant: Variant, f: LeadMail): string {
       f.email ? row("E-mail", link(`mailto:${f.email}`, f.email)) : null,
       f.city ? row("By", escapeHtml(f.city)) : null,
       f.service ? row("Opgave", escapeHtml(f.service)) : null,
+      f.source ? row("Kom fra", escapeHtml(f.source)) : null,
       f.photoCount ? row("Billeder", `${f.photoCount} vedhæftet — se i bunden af mailen`) : null,
     ],
     f.message
@@ -171,6 +174,7 @@ export function buildLeadText(variant: Variant, f: LeadMail): string {
     f.email ? `E-mail:   ${f.email}` : null,
     f.city ? `By:       ${f.city}` : null,
     f.service ? `Opgave:   ${f.service}` : null,
+    f.source ? `Kom fra:  ${f.source}` : null,
     f.photoCount ? `Billeder: ${f.photoCount} vedhæftet` : null,
     "",
     f.message ? `Beskrivelse:\n${f.message}` : "(Ingen beskrivelse af opgaven — ring og spørg.)",
