@@ -1,6 +1,9 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
+// Relative, with the extension, so scripts/check-lead-rules.ts can run this
+// file under plain node as well as through the bundler.
+import { hasUsableEmail, hasUsablePhone } from "./lead-rules.ts";
 import type { CustomerType, ServiceGroup } from "@/lib/service-groups";
 
 // A page can carry the form twice — compact next to the promise, full-width
@@ -31,7 +34,6 @@ export type LeadState = {
   leadSource: string;
   /** Instance that should scroll itself into view on the next paint. */
   pendingScroll: string | null;
-  partialSent: boolean;
   status: "idle" | "sending" | "error";
   serverMessage: string;
   done: boolean;
@@ -54,7 +56,6 @@ function empty(pathname: string, group: ServiceGroup | null, detail: string): Le
     activeId: null,
     leadSource: "",
     pendingScroll: null,
-    partialSent: false,
     status: "idle",
     serverMessage: "",
     done: false,
@@ -95,14 +96,24 @@ export function resetForPath(pathname: string, group: ServiceGroup | null, detai
 const KEY = "holstrup_lead_draft";
 const MAX_AGE_MS = 14 * 24 * 60 * 60 * 1000;
 
-type Stored = Pick<LeadState, "pathname" | "name" | "phone" | "email" | "message" | "group" | "detail" | "customerType" | "expandedId" | "leadSource" | "partialSent"> & { savedAt: number };
+type Stored = Pick<LeadState, "pathname" | "name" | "phone" | "email" | "message" | "group" | "detail" | "customerType" | "expandedId" | "leadSource"> & { savedAt: number };
 
 function save(): void {
   if (typeof window === "undefined") return;
-  const { pathname, name, phone, email, message, group, detail, customerType, expandedId, leadSource, partialSent } = state;
-  if (!name && !phone && !email && !message) return;
+  const { pathname, name, message, group, detail, customerType, expandedId, leadSource } = state;
+  // A half-typed number or a stray "0" is worse than nothing: it comes back
+  // days later looking like the visitor put it there, and it would be rejected
+  // on submit anyway. Only details we could actually reach them on survive.
+  const phone = hasUsablePhone(state.phone) ? state.phone : "";
+  const email = hasUsableEmail(state.email) ? state.email : "";
+  // Clearing the form is how you throw a draft away, so an empty form must
+  // erase the saved one rather than leave it to reappear on the next visit.
+  if (!name && !phone && !email && !message) {
+    clearSaved();
+    return;
+  }
   try {
-    const payload: Stored = { pathname, name, phone, email, message, group, detail, customerType, expandedId, leadSource, partialSent, savedAt: Date.now() };
+    const payload: Stored = { pathname, name, phone, email, message, group, detail, customerType, expandedId, leadSource, savedAt: Date.now() };
     window.localStorage.setItem(KEY, JSON.stringify(payload));
   } catch {
     // Private mode or a full quota: the form still works, it just forgets.

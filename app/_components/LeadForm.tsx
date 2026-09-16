@@ -128,15 +128,16 @@ export function LeadForm({
     };
   }, [owns, s.name, s.phone, s.email, s.message, s.leadSource, service, source]);
 
-  // Backup only: a number typed in, then the tab closed before clicking on.
+  // Backup only: the 600ms autosave above may not have fired before the tab
+  // closed. This saves the draft, it does not mail it — the cron is the only
+  // thing that decides a draft has sat long enough to be worth a mail.
   useEffect(() => {
     function onLeave() {
-      if (!owns || s.partialSent || s.expandedId) return;
-      if (!phoneOk(s.phone) && !emailOk(s.email)) return;
+      if (!owns || !sessionIdRef.current) return;
+      if (!s.name && !s.phone && !s.email && !s.message && !service) return;
       if (typeof navigator === "undefined" || !navigator.sendBeacon) return;
-      patch({ partialSent: true });
       navigator.sendBeacon(
-        "/api/contact-partial",
+        "/api/contact-draft",
         new Blob(
           [
             JSON.stringify({
@@ -144,6 +145,7 @@ export function LeadForm({
               name: s.name,
               phone: s.phone,
               email: s.email,
+              message: s.message,
               service,
               source: s.leadSource || source,
             }),
@@ -175,9 +177,14 @@ export function LeadForm({
   }
 
   /**
-   * Clicking "Beskriv opgaven" IS the lead: from here on we can reach them, so
-   * the mail goes out on that click. A compact placement hands the job over to
-   * the wide one — same state, so nothing they typed is lost.
+   * Clicking "Beskriv opgaven" opens step 2 — it does not mail anyone. Someone
+   * who has just typed their number is still typing; mailing on that click
+   * turned every visitor into an inbox item before they had said what they
+   * wanted. The draft is already saved, and the cron decides an hour later
+   * whether it was abandoned and therefore worth Finn's attention.
+   *
+   * A compact placement hands the job over to the wide one — same state, so
+   * nothing they typed is lost.
    */
   function expand(e: React.FormEvent) {
     e.preventDefault();
@@ -185,22 +192,6 @@ export function LeadForm({
     if (!phoneOk(s.phone)) return;
 
     const target = handoffTo ?? id;
-    if (!s.partialSent && sessionIdRef.current) {
-      patch({ partialSent: true });
-      void fetch("/api/contact-partial", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          sessionId: sessionIdRef.current,
-          name: s.name,
-          phone: s.phone,
-          email: s.email,
-          service,
-          source: s.leadSource || source,
-        }),
-        keepalive: true,
-      }).catch(() => {});
-    }
     patch({ expandedId: target, pendingScroll: target === id ? null : target });
   }
 

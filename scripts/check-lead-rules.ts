@@ -79,4 +79,47 @@ store.resetForPath("/blog/hvad-koster-nyt-tag-2026", null, "");
 assert.equal(store.getState().phone, "", "a new page starts a new lead");
 assert.equal(store.getState().leadSource, "");
 
+/* --- what a saved draft is allowed to bring back --- */
+
+// The store checks for `window` at call time, so stubbing it here exercises the
+// real save/restore path. A draft that came back reading "0" in the e-mail
+// field is what this section exists to prevent.
+const mem = new Map();
+// defineProperty rather than assignment: the store only ever touches
+// window.localStorage, so there is no reason to satisfy all of Window.
+Object.defineProperty(globalThis, "window", {
+  configurable: true,
+  value: {
+    localStorage: {
+      get length() {
+        return mem.size;
+      },
+      key: (i: number) => [...mem.keys()][i] ?? null,
+      clear: () => mem.clear(),
+      getItem: (k: string) => mem.get(k) ?? null,
+      setItem: (k: string, v: string) => void mem.set(k, v),
+      removeItem: (k: string) => void mem.delete(k),
+    },
+  },
+});
+
+store.resetForPath("/kontakt", null, "");
+store.patch({ email: "0" });
+assert.equal(mem.get("holstrup_lead_draft"), undefined, '"0" is not an address and must not come back');
+
+store.patch({ phone: "401" });
+assert.equal(mem.get("holstrup_lead_draft"), undefined, "three digits is not a number we can ring");
+
+store.patch({ email: "finn@holstrup-ts.dk" });
+assert.equal(
+  JSON.parse(mem.get("holstrup_lead_draft")).email,
+  "finn@holstrup-ts.dk",
+  "a real address is worth keeping for 14 days",
+);
+assert.equal(JSON.parse(mem.get("holstrup_lead_draft")).phone, "", "the unusable number did not ride along");
+
+// Clearing the form is how a draft is thrown away.
+store.patch({ email: "", name: "", phone: "", message: "" });
+assert.equal(mem.get("holstrup_lead_draft"), undefined, "an emptied form erases the saved draft");
+
 console.log("lead rules OK");

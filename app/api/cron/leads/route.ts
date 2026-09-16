@@ -20,14 +20,16 @@ export const dynamic = "force-dynamic";
 
 // Hourly safety net so no lead can rot unnoticed:
 //   1. resend the notification for submitted leads whose mail never went out
-//   2. mail Finn about abandoned drafts the leave-page beacon missed
+//   2. mail Finn about drafts that were abandoned without a description
 //   3. once a day, remind him about leads still sitting at status = 'new'
 //
 // Protected with CRON_SECRET (Vercel sends it as a bearer token automatically).
 
 const ADMIN_URL = `${SITE.url}/admin-invisu/leads`;
-// Drafts get a 30-minute grace period (inlined in the SQL below — an interval
-// can't be a bind parameter) before we call them abandoned.
+// Drafts get a 60-minute grace period (inlined in the SQL below — an interval
+// can't be a bind parameter) before we call them abandoned. This cron is the
+// ONLY thing that mails about an unfinished form: filling in your name and
+// number is not yet a lead, and mailing on that keystroke buried the real ones.
 const BATCH = 20;
 
 type Row = {
@@ -118,7 +120,7 @@ async function notifyMissedDrafts(): Promise<number> {
     FROM holstrup_leads
     WHERE submitted = FALSE
       AND partial_notified = FALSE
-      AND updated_at < NOW() - INTERVAL '30 minutes'
+      AND updated_at < NOW() - INTERVAL '60 minutes'
       AND updated_at > NOW() - INTERVAL '30 days'
     ORDER BY updated_at DESC
     LIMIT ${BATCH};
