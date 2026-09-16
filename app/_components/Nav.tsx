@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { SITE } from "@/lib/site";
 
 const LINKS = [
   { href: "/ydelser", label: "Ydelser" },
@@ -55,6 +56,15 @@ export function Nav() {
               Indhent tilbud
             </Link>
           </nav>
+
+          {/* Some people will never use a form. Give them the number up front. */}
+          <a
+            href={`tel:${SITE.phone}`}
+            className="md:hidden ml-auto mr-1 inline-flex items-center gap-2 rounded-full border border-[color:var(--color-line-strong)] px-3 py-2 text-[13px] font-semibold text-[color:var(--color-ink)]"
+          >
+            <span aria-hidden>📞</span>
+            <span className="whitespace-nowrap">{SITE.phoneDisplay}</span>
+          </a>
 
           <button
             type="button"

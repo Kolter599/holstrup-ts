@@ -7,6 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "check:leads": "node scripts/check-lead-rules.ts",
     "lastmod": "node scripts/update-lastmod.mjs"
   },
   "dependencies": {

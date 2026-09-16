@@ -4,7 +4,7 @@ import { ContactForm } from "./ContactForm";
 export const metadata: Metadata = {
   title: "Få et tilbud — Holstrup TS",
   description:
-    "Få et uforpligtende tilbud fra Holstrup TS. Beskriv din opgave i 4 hurtige skridt — Finn vender personligt tilbage, typisk samme dag.",
+    "Få et uforpligtende tilbud fra Holstrup TS. Skriv dit telefonnummer — Finn ringer personligt tilbage, typisk samme dag.",
   alternates: { canonical: "/kontakt" },
 };
 
@@ -17,7 +17,7 @@ export default function KontaktPage() {
           Få et tilbud fra <span style={{ color: "var(--color-blue)" }}>Finn</span>
         </h1>
         <p className="mx-auto mt-6 max-w-md text-[color:var(--color-ink-soft)] text-base md:text-lg">
-          4 hurtige skridt — under et minut.
+          Ét felt — dit telefonnummer. Så ringer Finn.
         </p>
       </header>
 

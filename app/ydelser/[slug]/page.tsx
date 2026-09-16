@@ -68,7 +68,8 @@ export default async function ServicePage({ params }: { params: Params }) {
             <h1 className="display-xl">{content.h1}</h1>
             <p className="mt-8 text-lg md:text-xl text-[color:var(--color-ink-soft)] max-w-xl leading-relaxed">{content.intro}</p>
             <div className="mt-10 flex flex-wrap gap-3">
-              <Link href="/kontakt" className="btn-accent">Indhent tilbud</Link>
+              {/* Carry the ydelse across so the form starts one step in. */}
+              <Link href={`/kontakt?ydelse=${svc.slug}`} className="btn-accent">Indhent tilbud</Link>
               <a href={`tel:${SITE.phone}`} className="btn-outline">Ring {SITE.phoneDisplay}</a>
             </div>
           </div>

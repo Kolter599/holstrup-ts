@@ -33,6 +33,26 @@ Set these in Vercel / `.env.local`:
 RESEND_API_KEY=
 CONTACT_FROM_EMAIL=kontakt@holstrup-ts.dk
 CONTACT_TO_EMAIL=finn@holstrup-ts.dk
+DATABASE_URL=                 # Neon — uden den gemmes leads ikke
+BLOB_READ_WRITE_TOKEN=        # Vercel Blob — billeder
+CRON_SECRET=                  # bearer-token til /api/cron/leads
+```
+
+## Leads må aldrig gå tabt
+
+Henvendelsen gemmes i `holstrup_leads` **før** mailen sendes, og udfaldet af
+mailen skrives tilbage på præcis den række (`email_sent` / `email_error`) — en
+mail der fejler eller slet ikke forsøges bliver altså aldrig usynlig.
+
+`/api/cron/leads` kører hver time (se `vercel.json`) og:
+
+1. sender igen for `submitted = true AND email_sent = false`
+2. mailer om påbegyndte henvendelser som forlad-siden-beaconen missede
+3. minder Finn om henvendelser der har stået som `new` i over et døgn —
+   maks. én mail i døgnet, og ingen mail når listen er tom
+
+```bash
+npm run check:leads   # reglerne bag punkt 1-3, uden database
 ```
 
 ## Site structure

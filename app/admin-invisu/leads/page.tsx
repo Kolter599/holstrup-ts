@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { sql, hasDb } from "@/lib/db";
 
@@ -6,6 +7,7 @@ export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 const COOKIE = "holstrup_admin";
+const PATH = "/admin-invisu/leads";
 
 type LeadRow = {
   id: string;
@@ -30,10 +32,17 @@ type LeadRow = {
   updated_at: string;
 };
 
+const STATUSES = [
+  { key: "new", label: "Ny" },
+  { key: "contacted", label: "Kontaktet" },
+  { key: "quoted", label: "Tilbud sendt" },
+  { key: "won", label: "Vundet" },
+  { key: "lost", label: "Tabt" },
+] as const;
+
 type Stage = { key: string; label: string; rank: number };
 
-// Funnel mirrors the form order: service → oplysninger (navn, telefon, email) → besked → sendt.
-// "Skrev besked" is the last draft stage before submit, so it ranks highest below "Sendt".
+// Funnel mirrors the form order: telefon → navn → ydelse → besked → sendt.
 function computeStage(r: LeadRow): Stage {
   if (r.submitted) return { key: "submitted", label: "Sendt", rank: 5 };
   if (r.message && r.message.length > 5) return { key: "message", label: "Skrev besked", rank: 4 };
@@ -51,6 +60,15 @@ function stageClass(stage: Stage): string {
   return "border border-[#dbd0b9] bg-transparent text-[#6e6557]";
 }
 
+function statusLabel(status: string): string {
+  return STATUSES.find((s) => s.key === status)?.label ?? status;
+}
+
+async function requireAdmin() {
+  const cookieStore = await cookies();
+  if (cookieStore.get(COOKIE)?.value !== "ok") redirect("/admin-invisu/login");
+}
+
 async function logoutAction() {
   "use server";
   const cookieStore = await cookies();
@@ -58,15 +76,33 @@ async function logoutAction() {
   redirect("/admin-invisu/login");
 }
 
+async function setStatusAction(formData: FormData) {
+  "use server";
+  await requireAdmin();
+  const id = String(formData.get("id") ?? "");
+  const status = String(formData.get("status") ?? "");
+  if (!id || !STATUSES.some((s) => s.key === status)) return;
+  if (!hasDb || !sql) return;
+  await sql`UPDATE holstrup_leads SET status = ${status}, updated_at = NOW() WHERE id = ${id};`;
+  revalidatePath(PATH);
+}
+
+async function saveNoteAction(formData: FormData) {
+  "use server";
+  await requireAdmin();
+  const id = String(formData.get("id") ?? "");
+  const notes = String(formData.get("notes") ?? "").slice(0, 4000);
+  if (!id || !hasDb || !sql) return;
+  await sql`UPDATE holstrup_leads SET notes = ${notes || null}, updated_at = NOW() WHERE id = ${id};`;
+  revalidatePath(PATH);
+}
+
 export default async function AdminLeads({
   searchParams,
 }: {
   searchParams: Promise<{ q?: string; status?: string }>;
 }) {
-  const cookieStore = await cookies();
-  if (cookieStore.get(COOKIE)?.value !== "ok") {
-    redirect("/admin-invisu/login");
-  }
+  await requireAdmin();
 
   const sp = await searchParams;
   const q = (sp?.q ?? "").trim();
@@ -74,57 +110,67 @@ export default async function AdminLeads({
 
   let rows: LeadRow[] = [];
   let error: string | null = null;
-  let total = 0;
   let last7d = 0;
   let totalSubmitted = 0;
   let totalDrafts = 0;
+  let unhandled = 0;
 
   if (!hasDb || !sql) {
     error = "DATABASE_URL ikke sat — provision Neon og redeploy.";
   } else {
     try {
+      // Unhandled real leads first, then the rest of the sent ones, then
+      // drafts. Finn should open this page and see exactly who to ring.
       const search = q ? `%${q.toLowerCase()}%` : null;
       if (search && status !== "all") {
         rows = (await sql`
           SELECT * FROM holstrup_leads
           WHERE status = ${status}
-            AND (LOWER(name) LIKE ${search}
-              OR LOWER(email) LIKE ${search}
+            AND (LOWER(COALESCE(name,'')) LIKE ${search}
+              OR LOWER(COALESCE(email,'')) LIKE ${search}
               OR LOWER(COALESCE(phone,'')) LIKE ${search}
               OR LOWER(COALESCE(city,'')) LIKE ${search})
-          ORDER BY created_at DESC LIMIT 500;
+          ORDER BY (submitted AND status = 'new') DESC, submitted DESC, created_at DESC LIMIT 500;
         `) as LeadRow[];
       } else if (search) {
         rows = (await sql`
           SELECT * FROM holstrup_leads
-          WHERE LOWER(name) LIKE ${search}
-             OR LOWER(email) LIKE ${search}
+          WHERE LOWER(COALESCE(name,'')) LIKE ${search}
+             OR LOWER(COALESCE(email,'')) LIKE ${search}
              OR LOWER(COALESCE(phone,'')) LIKE ${search}
              OR LOWER(COALESCE(city,'')) LIKE ${search}
-          ORDER BY created_at DESC LIMIT 500;
+          ORDER BY (submitted AND status = 'new') DESC, submitted DESC, created_at DESC LIMIT 500;
         `) as LeadRow[];
       } else if (status !== "all") {
-        rows = (await sql`SELECT * FROM holstrup_leads WHERE status = ${status} ORDER BY created_at DESC LIMIT 500;`) as LeadRow[];
+        rows = (await sql`
+          SELECT * FROM holstrup_leads WHERE status = ${status}
+          ORDER BY (submitted AND status = 'new') DESC, submitted DESC, created_at DESC LIMIT 500;
+        `) as LeadRow[];
       } else {
-        rows = (await sql`SELECT * FROM holstrup_leads ORDER BY created_at DESC LIMIT 500;`) as LeadRow[];
+        rows = (await sql`
+          SELECT * FROM holstrup_leads
+          ORDER BY (submitted AND status = 'new') DESC, submitted DESC, created_at DESC LIMIT 500;
+        `) as LeadRow[];
       }
 
       const counts = (await sql`
         SELECT
-          COUNT(*)::int AS total,
           COUNT(*) FILTER (WHERE submitted = TRUE)::int AS total_submitted,
           COUNT(*) FILTER (WHERE submitted = FALSE)::int AS total_drafts,
+          COUNT(*) FILTER (WHERE submitted = TRUE AND status = 'new')::int AS unhandled,
           COUNT(*) FILTER (WHERE created_at > NOW() - INTERVAL '7 days')::int AS last_7d
         FROM holstrup_leads;
-      `) as Array<{ total: number; total_submitted: number; total_drafts: number; last_7d: number }>;
-      total = counts[0]?.total ?? 0;
+      `) as Array<{ total_submitted: number; total_drafts: number; unhandled: number; last_7d: number }>;
       last7d = counts[0]?.last_7d ?? 0;
       totalSubmitted = counts[0]?.total_submitted ?? 0;
       totalDrafts = counts[0]?.total_drafts ?? 0;
+      unhandled = counts[0]?.unhandled ?? 0;
     } catch (e) {
       error = `DB-fejl: ${(e as Error).message}`;
     }
   }
+
+  const toCall = rows.filter((r) => r.submitted && r.status === "new");
 
   return (
     <main className="mx-auto max-w-[1200px] px-6 py-10">
@@ -137,7 +183,7 @@ export default async function AdminLeads({
             Henvendelser fra hjemmesiden
           </h1>
           <p className="mt-2 text-[13.5px] text-[#6e6557]">
-            {totalSubmitted} sendt · {totalDrafts} drafts (påbegyndt men ikke sendt) · {last7d} aktivitet sidste 7 dage. Hver række er én besøgende.
+            {totalSubmitted} sendt · {totalDrafts} påbegyndte · {last7d} aktivitet sidste 7 dage.
           </p>
         </div>
         <form action={logoutAction}>
@@ -156,7 +202,44 @@ export default async function AdminLeads({
         </div>
       ) : null}
 
-      <form className="mt-6 flex flex-wrap items-center gap-3" action="/admin-invisu/leads">
+      {/* Ring disse i dag — the whole point of the page */}
+      {toCall.length > 0 ? (
+        <section className="mt-6 rounded-[16px] border border-[#141618] bg-white p-5">
+          <h2 className="text-[13px] uppercase tracking-[0.16em] text-[#6e6557]">
+            Ring til disse ({unhandled} ubehandlede)
+          </h2>
+          <ul className="mt-3 grid gap-3 sm:grid-cols-2">
+            {toCall.slice(0, 6).map((r) => (
+              <li key={r.id} className="rounded-[12px] bg-[#f4eee2] p-4">
+                <div className="text-[16px] font-semibold">{r.name ?? "(uden navn)"}</div>
+                <div className="mt-1 text-[13px] text-[#6e6557]">
+                  {[r.service, r.city].filter(Boolean).join(" · ") || "Ingen detaljer"}
+                </div>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {r.phone ? (
+                    <a
+                      href={`tel:${r.phone.replace(/\s/g, "")}`}
+                      className="rounded-full bg-[#141618] px-4 py-2 text-[13px] font-medium text-white"
+                    >
+                      📞 Ring {r.phone}
+                    </a>
+                  ) : null}
+                  {r.email ? (
+                    <a
+                      href={`mailto:${r.email}`}
+                      className="rounded-full border border-[#dbd0b9] px-4 py-2 text-[13px]"
+                    >
+                      ✉️ Skriv
+                    </a>
+                  ) : null}
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+
+      <form className="mt-6 flex flex-wrap items-center gap-3" action={PATH}>
         <input
           name="q"
           defaultValue={q}
@@ -169,11 +252,11 @@ export default async function AdminLeads({
           className="h-10 rounded-full border border-[#dbd0b9] bg-white px-4 text-[14px]"
         >
           <option value="all">Alle</option>
-          <option value="new">Nye</option>
-          <option value="contacted">Kontaktet</option>
-          <option value="quoted">Tilbud sendt</option>
-          <option value="won">Vundet</option>
-          <option value="lost">Tabt</option>
+          {STATUSES.map((s) => (
+            <option key={s.key} value={s.key}>
+              {s.label}
+            </option>
+          ))}
         </select>
         <button
           type="submit"
@@ -183,149 +266,152 @@ export default async function AdminLeads({
         </button>
       </form>
 
-      <div
-        className="mt-6 overflow-x-auto rounded-[16px] bg-white"
-        style={{
-          boxShadow: "0 1px 2px rgba(14,14,12,0.04), 0 8px 22px -14px rgba(14,14,12,0.10)",
-        }}
-      >
-        <table className="w-full text-left text-[13.5px]">
-          <thead className="bg-[#f4eee2] text-[11.5px] uppercase tracking-[0.12em] text-[#6e6557]">
-            <tr>
-              <th className="px-4 py-2.5 font-medium">Stadie</th>
-              <th className="px-4 py-2.5 font-medium">Navn</th>
-              <th className="px-4 py-2.5 font-medium">Email</th>
-              <th className="px-4 py-2.5 font-medium">Telefon</th>
-              <th className="px-4 py-2.5 font-medium">By</th>
-              <th className="px-4 py-2.5 font-medium">Billeder</th>
-              <th className="px-4 py-2.5 font-medium">Mail</th>
-              <th className="px-4 py-2.5 font-medium">Hvornår</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.length === 0 && !error ? (
-              <tr>
-                <td colSpan={8} className="px-4 py-10 text-center text-[#6e6557]">
-                  Ingen henvendelser endnu.
-                </td>
-              </tr>
-            ) : null}
-            {rows.map((r) => {
-              const stage = computeStage(r);
-              return (
-              <tr key={r.id} className="border-t border-[#ece5d2] align-top">
-                <td className="px-4 py-3">
-                  <span
-                    className={`inline-flex rounded-full px-2.5 py-0.5 text-[10.5px] uppercase tracking-[0.14em] ${stageClass(stage)}`}
-                  >
-                    {stage.label}
-                  </span>
-                </td>
-                <td className="px-4 py-3 font-medium">
-                  {r.name ?? <span className="text-[#6e6557]">—</span>}
-                </td>
-                <td className="px-4 py-3">
+      <div className="mt-6 space-y-3">
+        {rows.length === 0 && !error ? (
+          <p className="rounded-[16px] bg-white p-10 text-center text-[#6e6557]">
+            Ingen henvendelser endnu.
+          </p>
+        ) : null}
+
+        {rows.map((r) => {
+          const stage = computeStage(r);
+          const needsAttention = r.submitted && r.status === "new";
+          return (
+            <article
+              key={r.id}
+              className={`rounded-[16px] bg-white p-5 ${needsAttention ? "ring-2 ring-[#141618]" : ""}`}
+              style={{ boxShadow: "0 1px 2px rgba(14,14,12,0.04), 0 8px 22px -14px rgba(14,14,12,0.10)" }}
+            >
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span
+                      className={`inline-flex rounded-full px-2.5 py-0.5 text-[10.5px] uppercase tracking-[0.14em] ${stageClass(stage)}`}
+                    >
+                      {stage.label}
+                    </span>
+                    {r.submitted ? (
+                      <span className="text-[11px] uppercase tracking-[0.14em] text-[#6e6557]">
+                        {statusLabel(r.status)}
+                      </span>
+                    ) : null}
+                    {r.submitted && !r.email_sent ? (
+                      <span
+                        title={r.email_error ?? "Mail ikke sendt — cron prøver igen hver time"}
+                        className="rounded-full bg-rose-100 px-2 py-0.5 text-[11px] text-rose-800"
+                      >
+                        mail ikke sendt
+                      </span>
+                    ) : null}
+                    {r.photo_count > 0 ? (
+                      <span className="rounded-full bg-[#dbd0b9] px-2 py-0.5 text-[11px]">
+                        📸 {r.photo_count}
+                      </span>
+                    ) : null}
+                  </div>
+                  <h3 className="mt-2 text-[17px] font-semibold">
+                    {r.name ?? <span className="text-[#6e6557]">(uden navn)</span>}
+                  </h3>
+                  <p className="mt-0.5 text-[13px] text-[#6e6557]">
+                    {[r.service, r.city].filter(Boolean).join(" · ") || "—"} ·{" "}
+                    {new Date(r.created_at).toLocaleString("da-DK")}
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                  {r.phone ? (
+                    <a
+                      href={`tel:${r.phone.replace(/\s/g, "")}`}
+                      className="rounded-full bg-[#141618] px-4 py-2 text-[13px] font-medium text-white"
+                    >
+                      📞 {r.phone}
+                    </a>
+                  ) : null}
                   {r.email ? (
                     <a
                       href={`mailto:${r.email}`}
-                      className="underline underline-offset-2 hover:text-[#1347a6]"
+                      className="rounded-full border border-[#dbd0b9] px-4 py-2 text-[13px]"
                     >
-                      {r.email}
+                      ✉️ {r.email}
                     </a>
-                  ) : (
-                    <span className="text-[#6e6557]">—</span>
-                  )}
-                </td>
-                <td className="px-4 py-3">
-                  {r.phone ? (
-                    <a
-                      href={`tel:${r.phone}`}
-                      className="underline underline-offset-2 hover:text-[#1347a6]"
-                    >
-                      {r.phone}
-                    </a>
-                  ) : (
-                    "—"
-                  )}
-                </td>
-                <td className="px-4 py-3 text-[#6e6557]">{r.city ?? "—"}</td>
-                <td className="px-4 py-3 text-[#6e6557]">
-                  {r.photo_count > 0 ? (
-                    <span title="Billeder vedhæftet til mailen til Finn" className="inline-flex items-center gap-1 rounded-full bg-[#dbd0b9] px-2 py-0.5 text-[11px] text-[#141618]">
-                      📸 {r.photo_count}
-                    </span>
-                  ) : (
-                    "—"
-                  )}
-                </td>
-                <td className="px-4 py-3">
-                  {r.email_sent ? (
-                    <span title="Mailen blev sendt til Finn" className="text-emerald-700">
-                      ✓
-                    </span>
-                  ) : (
-                    <span
-                      title={r.email_error ?? "Mail ikke sendt"}
-                      className="text-rose-700"
-                    >
-                      ✗
-                    </span>
-                  )}
-                </td>
-                <td className="px-4 py-3 text-[12px] text-[#6e6557]">
-                  {new Date(r.updated_at).toLocaleString("da-DK")}
-                </td>
-              </tr>
-            );})}
-          </tbody>
-        </table>
-      </div>
-
-      {rows.length > 0 ? (
-        <details className="mt-8 rounded-[12px] bg-white p-5">
-          <summary className="cursor-pointer text-[14px] font-medium">
-            Vis beskeder ({rows.length})
-          </summary>
-          <ul className="mt-4 space-y-5">
-            {rows
-              .filter((r) => (r.message && r.message.length > 5) || (r.photo_urls && r.photo_urls.length > 0))
-              .map((r) => (
-                <li key={r.id} className="border-l-2 border-[#dbd0b9] pl-4">
-                  <div className="text-[12px] uppercase tracking-[0.14em] text-[#6e6557]">
-                    {r.name ?? "(uden navn)"} · {r.email ?? "(uden email)"}
-                    {!r.submitted ? " · DRAFT" : ""}
-                  </div>
-                  <p className="mt-1 whitespace-pre-wrap text-[14px] leading-[1.55]">
-                    {r.message}
-                  </p>
-                  {r.photo_urls && r.photo_urls.length > 0 ? (
-                    <ul className="mt-3 flex flex-wrap gap-2">
-                      {r.photo_urls.map((url, i) => (
-                        <li key={i}>
-                          <a
-                            href={url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="block h-20 w-20 overflow-hidden rounded-md border border-[#dbd0b9] bg-white hover:border-[#141618]"
-                            title="Åbn billede i fuld størrelse"
-                          >
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img
-                              src={url}
-                              alt={`Billede ${i + 1} fra ${r.name ?? "lead"}`}
-                              className="h-full w-full object-cover"
-                              loading="lazy"
-                            />
-                          </a>
-                        </li>
-                      ))}
-                    </ul>
                   ) : null}
-                </li>
-              ))}
-          </ul>
-        </details>
-      ) : null}
+                </div>
+              </div>
+
+              {r.message ? (
+                <p className="mt-3 whitespace-pre-wrap border-l-2 border-[#dbd0b9] pl-4 text-[14px] leading-[1.55]">
+                  {r.message}
+                </p>
+              ) : null}
+
+              {r.photo_urls && r.photo_urls.length > 0 ? (
+                <ul className="mt-3 flex flex-wrap gap-2">
+                  {r.photo_urls.map((url, i) => (
+                    <li key={i}>
+                      <a
+                        href={url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block h-20 w-20 overflow-hidden rounded-md border border-[#dbd0b9] bg-white hover:border-[#141618]"
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={url}
+                          alt={`Billede ${i + 1} fra ${r.name ?? "lead"}`}
+                          className="h-full w-full object-cover"
+                          loading="lazy"
+                        />
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+
+              {r.submitted ? (
+                <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-[#ece5d2] pt-4">
+                  {STATUSES.map((s) => (
+                    <form key={s.key} action={setStatusAction}>
+                      <input type="hidden" name="id" value={r.id} />
+                      <input type="hidden" name="status" value={s.key} />
+                      <button
+                        type="submit"
+                        disabled={r.status === s.key}
+                        className={
+                          "rounded-full px-3.5 py-1.5 text-[12.5px] font-medium transition-colors " +
+                          (r.status === s.key
+                            ? "bg-[#141618] text-white"
+                            : "border border-[#dbd0b9] text-[#6e6557] hover:border-[#141618] hover:text-[#141618]")
+                        }
+                      >
+                        {s.label}
+                      </button>
+                    </form>
+                  ))}
+                </div>
+              ) : null}
+
+              {r.submitted ? (
+                <form action={saveNoteAction} className="mt-3 flex flex-wrap items-start gap-2">
+                  <input type="hidden" name="id" value={r.id} />
+                  <textarea
+                    name="notes"
+                    defaultValue={r.notes ?? ""}
+                    rows={2}
+                    placeholder="Note — hvad blev aftalt?"
+                    className="min-w-[240px] flex-1 rounded-[10px] border border-[#dbd0b9] bg-white p-3 text-[13.5px] outline-none focus:border-[#141618]"
+                  />
+                  <button
+                    type="submit"
+                    className="rounded-full border border-[#dbd0b9] px-4 py-2 text-[13px] hover:border-[#141618]"
+                  >
+                    Gem note
+                  </button>
+                </form>
+              ) : null}
+            </article>
+          );
+        })}
+      </div>
     </main>
   );
 }
