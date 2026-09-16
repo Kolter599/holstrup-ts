@@ -9,7 +9,7 @@ import {
   detailForSlug,
   groupForSlug,
 } from "@/lib/service-groups";
-import { claimSource, patch, resetForPath, useLeadState } from "@/lib/lead-form-store";
+import { claimSource, clearSaved, patch, resetForPath, useLeadState } from "@/lib/lead-form-store";
 
 const SESSION_KEY = "holstrup_visitor_id";
 const MAX_PHOTOS = 5;
@@ -258,6 +258,7 @@ export function LeadForm({
         });
         return;
       }
+      clearSaved();
       patch({ status: "idle", done: true });
     } catch {
       patch({

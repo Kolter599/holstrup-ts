@@ -71,6 +71,7 @@ function emit() {
 /** Never mutates: every change is a new state object. */
 export function patch(next: Partial<LeadState>): void {
   state = { ...state, ...next };
+  save();
   emit();
 }
 
@@ -81,8 +82,58 @@ export function claimSource(id: string, source: string): void {
 
 export function resetForPath(pathname: string, group: ServiceGroup | null, detail: string): void {
   if (state.pathname === pathname) return;
-  state = empty(pathname, group, detail);
+  state = restore(pathname) ?? empty(pathname, group, detail);
   emit();
+}
+
+/* ------------------------------ persistence ------------------------------ */
+
+// Describing a job can take days: people go looking for the tilstandsrapport,
+// photos, measurements. So what they typed survives a reload, a closed tab and
+// a dead battery, and step 2 never folds itself back up. Photos are File
+// objects and cannot be stored, so they are the one thing that does not return.
+const KEY = "holstrup_lead_draft";
+const MAX_AGE_MS = 14 * 24 * 60 * 60 * 1000;
+
+type Stored = Pick<LeadState, "pathname" | "name" | "phone" | "email" | "message" | "group" | "detail" | "customerType" | "expandedId" | "leadSource" | "partialSent"> & { savedAt: number };
+
+function save(): void {
+  if (typeof window === "undefined") return;
+  const { pathname, name, phone, email, message, group, detail, customerType, expandedId, leadSource, partialSent } = state;
+  if (!name && !phone && !email && !message) return;
+  try {
+    const payload: Stored = { pathname, name, phone, email, message, group, detail, customerType, expandedId, leadSource, partialSent, savedAt: Date.now() };
+    window.localStorage.setItem(KEY, JSON.stringify(payload));
+  } catch {
+    // Private mode or a full quota: the form still works, it just forgets.
+  }
+}
+
+function restore(pathname: string): LeadState | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(KEY);
+    if (!raw) return null;
+    const stored = JSON.parse(raw) as Stored;
+    if (stored.pathname !== pathname) return null;
+    if (!stored.savedAt || Date.now() - stored.savedAt > MAX_AGE_MS) {
+      window.localStorage.removeItem(KEY);
+      return null;
+    }
+    return { ...empty(pathname, stored.group, stored.detail), ...stored, photos: [], photoError: null, touched: {}, activeId: null, pendingScroll: null, status: "idle", serverMessage: "", done: false };
+  } catch {
+    return null;
+  }
+}
+
+/** Called when the lead is sent, so the next visitor on this browser starts clean. */
+export function clearSaved(): void {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.removeItem(KEY);
+  } catch {
+    /* ignore */
+  }
 }
 
 function subscribe(listener: () => void): () => void {
