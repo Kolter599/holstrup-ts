@@ -1,6 +1,10 @@
 @import "tailwindcss";
 
 @theme {
+  /* The page was boxed at 1280px on every screen; on a 1440+ display that left
+     wide empty gutters. One token, so every `max-w-7xl` on the site widens. */
+  --container-7xl: 88rem;
+
   --color-bg: #ffffff;
   --color-surface: #f6f5f2;
   --color-surface-2: #ecebe6;

@@ -85,7 +85,7 @@ export default async function CityPage({ params }: { params: Params }) {
 
       {/* HERO */}
       <section className="pt-10 pb-16 md:pt-16 md:pb-24 border-b border-[color:var(--color-line)]">
-        <div className="mx-auto max-w-7xl px-6 md:px-10 grid md:grid-cols-12 gap-10 md:gap-16 items-end">
+        <div className="mx-auto max-w-7xl px-6 md:px-10 xl:px-16 grid md:grid-cols-12 gap-10 md:gap-16 items-end">
           <div className="md:col-span-8">
             <div className="eyebrow-accent mb-6">
               {area.tier === "coast" ? "KYSTBYER · SOMMERHUS & VILLA" : "FREDERIKSSUND-BÆLTET · NORDSJÆLLAND"}
@@ -119,7 +119,7 @@ export default async function CityPage({ params }: { params: Params }) {
 
       {/* PITCH */}
       <section className="py-24 md:py-36">
-        <div className="mx-auto max-w-7xl px-6 md:px-10 grid md:grid-cols-12 gap-12 md:gap-20">
+        <div className="mx-auto max-w-7xl px-6 md:px-10 xl:px-16 grid md:grid-cols-12 gap-12 md:gap-20">
           <div className="md:col-span-5 md:order-2 md:sticky md:top-32 self-start">
             <div className="eyebrow-accent mb-4">Lokal tømrer</div>
             <h2 className="display-lg">{content.pitch.split(".")[0]}.</h2>
@@ -147,7 +147,7 @@ export default async function CityPage({ params }: { params: Params }) {
           title={<>Mest efterspurgte i <span style={{ color: "var(--color-blue)" }}>{area.name}</span>.</>}
           intro="Det vi typisk bliver kaldt ud til lokalt — vurderet ud fra det vi laver i området."
         />
-        <div className="mx-auto max-w-7xl px-6 md:px-10">
+        <div className="mx-auto max-w-7xl px-6 md:px-10 xl:px-16">
           <div className="grid md:grid-cols-3 gap-px bg-[color:var(--color-line)] border border-[color:var(--color-line)]">
             {popular.map((s, i) => {
               const c = SERVICE_CONTENT[s.slug];
@@ -172,7 +172,7 @@ export default async function CityPage({ params }: { params: Params }) {
 
       {/* NABO-OMRÅDER */}
       <section className="py-20 md:py-28 border-t border-[color:var(--color-line)]">
-        <div className="mx-auto max-w-7xl px-6 md:px-10">
+        <div className="mx-auto max-w-7xl px-6 md:px-10 xl:px-16">
           <div className="eyebrow-accent mb-6">Vi arbejder også i</div>
           <div className="flex flex-wrap gap-3">
             {neighbors.map((n) => (

@@ -64,7 +64,7 @@ export default async function ServicePage({ params }: { params: Params }) {
 
       {/* HERO */}
       <section className="pt-10 pb-16 md:pt-16 md:pb-24 border-b border-[color:var(--color-line)]">
-        <div className="mx-auto max-w-7xl px-6 md:px-10 grid md:grid-cols-12 gap-10 md:gap-16">
+        <div className="mx-auto max-w-7xl px-6 md:px-10 xl:px-16 grid md:grid-cols-12 gap-10 md:gap-16">
           <div className="md:col-span-7">
             <div className="eyebrow-accent mb-6">YDELSE / {num} · {content.eyebrow.toUpperCase()}</div>
             <h1 className="display-xl">{content.h1}</h1>
@@ -85,7 +85,7 @@ export default async function ServicePage({ params }: { params: Params }) {
 
       {/* INDHOLD */}
       <section className="py-24 md:py-36">
-        <div className="mx-auto max-w-7xl px-6 md:px-10 grid md:grid-cols-12 gap-12 md:gap-12 lg:gap-16">
+        <div className="mx-auto max-w-7xl px-6 md:px-10 xl:px-16 grid md:grid-cols-12 gap-12 md:gap-12 lg:gap-16">
           <aside className="md:col-span-5 md:order-2 md:sticky md:top-32 self-start">
             {/* On phones this lands right after the intro, before the long copy. */}
             <LeadFormAside path={`/ydelser/${svc.slug}`} serviceSlug={svc.slug} />
@@ -123,7 +123,7 @@ export default async function ServicePage({ params }: { params: Params }) {
           eyebrow="RELATEREDE YDELSER"
           title={<>Opgaver vi ofte <span style={{ color: "var(--color-blue)" }}>kombinerer</span>.</>}
         />
-        <div className="mx-auto max-w-7xl px-6 md:px-10">
+        <div className="mx-auto max-w-7xl px-6 md:px-10 xl:px-16">
           <div className="grid md:grid-cols-3 gap-px bg-[color:var(--color-line)] border border-[color:var(--color-line)]">
             {related.map((r) => {
               const c = SERVICE_CONTENT[r.slug];
