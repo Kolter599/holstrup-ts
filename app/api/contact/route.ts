@@ -3,6 +3,7 @@ import { put } from "@vercel/blob";
 import { sql, hasDb } from "@/lib/db";
 import { hasUsableEmail, hasUsablePhone } from "@/lib/lead-rules";
 import { buildLeadHtml, buildLeadText, sendLeadMail, submitSubject } from "@/lib/lead-mail";
+import { pushAlert } from "@/lib/alert";
 
 export const runtime = "nodejs";
 
@@ -169,20 +170,29 @@ export async function POST(req: Request) {
     replyTo: email,
     attachments: attachments.map((a) => ({ filename: a.filename, content: a.content })),
   });
-  if (error) console.error("[holstrup/contact] mail failed", error);
-
   // Always record the outcome on the row we just wrote. A failure here leaves
   // email_sent = false, which the hourly cron picks up and retries.
   if (leadId && hasDb && sql) {
     try {
       await sql`
         UPDATE holstrup_leads
-        SET email_sent = ${sent}, email_error = ${error}, updated_at = NOW()
+        SET email_sent = ${sent},
+            email_error = ${error},
+            email_error_at = ${error ? new Date().toISOString() : null},
+            updated_at = NOW()
         WHERE id = ${leadId};
       `;
     } catch (e) {
       console.error("[holstrup/contact] could not record mail outcome", e);
     }
+  }
+
+  // Mail is the thing that just broke, so the alert must not travel by mail.
+  if (error) {
+    console.error("[holstrup/contact] mail failed", error);
+    await pushAlert(
+      `mail til ${name || phone} kunne ikke sendes (${error.slice(0, 200)}). Ring ${phone}.`,
+    );
   }
 
   if (!sent && !leadId) {

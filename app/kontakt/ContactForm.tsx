@@ -9,6 +9,8 @@ type Audience = "privat" | "erhverv";
 type CallTime = "asap" | "formiddag" | "eftermiddag" | "aften";
 
 const SESSION_KEY = "holstrup_visitor_id";
+/** Grace period between "they moved on" and the alert, so Send wins the race. */
+const PARTIAL_DELAY_MS = 10_000;
 
 const CALL_TIMES: Array<{ value: CallTime; label: string }> = [
   { value: "asap", label: "Hurtigst muligt" },
@@ -89,8 +91,49 @@ export function ContactForm() {
     }
   }, []);
 
-  // If they gave us something to call them on but leave before pressing Send,
-  // fire a one-shot beacon so Finn still gets the warm lead. Server dedupes.
+  // The moment we can reach them, the lead is real — we don't wait for Send,
+  // and we don't rely on an unload beacon (mobile Safari drops those, which is
+  // why only 1 of 9 abandoned drafts ever raised an alert). As soon as they
+  // move on from the phone/email field, a normal fetch goes out. The short
+  // delay only exists so someone who presses Send right away doesn't trigger
+  // both mails; submit() cancels it. The server dedupes per session either way.
+  const partialTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  function partialPayload(): string {
+    const s = snapshotRef.current;
+    return JSON.stringify({
+      sessionId: sessionIdRef.current,
+      name: s.name,
+      email: s.email,
+      phone: s.phone,
+      city: s.city,
+      service: serviceForDraft(s.audience, s.service),
+      message: composeMessage(s),
+    });
+  }
+
+  function reachable(): boolean {
+    const s = snapshotRef.current;
+    return phoneOk(s.phone) || emailOk(s.email);
+  }
+
+  /** Called when they leave a contact field or touch any other control. */
+  function movedOn() {
+    if (partialSentRef.current || partialTimerRef.current) return;
+    if (!sessionIdRef.current || !reachable()) return;
+    partialTimerRef.current = setTimeout(() => {
+      if (partialSentRef.current) return;
+      partialSentRef.current = true;
+      void fetch("/api/contact-partial", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: partialPayload(),
+        keepalive: true,
+      }).catch(() => {});
+    }, PARTIAL_DELAY_MS);
+  }
+
+  // Backup for the visitor who closes the tab without touching anything else.
   useEffect(() => {
     function notifyIfAbandoned() {
       if (partialSentRef.current) return;
@@ -99,16 +142,10 @@ export function ContactForm() {
       if (!phoneOk(s.phone) && !emailOk(s.email)) return;
       if (!sessionIdRef.current || typeof navigator === "undefined" || !navigator.sendBeacon) return;
       partialSentRef.current = true;
-      const payload = JSON.stringify({
-        sessionId: sessionIdRef.current,
-        name: s.name,
-        email: s.email,
-        phone: s.phone,
-        city: s.city,
-        service: serviceForDraft(s.audience, s.service),
-        message: composeMessage(s),
-      });
-      navigator.sendBeacon("/api/contact-partial", new Blob([payload], { type: "application/json" }));
+      navigator.sendBeacon(
+        "/api/contact-partial",
+        new Blob([partialPayload()], { type: "application/json" }),
+      );
     }
     function onVisibility() {
       if (document.visibilityState === "hidden") notifyIfAbandoned();
@@ -119,6 +156,7 @@ export function ContactForm() {
       window.removeEventListener("pagehide", notifyIfAbandoned);
       document.removeEventListener("visibilitychange", onVisibility);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Autosave every keystroke path to holstrup_leads, so a partial is captured
@@ -156,6 +194,9 @@ export function ContactForm() {
     e.preventDefault();
     setTouched((t) => ({ ...t, phone: true }));
     if (!canSubmit) return;
+    // They are sending for real — no "næsten færdig" alert on top of it.
+    if (partialTimerRef.current) clearTimeout(partialTimerRef.current);
+    partialSentRef.current = true;
     setStatus("sending");
     setServerMessage("");
 
@@ -219,7 +260,10 @@ export function ContactForm() {
             autoComplete="tel"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
-            onBlur={() => setTouched((t) => ({ ...t, phone: true }))}
+            onBlur={() => {
+              setTouched((t) => ({ ...t, phone: true }));
+              movedOn();
+            }}
             placeholder="20 40 60 80"
             aria-invalid={Boolean(phoneError)}
             aria-describedby={phoneError ? "phone-error" : undefined}
@@ -244,6 +288,7 @@ export function ContactForm() {
             id="name"
             name="name"
             autoComplete="name"
+            onFocus={movedOn}
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Fornavn"
@@ -261,7 +306,10 @@ export function ContactForm() {
               <Chip
                 key={t.value}
                 active={callTime === t.value}
-                onClick={() => setCallTime(t.value)}
+                onClick={() => {
+                  setCallTime(t.value);
+                  movedOn();
+                }}
                 label={t.label}
               />
             ))}
@@ -287,7 +335,10 @@ export function ContactForm() {
               <Chip
                 key={t.value}
                 active={service === t.value}
-                onClick={() => setService(service === t.value ? "" : t.value)}
+                onClick={() => {
+                  setService(service === t.value ? "" : t.value);
+                  movedOn();
+                }}
                 label={t.label}
                 icon={t.icon}
               />
@@ -306,7 +357,10 @@ export function ContactForm() {
                 label="E-mail"
                 value={email}
                 onChange={setEmail}
-                onBlur={() => setTouched((t) => ({ ...t, email: true }))}
+                onBlur={() => {
+                  setTouched((t) => ({ ...t, email: true }));
+                  movedOn();
+                }}
                 type="email"
                 inputMode="email"
                 autoComplete="email"
@@ -329,7 +383,10 @@ export function ContactForm() {
         ) : (
           <button
             type="button"
-            onClick={() => setShowMore(true)}
+            onClick={() => {
+              setShowMore(true);
+              movedOn();
+            }}
             className="text-sm font-medium text-[color:var(--color-blue)] hover:underline"
           >
             + Tilføj e-mail, by eller en kort beskrivelse

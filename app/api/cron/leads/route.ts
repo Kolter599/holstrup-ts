@@ -13,6 +13,7 @@ import {
 } from "@/lib/lead-mail";
 import { notifyPartial } from "@/lib/lead-notify";
 import { isPartialNotifiable, isReminderDue } from "@/lib/lead-rules";
+import { pushAlert } from "@/lib/alert";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -73,6 +74,7 @@ async function retryFailedSubmits(): Promise<number> {
   `) as Row[];
 
   let count = 0;
+  const stuck: Row[] = [];
   for (const row of rows) {
     const fields = toFields(row);
     const { sent, error } = await sendLeadMail({
@@ -83,11 +85,26 @@ async function retryFailedSubmits(): Promise<number> {
     });
     await sql`
       UPDATE holstrup_leads
-      SET email_sent = ${sent}, email_error = ${error}, updated_at = NOW()
+      SET email_sent = ${sent},
+          email_error = ${error},
+          email_error_at = ${error ? new Date().toISOString() : null},
+          updated_at = NOW()
       WHERE id = ${row.id};
     `;
-    if (sent) count++;
-    else console.error("[holstrup/cron] retry failed", row.id, error);
+    if (sent) {
+      count++;
+    } else {
+      console.error("[holstrup/cron] retry failed", row.id, error);
+      // Older than an hour and still not out: mail is not going to save us.
+      if (Date.now() - new Date(row.created_at).getTime() > 60 * 60 * 1000) stuck.push(row);
+    }
+  }
+
+  if (stuck.length > 0) {
+    const names = stuck.map((r) => `${r.name || "?"} ${r.phone || ""}`.trim()).join(", ");
+    await pushAlert(
+      `${stuck.length} lead${stuck.length === 1 ? "" : "s"} har ikke kunnet sendes på mail i over en time: ${names}`,
+    );
   }
   return count;
 }

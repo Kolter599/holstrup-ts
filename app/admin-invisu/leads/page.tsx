@@ -2,6 +2,13 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { sql, hasDb } from "@/lib/db";
+import {
+  buildLeadHtml,
+  buildLeadText,
+  forwardTo,
+  sendLeadMail,
+  submitSubject,
+} from "@/lib/lead-mail";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -28,6 +35,8 @@ type LeadRow = {
   email_error: string | null;
   status: string;
   notes: string | null;
+  email_error_at: string | null;
+  forwarded_at: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -87,6 +96,49 @@ async function setStatusAction(formData: FormData) {
   revalidatePath(PATH);
 }
 
+async function forwardAction(formData: FormData) {
+  "use server";
+  await requireAdmin();
+  const id = String(formData.get("id") ?? "");
+  if (!id || !hasDb || !sql) return;
+
+  const rows = (await sql`
+    SELECT name, email, phone, city, service, message, photo_count
+    FROM holstrup_leads WHERE id = ${id};
+  `) as Array<{
+    name: string | null;
+    email: string | null;
+    phone: string | null;
+    city: string | null;
+    service: string | null;
+    message: string | null;
+    photo_count: number;
+  }>;
+  const r = rows[0];
+  if (!r) return;
+
+  const fields = {
+    name: (r.name ?? "").trim(),
+    email: (r.email ?? "").trim(),
+    phone: (r.phone ?? "").trim(),
+    city: (r.city ?? "").trim(),
+    service: (r.service ?? "").trim(),
+    message: (r.message ?? "").trim(),
+    photoCount: r.photo_count ?? 0,
+  };
+  const { sent } = await sendLeadMail({
+    to: forwardTo(),
+    subject: submitSubject(fields),
+    html: buildLeadHtml("forward", fields),
+    text: buildLeadText("forward", fields),
+    replyTo: fields.email,
+  });
+  if (sent) {
+    await sql`UPDATE holstrup_leads SET forwarded_at = NOW(), updated_at = NOW() WHERE id = ${id};`;
+  }
+  revalidatePath(PATH);
+}
+
 async function saveNoteAction(formData: FormData) {
   "use server";
   await requireAdmin();
@@ -114,6 +166,7 @@ export default async function AdminLeads({
   let totalSubmitted = 0;
   let totalDrafts = 0;
   let unhandled = 0;
+  let unsent = 0;
 
   if (!hasDb || !sql) {
     error = "DATABASE_URL ikke sat — provision Neon og redeploy.";
@@ -158,13 +211,21 @@ export default async function AdminLeads({
           COUNT(*) FILTER (WHERE submitted = TRUE)::int AS total_submitted,
           COUNT(*) FILTER (WHERE submitted = FALSE)::int AS total_drafts,
           COUNT(*) FILTER (WHERE submitted = TRUE AND status = 'new')::int AS unhandled,
+          COUNT(*) FILTER (WHERE submitted = TRUE AND email_sent = FALSE)::int AS unsent,
           COUNT(*) FILTER (WHERE created_at > NOW() - INTERVAL '7 days')::int AS last_7d
         FROM holstrup_leads;
-      `) as Array<{ total_submitted: number; total_drafts: number; unhandled: number; last_7d: number }>;
+      `) as Array<{
+        total_submitted: number;
+        total_drafts: number;
+        unhandled: number;
+        unsent: number;
+        last_7d: number;
+      }>;
       last7d = counts[0]?.last_7d ?? 0;
       totalSubmitted = counts[0]?.total_submitted ?? 0;
       totalDrafts = counts[0]?.total_drafts ?? 0;
       unhandled = counts[0]?.unhandled ?? 0;
+      unsent = counts[0]?.unsent ?? 0;
     } catch (e) {
       error = `DB-fejl: ${(e as Error).message}`;
     }
@@ -199,6 +260,19 @@ export default async function AdminLeads({
       {error ? (
         <div className="mt-6 rounded-[12px] border border-rose-300 bg-rose-50 p-4 text-[14px] text-rose-900">
           {error}
+        </div>
+      ) : null}
+
+      {/* Mail er det, der kan være i stykker — så det skal stå her, ikke i en mail. */}
+      {unsent > 0 ? (
+        <div className="mt-6 rounded-[12px] border-2 border-rose-500 bg-rose-50 p-4 text-rose-900">
+          <p className="text-[15px] font-semibold">
+            {unsent} lead{unsent === 1 ? "" : "s"} kunne ikke sendes på mail
+          </p>
+          <p className="mt-1 text-[13.5px]">
+            Oplysningerne er gemt — ring til dem nedenfor. Cron forsøger igen hver time; hold øje
+            med fejlteksten på den enkelte henvendelse.
+          </p>
         </div>
       ) : null}
 
@@ -301,6 +375,14 @@ export default async function AdminLeads({
                         className="rounded-full bg-rose-100 px-2 py-0.5 text-[11px] text-rose-800"
                       >
                         mail ikke sendt
+                        {r.email_error_at
+                          ? ` · ${new Date(r.email_error_at).toLocaleString("da-DK")}`
+                          : ""}
+                      </span>
+                    ) : null}
+                    {r.forwarded_at ? (
+                      <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] text-emerald-800">
+                        sendt til Finn
                       </span>
                     ) : null}
                     {r.photo_count > 0 ? (
@@ -367,8 +449,24 @@ export default async function AdminLeads({
                 </ul>
               ) : null}
 
+              {r.email_error ? (
+                <p className="mt-3 rounded-[10px] bg-rose-50 p-3 font-mono text-[12px] text-rose-900">
+                  {r.email_error}
+                </p>
+              ) : null}
+
               {r.submitted ? (
                 <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-[#ece5d2] pt-4">
+                  <form action={forwardAction}>
+                    <input type="hidden" name="id" value={r.id} />
+                    <button
+                      type="submit"
+                      className="rounded-full bg-[#1347a6] px-3.5 py-1.5 text-[12.5px] font-medium text-white hover:opacity-90"
+                    >
+                      {r.forwarded_at ? "Send til Finn igen" : "Videresend til Finn"}
+                    </button>
+                  </form>
+                  <span className="mx-1 h-4 w-px bg-[#dbd0b9]" aria-hidden />
                   {STATUSES.map((s) => (
                     <form key={s.key} action={setStatusAction}>
                       <input type="hidden" name="id" value={r.id} />

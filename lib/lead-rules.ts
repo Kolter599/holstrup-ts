@@ -30,21 +30,13 @@ export function isReachable(f: LeadFields): boolean {
 }
 
 /**
- * Do we know anything at all about who they are or what they want? A phone
- * number on its own could be a typo; a phone number plus a name, a city, a
- * chosen service or a half-written message is a warm lead.
- */
-export function hasJobContext(f: LeadFields): boolean {
-  const filled = (v?: string | null) => Boolean(v && v.trim().length >= 2);
-  return filled(f.name) || filled(f.city) || filled(f.service) || filled(f.message);
-}
-
-/**
- * Whether an abandoned draft is worth mailing Finn about. Deliberately loose:
- * an abandoned draft with a phone number beats a perfect form nobody sent.
+ * Whether an unfinished draft is worth a mail. A way to reach them is the
+ * whole bar — no name, no city, no chosen service required. A number we can
+ * ring beats a perfect form nobody sent, and the owner would rather ring one
+ * wrong number than miss one real customer.
  */
 export function isPartialNotifiable(f: LeadFields): boolean {
-  return isReachable(f) && hasJobContext(f);
+  return isReachable(f);
 }
 
 /** A submitted lead whose notification never made it out. */

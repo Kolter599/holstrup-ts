@@ -31,12 +31,17 @@ Set these in Vercel / `.env.local`:
 
 ```
 RESEND_API_KEY=
-CONTACT_FROM_EMAIL=kontakt@holstrup-ts.dk
-CONTACT_TO_EMAIL=finn@holstrup-ts.dk
-DATABASE_URL=                 # Neon — uden den gemmes leads ikke
-BLOB_READ_WRITE_TOKEN=        # Vercel Blob — billeder
-CRON_SECRET=                  # bearer-token til /api/cron/leads
+CONTACT_TO_EMAIL=sebastian@invisu.dk   # alle leads lander her først
+FORWARD_TO_EMAIL=finn@holstrup-ts.dk   # "Videresend til Finn" i admin
+DATABASE_URL=                          # Neon — uden den gemmes leads ikke
+BLOB_READ_WRITE_TOKEN=                 # Vercel Blob — billeder
+CRON_SECRET=                           # bearer-token til /api/cron/leads
+ALERT_WEBHOOK_URL=                     # valgfri push når mail fejler
 ```
+
+Leads sendes **kun** til `CONTACT_TO_EMAIL`. Finns adresse bruges udelukkende
+som mål for videresend-knappen i `/admin-invisu/leads` — ingen mail går
+automatisk til klienten.
 
 ## Leads må aldrig gå tabt
 
@@ -54,6 +59,24 @@ mail der fejler eller slet ikke forsøges bliver altså aldrig usynlig.
 ```bash
 npm run check:leads   # reglerne bag punkt 1-3, uden database
 ```
+
+### Når mailen fejler
+
+Mail kan ikke advare om at mail er i stykker, så fejl fanges tre steder:
+
+1. `email_error` + `email_error_at` på selve rækken — aldrig en tavs fejl
+2. et rødt banner øverst i `/admin-invisu/leads` ("N leads kunne ikke sendes")
+3. `ALERT_WEBHOOK_URL` — et plain POST, uafhængigt af Resend
+
+Opsætning af pkt. 3 med [ntfy.sh](https://ntfy.sh), to minutter og gratis:
+
+1. installér ntfy-appen (iOS/Android) og abonnér på et emne du selv finder på,
+   fx `holstrup-leads-<noget-tilfældigt>` — emnenavnet **er** adgangskoden
+2. sæt `ALERT_WEBHOOK_URL=https://ntfy.sh/holstrup-leads-<samme-navn>` i Vercel
+3. test: `curl -d "test" https://ntfy.sh/holstrup-leads-<samme-navn>`
+
+Slack- og Discord-webhooks virker også — de genkendes på URL'en og får JSON i
+stedet for ren tekst. Er variablen ikke sat, kører alt som før, bare uden push.
 
 ## Site structure
 

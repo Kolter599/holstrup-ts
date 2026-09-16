@@ -11,17 +11,16 @@ import {
   needsEmailRetry,
 } from "../lib/lead-rules.ts";
 
-/* --- partial trigger: reachable + anything about the job --- */
+/* --- partial trigger: a way to reach them is the whole bar --- */
 
-// The 7 abandoned drafts that should have woken Finn.
+// The 7 abandoned drafts that should have raised an alert.
 assert.equal(isPartialNotifiable({ phone: "40 17 38 93", name: "Lasse" }), true);
 assert.equal(isPartialNotifiable({ phone: "+4540173893", city: "Hillerød" }), true);
-assert.equal(isPartialNotifiable({ phone: "40173893", service: "Nyt tag" }), true);
-assert.equal(isPartialNotifiable({ email: "a@b.dk", message: "Vi mangler nyt tag" }), true);
+assert.equal(isPartialNotifiable({ phone: "40173893" }), true, "a number on its own is a lead");
+assert.equal(isPartialNotifiable({ email: "a@b.dk" }), true);
 
-// Not worth a mail: no way to reach them, or nothing but a contact detail.
+// Nothing to ring or write to: not a lead, however much else they typed.
 assert.equal(isPartialNotifiable({ name: "Lasse", city: "Hillerød" }), false);
-assert.equal(isPartialNotifiable({ phone: "40173893" }), false);
 assert.equal(isPartialNotifiable({ phone: "401", name: "Lasse" }), false, "too few digits");
 assert.equal(isPartialNotifiable({ email: "ikke-en-mail", name: "Lasse" }), false);
 assert.equal(isPartialNotifiable({}), false);

@@ -1,6 +1,6 @@
 import { Resend } from "resend";
 
-// One place that knows how a mail to Finn looks and how it gets sent. Every
+// One place that knows how a lead mail looks and how it gets sent. Every
 // caller (submit, abandoned draft, cron retry, daily reminder) goes through
 // sendLeadMail so a failure is always reported back as a string instead of
 // disappearing into a console.error.
@@ -8,9 +8,14 @@ import { Resend } from "resend";
 // Same Resend account as Invisu. We can only verify one domain on the free
 // account (invisu.dk), so the From-address is `info@invisu.dk` even for
 // Holstrup mails. Subject + body make it clear the mail belongs to
-// holstrup-ts.dk so Finn doesn't get confused.
+// holstrup-ts.dk.
 const FROM_DEFAULT = "Holstrup TS via Invisu <info@invisu.dk>";
-const TO_FINN = "finn@holstrup-ts.dk";
+
+// Leads land with the bureau first — Sebastian reads them and forwards to Finn
+// himself (one click in /admin-invisu/leads). Finn's address only exists as the
+// forward target, never as a default recipient.
+const TO_DEFAULT = "sebastian@invisu.dk";
+const FORWARD_DEFAULT = "finn@holstrup-ts.dk";
 
 export const NUDGE = "Ring inden for 24 timer — det er der opgaverne vindes.";
 
@@ -33,7 +38,12 @@ export function mailFrom(): string {
 }
 
 export function mailTo(): string {
-  return process.env.CONTACT_TO_EMAIL ?? TO_FINN;
+  return process.env.CONTACT_TO_EMAIL ?? TO_DEFAULT;
+}
+
+/** Where "Videresend til Finn" in the admin sends a lead. */
+export function forwardTo(): string {
+  return process.env.FORWARD_TO_EMAIL ?? FORWARD_DEFAULT;
 }
 
 /**
@@ -45,6 +55,8 @@ export async function sendLeadMail(args: {
   html: string;
   text: string;
   replyTo?: string;
+  /** Defaults to mailTo(); only the admin forward passes something else. */
+  to?: string;
   attachments?: MailAttachment[];
 }): Promise<SendResult> {
   const apiKey = process.env.RESEND_API_KEY;
@@ -55,7 +67,7 @@ export async function sendLeadMail(args: {
     const resend = new Resend(apiKey);
     const result = await resend.emails.send({
       from: mailFrom(),
-      to: mailTo(),
+      to: args.to ?? mailTo(),
       replyTo: args.replyTo || undefined,
       subject: args.subject,
       html: args.html,
@@ -91,18 +103,22 @@ export function partialSubject(f: LeadMail): string {
 
 /* --------------------------------- bodies -------------------------------- */
 
-type Variant = "submit" | "partial";
+type Variant = "submit" | "partial" | "forward";
 
 const COPY: Record<Variant, { title: string; intro: (name: string) => string }> = {
   submit: {
-    title: "Du har fået en ny opgave fra hjemmesiden",
-    intro: (name) =>
-      `Hej Finn — ${name || "en besøgende"} har sendt en henvendelse via holstrup-ts.dk.`,
+    title: "Ny henvendelse fra holstrup-ts.dk",
+    intro: (name) => `${name || "En besøgende"} har sendt en henvendelse via holstrup-ts.dk.`,
   },
   partial: {
-    title: "Nogen begyndte en henvendelse — men nåede ikke at sende",
+    title: "Nogen er i gang med en henvendelse",
     intro: (name) =>
-      `Hej Finn — ${name || "en besøgende"} nåede at give sine kontaktoplysninger på holstrup-ts.dk, men trykkede ikke "Send". Det er et varmt lead.`,
+      `${name || "En besøgende"} har lagt sine kontaktoplysninger på holstrup-ts.dk uden at trykke "Send". Det er et varmt lead.`,
+  },
+  forward: {
+    title: "Ny opgave til dig fra hjemmesiden",
+    intro: (name) =>
+      `Hej Finn — ${name || "en besøgende"} har skrevet via holstrup-ts.dk. Her er deres oplysninger.`,
   },
 };
 
@@ -171,7 +187,7 @@ export function buildReminderHtml(leads: ReminderLead[]): string {
   });
   return shell(
     leads.length === 1 ? "Der ligger stadig en henvendelse og venter" : `Der ligger ${leads.length} henvendelser og venter`,
-    `Hej Finn — disse har stået som "ny" i mere end et døgn. <strong>${escapeHtml(NUDGE)}</strong>`,
+    `Disse har stået som "ny" i mere end et døgn. <strong>${escapeHtml(NUDGE)}</strong>`,
     items,
     `<a href="${escapeHtml(leads[0]?.adminUrl ?? "")}" style="color:#1347a6">Markér dem som kontaktet i oversigten →</a>`,
     "Du får kun denne mail, så længe der ligger ubehandlede henvendelser.",
