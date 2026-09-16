@@ -4,7 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Breadcrumbs } from "../_components/Breadcrumbs";
 import { ContactCta } from "../_components/ContactCta";
-import { LeadFormSection } from "../_components/LeadFormSection";
+import { LeadFormAside, LeadFormSection } from "../_components/LeadFormSection";
 import { Faq } from "../_components/Faq";
 import { ServiceJsonLd } from "../_components/JsonLd";
 import { SectionHeader } from "../_components/SectionHeader";
@@ -120,11 +120,15 @@ export default async function CityPage({ params }: { params: Params }) {
       {/* PITCH */}
       <section className="py-24 md:py-36">
         <div className="mx-auto max-w-7xl px-6 md:px-10 grid md:grid-cols-12 gap-12 md:gap-20">
-          <div className="md:col-span-5">
+          <div className="md:col-span-5 md:order-2 md:sticky md:top-32 self-start">
             <div className="eyebrow-accent mb-4">Lokal tømrer</div>
             <h2 className="display-lg">{content.pitch.split(".")[0]}.</h2>
+            {/* On phones this lands right after the hero, before the long copy. */}
+            <div className="mt-10">
+              <LeadFormAside path={`/${citySlug}`} />
+            </div>
           </div>
-          <div className="md:col-span-7 prose-body">
+          <div className="md:col-span-7 md:order-1 prose-body">
             {content.sections.map((s, i) => (
               <section key={i}>
                 <h2>{s.heading}</h2>
