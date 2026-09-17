@@ -44,9 +44,13 @@ export function needsEmailRetry(row: { submitted: boolean; email_sent: boolean }
   return row.submitted && !row.email_sent;
 }
 
-export const STALE_AFTER_MS = 24 * 60 * 60 * 1000;
+// Four days, and the reminder is sent once per lead — never a daily nag. The
+// status column only moves when someone clicks in the admin panel, so a lead
+// Finn rang days ago still reads as 'new'. A reminder that repeats on that
+// basis is wrong every day after the first, so it gets exactly one shot.
+export const STALE_AFTER_MS = 4 * 24 * 60 * 60 * 1000;
 
-/** Submitted, still untouched by Finn, and older than a day. */
+/** Submitted, still untouched by Finn, and older than four days. */
 export function isStale(
   row: { submitted: boolean; status: string; created_at: string | Date },
   now: Date = new Date(),

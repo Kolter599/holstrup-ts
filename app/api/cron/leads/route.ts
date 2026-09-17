@@ -21,7 +21,8 @@ export const dynamic = "force-dynamic";
 // Hourly safety net so no lead can rot unnoticed:
 //   1. resend the notification for submitted leads whose mail never went out
 //   2. mail Finn about drafts that were abandoned without a description
-//   3. once a day, remind him about leads still sitting at status = 'new'
+//   3. once — and only once — remind him about a lead that has sat at
+//      status = 'new' for four days
 //
 // Protected with CRON_SECRET (Vercel sends it as a bearer token automatically).
 
@@ -143,7 +144,7 @@ async function notifyMissedDrafts(): Promise<number> {
   return count;
 }
 
-/* --------------------- 3. daily "these are still new" --------------------- */
+/* ------------- 3. one reminder per lead, four days after it came ---------- */
 
 async function remindStaleLeads(): Promise<number> {
   if (!sql) return 0;
@@ -158,7 +159,8 @@ async function remindStaleLeads(): Promise<number> {
     FROM holstrup_leads
     WHERE submitted = TRUE
       AND status = 'new'
-      AND created_at < NOW() - INTERVAL '24 hours'
+      AND created_at < NOW() - INTERVAL '4 days'
+      AND reminder_sent_at IS NULL
     ORDER BY created_at ASC
     LIMIT 50;
   `) as Row[];

@@ -37,16 +37,42 @@ assert.equal(needsEmailRetry({ submitted: false, email_sent: false }), false, "d
 const now = new Date("2026-09-16T12:00:00Z");
 const hoursAgo = (h: number) => new Date(now.getTime() - h * 3600_000).toISOString();
 
-assert.equal(isStale({ submitted: true, status: "new", created_at: hoursAgo(25) }, now), true);
-assert.equal(isStale({ submitted: true, status: "new", created_at: hoursAgo(23) }, now), false);
-assert.equal(isStale({ submitted: true, status: "contacted", created_at: hoursAgo(99) }, now), false);
-assert.equal(isStale({ submitted: false, status: "new", created_at: hoursAgo(99) }, now), false);
+// Four days, not one: a lead is not neglected because it is a day old.
+assert.equal(isStale({ submitted: true, status: "new", created_at: hoursAgo(97) }, now), true);
+assert.equal(isStale({ submitted: true, status: "new", created_at: hoursAgo(95) }, now), false);
+assert.equal(
+  isStale({ submitted: true, status: "new", created_at: hoursAgo(25) }, now),
+  false,
+  "a day old is not yet worth a reminder",
+);
+assert.equal(isStale({ submitted: true, status: "contacted", created_at: hoursAgo(999) }, now), false);
+assert.equal(isStale({ submitted: false, status: "new", created_at: hoursAgo(999) }, now), false);
 
-/* --- one reminder per day, and nothing when there is nothing to say --- */
+/* --- one reminder per lead, ever --- */
+
+// The cron's SQL carries this rule (reminder_sent_at IS NULL); these asserts
+// pin the shape it relies on, so a lead already reminded is never picked again.
+const remindable = (row: { reminder_sent_at: string | null; created_at: string }) =>
+  isStale({ submitted: true, status: "new", created_at: row.created_at }, now) &&
+  row.reminder_sent_at === null;
+
+assert.equal(remindable({ reminder_sent_at: null, created_at: hoursAgo(97) }), true);
+assert.equal(
+  remindable({ reminder_sent_at: hoursAgo(24), created_at: hoursAgo(97) }),
+  false,
+  "Lasse was reminded once; he must never be nagged again",
+);
+assert.equal(
+  remindable({ reminder_sent_at: hoursAgo(9999), created_at: hoursAgo(9999) }),
+  false,
+  "one reminder is one reminder, however long ago it was",
+);
+
+/* --- the daily digest still only goes out once a day --- */
 
 assert.equal(isReminderDue(null, now), true, "never reminded before");
 assert.equal(isReminderDue(hoursAgo(25), now), true);
-assert.equal(isReminderDue(hoursAgo(3), now), false, "already nagged today");
+assert.equal(isReminderDue(hoursAgo(3), now), false, "already sent a digest today");
 
 /* --- two placements on one page are one lead --- */
 
