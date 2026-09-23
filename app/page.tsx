@@ -271,9 +271,9 @@ export default function Home() {
               <div className="font-mono text-[11px] uppercase tracking-wider text-[color:var(--color-muted)] mb-4">Kystbyer · Sommerhus & villa</div>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-2.5">
                 {AREAS.filter((a) => a.tier === "coast").map((a) => (
-                  <Link key={a.slug} href={`/tomrer-${a.slug}`} className="font-display font-medium text-base hover:text-[color:var(--color-blue)] transition-colors">
+                  <span key={a.slug} className="font-display font-medium text-base">
                     {a.name} <span className="font-mono text-xs text-[color:var(--color-muted)]">{a.postal}</span>
-                  </Link>
+                  </span>
                 ))}
               </div>
             </div>

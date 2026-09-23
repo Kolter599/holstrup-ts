@@ -237,6 +237,16 @@ export type Service = {
   metaDescription: string;
 };
 
+/**
+ * Byer med egen /tomrer-<by>-side. Kun kerneområdet.
+ *
+ * Kystbyerne havde også sider, men de var skabelontekst 45–60 min. fra
+ * Frederikssund. Google læser 20 næsten ens bysider som tyndt indhold, og
+ * ingen af dem fik ét besøg på 30 dage. Kystbyerne står stadig som tekst
+ * på /omraader; deres gamle URL'er 301'er dertil (next.config.ts).
+ */
+export const CITY_PAGE_AREAS = AREAS.filter((a) => a.tier === "core");
+
 export const SERVICES: Service[] = [
   {
     slug: "tagrenovering",

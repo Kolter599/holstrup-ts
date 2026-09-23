@@ -155,6 +155,10 @@ function Footer() {
           <div className="eyebrow text-white/50 mb-5">Ydelser</div>
           <ul className="space-y-2 text-white/85 text-sm">
             <li><Link href="/ydelser/tagrenovering" className="hover:text-[color:var(--color-accent)]">Tag</Link></li>
+            <li><Link href="/velux-ovenlysvinduer" className="hover:text-[color:var(--color-accent)]">VELUX-vinduer</Link></li>
+            <li><Link href="/velux-udskiftning-pris" className="hover:text-[color:var(--color-accent)]">VELUX-priser</Link></li>
+            <li><Link href="/traeterrasse-frederikssund" className="hover:text-[color:var(--color-accent)]">Terrasse</Link></li>
+            <li><Link href="/guides/haevet-terrasse" className="hover:text-[color:var(--color-accent)]">Hævet terrasse</Link></li>
             <li><Link href="/ydelser/tilbygning" className="hover:text-[color:var(--color-accent)]">Tilbygning</Link></li>
             <li><Link href="/ydelser/totalentreprise" className="hover:text-[color:var(--color-accent)]">Totalentreprise</Link></li>
             <li><Link href="/ydelser/byggeraadgivning" className="hover:text-[color:var(--color-accent)]">Rådgivning</Link></li>

@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { AREAS, SERVICES, SITE } from "@/lib/site";
+import { CITY_PAGE_AREAS, SERVICES, SITE } from "@/lib/site";
 import { getAllPosts } from "@/lib/blog";
 import { LASTMOD } from "@/lib/lastmod";
 
@@ -52,9 +52,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     entry("/guides/haevet-terrasse", "monthly", 0.8),
   ];
 
-  const cities = AREAS.map((a) =>
-    entry(`/tomrer-${a.slug}`, "monthly", a.tier === "core" ? 0.85 : 0.75)
-  );
+  const cities = CITY_PAGE_AREAS.map((a) => entry(`/tomrer-${a.slug}`, "monthly", 0.85));
 
   // Blog hidden from public site for now — exclude from sitemap so Google
   // doesn't index it. Keep getAllPosts() available for when we re-enable it.

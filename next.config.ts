@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { AREAS } from "./lib/site";
 
 const nextConfig: NextConfig = {
   images: {
@@ -18,6 +19,12 @@ const nextConfig: NextConfig = {
         destination: "https://www.holstrup-ts.dk/:path*",
         permanent: true,
       },
+      // Kystbyernes bysider er lukket — se CITY_PAGE_AREAS i lib/site.ts.
+      ...AREAS.filter((a) => a.tier === "coast").map((a) => ({
+        source: `/tomrer-${a.slug}`,
+        destination: "/omraader",
+        permanent: true,
+      })),
     ];
   },
 };

@@ -75,14 +75,13 @@ export default function AreasPage() {
         <div className="mx-auto max-w-7xl px-6 md:px-10">
           <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-px bg-[color:var(--color-line)] border border-[color:var(--color-line)]">
             {coast.map((a) => (
-              <Link key={a.slug} href={`/tomrer-${a.slug}`} className="group h-full bg-white p-7 flex flex-col gap-3 hover:bg-[color:var(--color-surface)] transition-colors">
+              <div key={a.slug} className="h-full bg-white p-7 flex flex-col gap-3">
                 <div className="flex items-center justify-between">
-                  <span className="font-display font-bold text-2xl group-hover:text-[color:var(--color-blue)] transition-colors">{a.name}</span>
+                  <span className="font-display font-bold text-2xl">{a.name}</span>
                   <span className="font-mono text-xs text-[color:var(--color-muted)]">{a.postal}</span>
                 </div>
                 <p className="text-[color:var(--color-ink-soft)] text-sm leading-relaxed">{a.description}</p>
-                <span className="link-arrow mt-auto pt-2">Tømrer {a.name}</span>
-              </Link>
+              </div>
             ))}
           </div>
         </div>
