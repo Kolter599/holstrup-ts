@@ -136,7 +136,7 @@ export const SERVICE_CONTENT: Record<string, ServiceContent> = {
     ],
     faq: [
       { q: "Hvor meget må jeg bygge til?", a: "Afhænger af lokalplan og bebyggelsesprocent — typisk 30% af grunden. Vi tjekker altid de konkrete regler inden vi går videre." },
-      { q: "Hvad koster en tilbygning?", a: "Meget forskelligt — fra omkring 18.000-28.000 kr pr. m² for en simpel tilbygning, op til 35.000+ kr pr. m² ved høj kvalitet, specielle løsninger eller vanskelig adgang." },
+      { q: "Hvad koster en tilbygning?", a: "Typisk 18.000–28.000 kr pr. m² for en simpel tilbygning og 26.000–38.000 kr pr. m² med køkken eller bad. Vi regner altid efter på dit materialevalg og dine ønsker, så se tallene som vejledende spænd." },
       { q: "Kan I også tage arkitektarbejdet?", a: "Vi samarbejder med en fast arkitekt og kan lave en samlet aftale. For mindre tilbygninger laver vi selv tegningsmaterialet." },
     ],
   },

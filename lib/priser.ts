@@ -28,18 +28,13 @@ export function kr(span: PriceSpan): string {
   return `${tal(span.from)}–${tal(span.to)} kr`;
 }
 
-/** {17000, 23000} → "fra 17.000 kr". Til titler og metabeskrivelser. */
-export function krFra(span: PriceSpan): string {
-  return `fra ${tal(span.from)} kr`;
-}
-
 /**
  * Linjen der skal stå under hver eneste pristabel. `set` er det Finn skal se
  * — "taget", "terrassen". Peger videre til handelsbetingelserne, så ingen
  * bliver overrasket over at et tal kan flytte sig.
  */
 export function prisForbehold(set: string): string {
-  return `Spændene her er til at regne efter, men de er ikke et tilbud. Det endelige tal får du når Finn har stået og set ${set} med egne øjne — stand, adgang og det der ligger under overfladen er det der afgør prisen, og det kan man ikke se hjemmefra. Dukker der noget uventet op undervejs, stopper vi og aftaler det med dig først; se handelsbetingelserne.`;
+  return `Alle priser er vejledende spænd, ikke et tilbud. Vi regner altid din opgave igennem ud fra dit materialevalg og dine ønsker, og det endelige tal får du når Finn har stået og set ${set} med egne øjne — stand, adgang og det der ligger under overfladen påvirker også prisen, og det kan man ikke se hjemmefra. Dukker der noget uventet op undervejs, stopper vi og aftaler det med dig først; se handelsbetingelserne.`;
 }
 
 export type PriceRow = {
@@ -211,7 +206,7 @@ export const TAG_TILLAEG: PriceRow[] = [
 
 /**
  * Tilbygning. Ydelsessidens FAQ bærer 18.000–28.000 kr/m² for en simpel
- * tilbygning og 35.000+ ved høj kvalitet; rækkerne her deler det op.
+ * tilbygning og 26.000–38.000 med køkken eller bad; rækkerne her deler det op.
  * ⚠️ Finn skal bekræfte.
  */
 export const TILBYGNING_PRICES: PriceRow[] = [

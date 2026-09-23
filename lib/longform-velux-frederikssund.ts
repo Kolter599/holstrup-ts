@@ -1,5 +1,5 @@
 import { SITE } from "./site";
-import { kr, krFra, prisForbehold, VELUX_EKSTRA, VELUX_PRICES } from "./priser";
+import { kr, prisForbehold, VELUX_EKSTRA, VELUX_PRICES } from "./priser";
 import type { LongformContent } from "./longform";
 
 /**
@@ -24,8 +24,8 @@ export const VELUX_FREDERIKSSUND_CONTENT: LongformContent = {
   intro: `Vores kontor ligger på ${SITE.address.street} i ${SITE.address.city}. Når du ringer om et ovenlysvindue her i byen, er det ikke en tømrer fra den anden side af Sjælland der kommer — det er Finn, og der er ti minutter i bilen. Priser i kroner du kan regne efter, og en montage hvor undertaget bliver åbnet og lavet ordentligt.`,
   hero: "/images/finn-velux.jpg",
   heroAlt: "Finn fra Holstrup TS i gang med et Velux-vinduesparti",
-  metaTitle: `Velux montering Frederikssund – ${krFra(VELUX_PRICES.udskiftningStandard)}`,
-  metaDescription: `Velux ovenlysvinduer i Frederikssund monteret af lokal tømrer. ${krFra(VELUX_PRICES.udskiftningStandard)} inkl. inddækning og lysning, fast pris efter besigtigelse. Ring Finn: ${SITE.phoneDisplay}.`,
+  metaTitle: `Velux montering Frederikssund – ${kr(VELUX_PRICES.udskiftningStandard)}`,
+  metaDescription: `Velux ovenlysvinduer i Frederikssund monteret af lokal tømrer. ${kr(VELUX_PRICES.udskiftningStandard)} inkl. inddækning og lysning, fast pris efter besigtigelse. Ring Finn: ${SITE.phoneDisplay}.`,
   breadcrumb: [
     { name: "Forside", href: "/" },
     { name: "Velux ovenlysvinduer", href: "/velux-ovenlysvinduer" },
@@ -70,7 +70,7 @@ export const VELUX_FREDERIKSSUND_CONTENT: LongformContent = {
           price: kr(VELUX_PRICES.fladtTag),
         },
       ],
-      note: `Inkl. moms, materialer, arbejde, oprydning og bortkørsel. Skal der stillads på, koster det ${krFra(VELUX_EKSTRA.stillads)} — men på de fleste Frederikssund-parcelhuse i halvanden etage er der ikke behov. ${prisForbehold("taget")}`,
+      note: `Inkl. moms, materialer, arbejde, oprydning og bortkørsel. Skal der stillads på, koster det ${kr(VELUX_EKSTRA.stillads)} — men på de fleste Frederikssund-parcelhuse i halvanden etage er der ikke behov. ${prisForbehold("taget")}`,
     },
     {
       kind: "prose",

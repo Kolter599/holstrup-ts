@@ -1,5 +1,5 @@
 import { AREAS, SITE } from "./site";
-import { kr, krFra, prisForbehold, VELUX_EKSTRA, VELUX_PRICES, VELUX_TILLAEG } from "./priser";
+import { kr, prisForbehold, VELUX_EKSTRA, VELUX_PRICES, VELUX_TILLAEG } from "./priser";
 import type { LongformContent } from "./longform";
 
 const TOWNS = AREAS.map((a) => a.name);
@@ -22,7 +22,7 @@ export const VELUX_CONTENT: LongformContent = {
     "Et ovenlysvindue er den billigste måde at få rigtigt dagslys ind i en tagetage. Det er også et af de steder hvor forkert montage koster mest, fordi fejlen først viser sig som en fugtplet på gipsloftet to vintre senere. Vi har sat Velux i tage i Nordsjælland siden 1992. Her står priserne i kroner, så du kender niveauet inden vi kører ud — og du får din faste pris når vi har set taget.",
   hero: "/images/detail-tag-velux.jpg",
   heroAlt: "Velux ovenlysvindue monteret i tegltag",
-  metaTitle: `Velux ovenlysvinduer – fast pris ${krFra(VELUX_PRICES.udskiftningStandard)}`,
+  metaTitle: `Velux ovenlysvinduer – pris ${kr(VELUX_PRICES.udskiftningStandard)}`,
   metaDescription: `Montering og udskiftning af Velux ovenlysvinduer i Frederikssund og Nordsjælland. Priser i kroner, fast pris efter besigtigelse — ikke timeregning. Tømrer siden 1992. Ring Finn: ${SITE.phoneDisplay}.`,
   breadcrumb: [
     { name: "Forside", href: "/" },
@@ -268,7 +268,7 @@ export const VELUX_PRIS_CONTENT: LongformContent = {
       body: [
         "Tagtypen er den største faktor. Et vindue i tegl er den billigste opgave, fordi inddækningen er lavet til netop den profil og stenene kan løftes af og lægges tilbage. Skifer, naturskifer og profilerede plader kræver mere tilpasning. Fladt tag er en helt anden konstruktion og koster derfor dobbelt.",
         "Undertaget er den næststørste, og den man ikke kan se hjemmefra. Er huset fra 70'erne og har en gammel banevare som undertag, smuldrer den typisk når man rører den. Så skal der nyt i omkring vinduet, ellers er der ingen tætning at slutte til. Det er den enkelte post der oftest overrasker folk.",
-        `Adgangen er den tredje. Kan vi nå tagfladen forsvarligt fra en stige, er der intet tillæg. Er tagfladen stejl, facaden høj, eller ligger vinduet over en glasoverdækning, skal der stillads på — og så koster opgaven ${krFra(VELUX_EKSTRA.stillads)} mere.`,
+        `Adgangen er den tredje. Kan vi nå tagfladen forsvarligt fra en stige, er der intet tillæg. Er tagfladen stejl, facaden høj, eller ligger vinduet over en glasoverdækning, skal der stillads på — og så koster opgaven ${kr(VELUX_EKSTRA.stillads)} mere.`,
         "Lysningen er den fjerde, og den fylder mere end folk tror. Er den gamle lysning skæv, fugtskadet eller lavet i krydsfiner der er gået op i lag, skal der bygges ny. Det er tømrerarbejde indvendigt, og det tager tid.",
       ],
     },
@@ -318,7 +318,7 @@ export const VELUX_PRIS_CONTENT: LongformContent = {
     },
     {
       q: "Skal der stillads på?",
-      a: `Kun hvis tagfladen ikke kan nås forsvarligt fra en stige. Det gælder typisk stejle tage, huse i to fulde etager, og vinduer der sidder over en carport eller glasoverdækning. Stillads koster ${krFra(VELUX_EKSTRA.stillads)}. På et almindeligt parcelhus i halvanden etage er der som regel ikke behov.`,
+      a: `Kun hvis tagfladen ikke kan nås forsvarligt fra en stige. Det gælder typisk stejle tage, huse i to fulde etager, og vinduer der sidder over en carport eller glasoverdækning. Stillads koster ${kr(VELUX_EKSTRA.stillads)}. På et almindeligt parcelhus i halvanden etage er der som regel ikke behov.`,
     },
     {
       q: "Hvad koster det at få to eller tre vinduer skiftet på én gang?",

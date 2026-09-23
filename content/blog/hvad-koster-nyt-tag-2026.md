@@ -39,7 +39,7 @@ Hvis taget er 50+ år gammelt, men stadig visuelt i orden, er det tid til at beg
 
 ## Håndværkerfradrag 2026
 
-I 2026 kan du trække op til 25.000 kr fra på håndværkerfradraget for energiforbedrende arbejde — herunder efterisolering af tag. Det er en reel besparelse på 5-9.000 kr for de fleste, hvis du samtidig efterisolerer.
+I 2026 kan du ifølge SKAT trække arbejdslønnen til grøn istandsættelse fra med op til 9.000 kr pr. person om året — herunder efterisolering af tag. Selve udskiftningen af tagbelægningen giver som udgangspunkt ikke fradrag.
 
 ## Hvad gør du nu?
 

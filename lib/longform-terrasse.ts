@@ -55,7 +55,7 @@ export const TERRASSE_FREDERIKSSUND: LongformContent = {
   hero: "/images/service-terrasse.jpg",
   heroAlt: "Nybygget træterrasse i hårdtræ",
   metaTitle: "Træterrasse i Frederikssund – pris pr. m²",
-  metaDescription: `Ny træterrasse i Frederikssund. Priser fra 1.800 kr/m² i fyr til 3.500 kr/m² i hårdtræ. Fast pris, gratis besigtigelse. Tømrer siden 1992. Ring Finn: ${SITE.phoneDisplay}.`,
+  metaDescription: `Ny træterrasse i Frederikssund. Pris 1.800–3.500 kr/m² afhængigt af træsort. Fast pris, gratis besigtigelse. Tømrer siden 1992. Ring Finn: ${SITE.phoneDisplay}.`,
   breadcrumb: [
     { name: "Forside", href: "/" },
     { name: "Træterrasse", href: "/ydelser/traeterrasse" },
@@ -116,7 +116,7 @@ export const TERRASSE_FREDERIKSSUND: LongformContent = {
   faq: [
     {
       q: "Hvad koster en ny træterrasse i Frederikssund?",
-      a: "Fra 1.800 kr/m² i trykimprægneret fyr til 3.500 kr/m² i hårdtræ, inkl. materiale, fundament og montage. En almindelig terrasse på 30 m² i lærk lander derfor typisk mellem 66.000 og 81.000 kr. Trapper, værn og overdækning kommer oveni.",
+      a: "1.800–3.500 kr/m² inkl. materiale, fundament og montage — trykimprægneret fyr i den lave ende, hårdtræ i den høje. En almindelig terrasse på 30 m² i lærk lander derfor typisk mellem 66.000 og 81.000 kr. Trapper, værn og overdækning kommer oveni.",
     },
     {
       q: "Hvor lang tid tager det at bygge terrassen?",
@@ -178,7 +178,7 @@ export const TERRASSE_EGEDAL: LongformContent = {
   hero: "/images/service-terrasse.jpg",
   heroAlt: "Træterrasse bygget til et parcelhus",
   metaTitle: "Træterrasse i Egedal – Stenløse og Ølstykke",
-  metaDescription: `Ny træterrasse i Stenløse, Ølstykke, Slangerup og Jyllinge. Pris fra 1.800 kr/m². Fast pris og gratis besigtigelse. Tømrer siden 1992. Ring Finn: ${SITE.phoneDisplay}.`,
+  metaDescription: `Ny træterrasse i Stenløse, Ølstykke, Slangerup og Jyllinge. Pris 1.800–3.500 kr/m² efter træsort. Fast pris og gratis besigtigelse. Tømrer siden 1992. Ring Finn: ${SITE.phoneDisplay}.`,
   breadcrumb: [
     { name: "Forside", href: "/" },
     { name: "Træterrasse", href: "/ydelser/traeterrasse" },
@@ -239,7 +239,7 @@ export const TERRASSE_EGEDAL: LongformContent = {
   faq: [
     {
       q: "Hvad koster en træterrasse i Stenløse eller Ølstykke?",
-      a: "Fra 1.800 kr/m² i trykimprægneret fyr til 3.500 kr/m² i hårdtræ, inkl. materiale, punktfundament og montage. En terrasse på 30 m² i lærk lander typisk mellem 66.000 og 81.000 kr. Trappe, værn og overdækning prissættes særskilt.",
+      a: "1.800–3.500 kr/m² inkl. materiale, punktfundament og montage — trykimprægneret fyr i den lave ende, hårdtræ i den høje. En terrasse på 30 m² i lærk lander typisk mellem 66.000 og 81.000 kr. Trappe, værn og overdækning prissættes særskilt.",
     },
     {
       q: "Dækker I også Slangerup og Jyllinge?",
