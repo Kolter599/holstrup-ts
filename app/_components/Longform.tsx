@@ -54,11 +54,26 @@ function PriceTable({ block }: { block: Extract<Block, { kind: "prices" }> }) {
   );
 }
 
-function Blocks({ blocks }: { blocks: Block[] }) {
+export function Blocks({ blocks }: { blocks: Block[] }) {
   return (
     <>
       {blocks.map((block, i) => {
         if (block.kind === "prices") return <PriceTable key={i} block={block} />;
+        if (block.kind === "sources") {
+          return (
+            <section key={i}>
+              <h2>{block.heading}</h2>
+              {block.intro && <p>{block.intro}</p>}
+              <ul className="mt-4">
+                {block.items.map((s) => (
+                  <li key={s.href}>
+                    <a href={s.href} target="_blank" rel="noopener">{s.label}</a> — {s.note}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          );
+        }
         if (block.kind === "list") {
           return (
             <section key={i}>

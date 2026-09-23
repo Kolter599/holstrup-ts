@@ -14,6 +14,8 @@ import { PartnerMarquee } from "../../_components/PartnerMarquee";
 import { SERVICES, SITE } from "@/lib/site";
 import { SERVICE_CONTENT } from "@/lib/service-content";
 import { Reviews } from "@/app/_components/Reviews";
+import { Blocks } from "@/app/_components/Longform";
+import { SERVICE_DEEP } from "@/lib/service-deep";
 
 const B2B_SLUGS = new Set(["hovedentreprise", "totalentreprise", "byggeraadgivning"]);
 
@@ -45,6 +47,7 @@ export default async function ServicePage({ params }: { params: Params }) {
   const svc = SERVICES.find((s) => s.slug === slug);
   const content = SERVICE_CONTENT[slug];
   if (!svc || !content) notFound();
+  const deep = SERVICE_DEEP[slug];
 
   const related = SERVICES.filter((s) => s.slug !== svc.slug).slice(0, 3);
   const idx = SERVICES.findIndex((s) => s.slug === svc.slug);
@@ -125,6 +128,7 @@ export default async function ServicePage({ params }: { params: Params }) {
                 <p>{s.body}</p>
               </section>
             ))}
+            {deep && <Blocks blocks={deep.blocks} />}
           </div>
         </div>
       </section>
@@ -169,7 +173,7 @@ export default async function ServicePage({ params }: { params: Params }) {
 
       <CityMarquee variant="light" />
 
-      <Faq number="—" items={content.faq} title={`FAQ — ${svc.title.toLowerCase()}`} />
+      <Faq number="—" items={deep ? [...content.faq, ...deep.faq] : content.faq} title={`FAQ — ${svc.title.toLowerCase()}`} />
 
       <Reviews />
       <LeadFormSection path={`/ydelser/${svc.slug}`} serviceSlug={svc.slug} />

@@ -243,7 +243,7 @@ export const SERVICES: Service[] = [
     title: "Tagrenovering og tagudskiftning",
     shortTitle: "Tag",
     excerpt: "Udskiftning, reparation og isolering af tag — tegltag, stråtag, skifer og tagpap. Vi kan stå for hele processen eller samarbejde med dit eget firma.",
-    metaTitle: "Tagrenovering – fast pris, siden 1992",
+    metaTitle: "Tagrenovering i Nordsjælland – priser pr. m²",
     metaDescription: "Nyt tag eller tagreparation i Nordsjælland. Gratis besigtigelse og fast pris. Vi tjekker undertag, ventilation og inddækning — ikke kun stenene.",
   },
   {
@@ -251,7 +251,7 @@ export const SERVICES: Service[] = [
     title: "Træterrasser og udendørs anlæg",
     shortTitle: "Terrasse",
     excerpt: "Nye terrasser i hårdtræ, trykimprægneret fyr eller komposit. Vi leverer både design, tegning og udførelse — også med overdækning og integrerede plantekasser.",
-    metaTitle: "Træterrasse i Nordsjælland",
+    metaTitle: "Træterrasse i Nordsjælland – pris pr. m²",
     metaDescription: "Nye træterrasser i hårdtræ, fyr eller komposit. Design, tegning og udførelse i Frederikssund, Hillerød og resten af Nordsjælland.",
   },
   {
@@ -259,7 +259,7 @@ export const SERVICES: Service[] = [
     title: "Tilbygning, udestue og kvist",
     shortTitle: "Tilbygning",
     excerpt: "Tilbygning til villa, udestuer, kviste og indretning af tagetage. Vi tager hånd om tegning, byggetilladelse, tømrerarbejde og koordinering af øvrige fag.",
-    metaTitle: "Tilbygning og kvist – fast pris",
+    metaTitle: "Tilbygning i Nordsjælland – priser og regler",
     metaDescription: "Tilbygning, udestue, kvist og indretning af tagetage. Fuld pakke fra tegning til færdigt resultat — tømrer siden 1992 med bygningsmyndigheder.",
   },
   {

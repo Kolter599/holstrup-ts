@@ -134,6 +134,8 @@ body {
   color: var(--color-ink-soft);
 }
 .prose-body li::marker { color: var(--color-blue); }
+.prose-body a { color: var(--color-blue); text-decoration: underline; text-underline-offset: 3px; }
+.prose-body a:hover { color: var(--color-accent); }
 .prose-body blockquote {
   border-left: 3px solid var(--color-accent);
   padding-left: 1.25rem;

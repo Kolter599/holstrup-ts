@@ -13,7 +13,12 @@ import type { PriceRow } from "./priser";
 export type Block =
   | { kind: "prose"; heading: string; body: string[] }
   | { kind: "list"; heading: string; intro?: string; items: string[]; outro?: string }
-  | { kind: "prices"; heading: string; intro?: string; rows: PriceRow[]; note?: string };
+  | { kind: "prices"; heading: string; intro?: string; rows: PriceRow[]; note?: string }
+  /**
+   * Eksterne kilder — BR18, Bolius, SKAT, Arbejdstilsynet. Siden påstår regler
+   * og tal; kilden ved siden af gør den efterprøvelig for både læser og Google.
+   */
+  | { kind: "sources"; heading: string; intro?: string; items: { href: string; label: string; note: string }[] };
 
 export type Crumb = { name: string; href?: string };
 

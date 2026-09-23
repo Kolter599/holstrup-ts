@@ -155,3 +155,89 @@ export const HAEVET_PRICES: PriceRow[] = [
     price: "4.000–8.000 kr",
   },
 ];
+
+/**
+ * Nyt tag, pris pr. m² tagflade inkl. nedtagning, nyt undertag, lægter,
+ * inddækninger, montage og bortskaffelse. ⚠️ Markedsniveau, ikke Holstrups
+ * egne kalkulationer — Finn skal bekræfte. En typisk villa har 150–180 m²
+ * tagflade, så tegl-rækken rammer de 250–350.000 kr ydelsessidens FAQ nævner.
+ */
+export const TAG_PRICES: PriceRow[] = [
+  {
+    label: "Betontagsten",
+    detail: "Billigst af stenene. Tung, så spærene skal kunne bære den.",
+    price: "1.100–1.600 kr/m²",
+  },
+  {
+    label: "Fibercementskifer (eternit uden asbest)",
+    detail: "Let og ens i udtrykket. Klassikeren på 70'er-villaer.",
+    price: "1.200–1.800 kr/m²",
+  },
+  {
+    label: "Teglsten",
+    detail: "Holder længst af de almindelige stentage og klæder de ældre huse.",
+    price: "1.400–2.100 kr/m²",
+  },
+  {
+    label: "Tagpap på fladt tag, to lag",
+    detail: "Inkl. nyt underlag. Kræver fald og korrekt afvanding for at holde.",
+    price: "800–1.300 kr/m²",
+  },
+  {
+    label: "Naturskifer",
+    detail: "Dyrest, og den der holder allerlængst. Kræver en tækker med rutine i skifer.",
+    price: "2.200–3.500 kr/m²",
+  },
+];
+
+/** Tillæg der ofte følger med et nyt tag. ⚠️ Finn skal bekræfte. */
+export const TAG_TILLAEG: PriceRow[] = [
+  {
+    label: "Nedtagning af asbestholdigt tag",
+    detail: "Kun tage fra før ca. 1988. Udføres af en virksomhed med asbestautorisation.",
+    price: "250–450 kr/m²",
+  },
+  {
+    label: "Efterisolering af loftet",
+    detail: "Når taget alligevel er åbent. Arbejdslønnen kan give grønt håndværkerfradrag.",
+    price: "250–450 kr/m²",
+  },
+  {
+    label: "Nye tagrender og nedløb",
+    detail: "Pr. løbende meter, zink eller stål.",
+    price: "450–800 kr/lbm",
+  },
+];
+
+/**
+ * Tilbygning. Ydelsessidens FAQ bærer 18.000–28.000 kr/m² for en simpel
+ * tilbygning og 35.000+ ved høj kvalitet; rækkerne her deler det op.
+ * ⚠️ Finn skal bekræfte.
+ */
+export const TILBYGNING_PRICES: PriceRow[] = [
+  {
+    label: "Tilbygning i ét plan, stue eller værelse",
+    detail: "Nøglefærdig pr. m² inkl. fundament, tag, vinduer og indvendig afslutning.",
+    price: "18.000–28.000 kr/m²",
+  },
+  {
+    label: "Tilbygning med køkken eller bad",
+    detail: "VVS, el og vådrum trækker m²-prisen op.",
+    price: "26.000–38.000 kr/m²",
+  },
+  {
+    label: "Isoleret helårsudestue",
+    detail: "Store glaspartier, isoleret tag og gulv, så den kan bruges hele året.",
+    price: "16.000–26.000 kr/m²",
+  },
+  {
+    label: "Kvist på eksisterende tag",
+    detail: "Pr. kvist inkl. åbning af taget, konstruktion, vindue og inddækning.",
+    price: "90.000–180.000 kr",
+  },
+  {
+    label: "Tegninger og byggeansøgning",
+    detail: "Situationsplan, facader, snit og energiberegning. Afhænger af projektets størrelse.",
+    price: "15.000–40.000 kr",
+  },
+];
