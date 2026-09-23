@@ -10,7 +10,7 @@ import { ServiceJsonLd } from "../_components/JsonLd";
 import { SectionHeader } from "../_components/SectionHeader";
 import { CityMarquee } from "../_components/CityMarquee";
 import { Reveal } from "../_components/Reveal";
-import { AREAS, CITY_PAGE_AREAS, SERVICES, SITE } from "@/lib/site";
+import { AREAS, SERVICES, SITE } from "@/lib/site";
 import { buildCityContent } from "@/lib/city-content";
 import { SERVICE_CONTENT } from "@/lib/service-content";
 import { Reviews } from "@/app/_components/Reviews";
@@ -20,12 +20,12 @@ export const dynamicParams = false;
 type Params = Promise<{ citySlug: string }>;
 
 export async function generateStaticParams() {
-  return CITY_PAGE_AREAS.map((a) => ({ citySlug: `tomrer-${a.slug}` }));
+  return AREAS.map((a) => ({ citySlug: `tomrer-${a.slug}` }));
 }
 
 function areaFromSlug(citySlug: string) {
   const raw = citySlug.replace(/^tomrer-/, "");
-  return CITY_PAGE_AREAS.find((a) => a.slug === raw);
+  return AREAS.find((a) => a.slug === raw);
 }
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {

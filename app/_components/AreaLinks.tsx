@@ -28,7 +28,11 @@ export function AreaLinks({ exclude }: { exclude?: string }) {
             <div className="text-sm font-medium text-[color:var(--color-muted)] mb-4 uppercase tracking-wider">Kystbyer & sommerhus</div>
             <ul className="space-y-2">
               {coast.map((a) => (
-                <li key={a.slug} className="text-lg">Tømrer {a.name}</li>
+                <li key={a.slug}>
+                  <Link href={`/tomrer-${a.slug}`} className="text-lg hover:text-[color:var(--color-blue)]">
+                    Tømrer {a.name}
+                  </Link>
+                </li>
               ))}
             </ul>
           </div>
