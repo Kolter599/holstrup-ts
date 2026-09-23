@@ -14,9 +14,9 @@
 
 export const LASTMOD: Record<string, string> = {
   "/": "2026-09-23",
-  "/blog": "2026-09-16",
+  "/blog": "2026-09-23",
   "/blog/byggeraadgiver-med-fingre-i-traeet": "2026-09-16",
-  "/blog/hvad-koster-nyt-tag-2026": "2026-09-16",
+  "/blog/hvad-koster-nyt-tag-2026": "2026-09-23",
   "/blog/totalentreprise-vs-hovedentreprise": "2026-09-16",
   "/cookies": "2026-04-22",
   "/guides/haevet-terrasse": "2026-09-16",
@@ -60,7 +60,7 @@ export const LASTMOD: Record<string, string> = {
   "/ydelser/renovering": "2026-04-22",
   "/ydelser/sommerhus": "2026-04-22",
   "/ydelser/tagrenovering": "2026-09-23",
-  "/ydelser/tilbygning": "2026-04-22",
+  "/ydelser/tilbygning": "2026-09-23",
   "/ydelser/totalentreprise": "2026-04-22",
   "/ydelser/traeterrasse": "2026-09-16",
 };
