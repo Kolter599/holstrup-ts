@@ -32,10 +32,11 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   const { citySlug } = await params;
   const area = areaFromSlug(citySlug);
   if (!area) return {};
-  // Titel og beskrivelse er det eneste vi styrer i selve søgeresultatet.
-  // Konkurrenterne på side 1 sætter beviser i titlen — stjerner, årstal, priser.
-  // "siden 1992" er vores stærkeste, og det er efterprøveligt.
-  const title = `Tømrer ${area.name} – fast pris, siden 1992`;
+  // Search Console (jun–sep 2026): bysiderne vises mest på "tilbygning <by>",
+  // "tagrenovering <by>" og "renovering <by>" — ofte pos. 4–20 — men titlen
+  // sagde kun "Tømrer <by>". Ydelserne står nu i titlen; "siden 1992" står i
+  // beskrivelsen. Holdt under ~60 tegn inkl. " · Holstrup TS".
+  const title = `Tømrer ${area.name}: tilbygning, tag og renovering`;
 
   // Beskrivelsen var før ordret ens på alle 20 byer med kun navnet skiftet ud.
   // buildingStyle er unikt pr. by, så hvert uddrag i Google bliver forskelligt.
